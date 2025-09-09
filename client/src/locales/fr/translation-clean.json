@@ -19,16 +19,7 @@
     "title": "Connexion Employé",
     "usernameLabel": "Nom d'utilisateur",
     "passwordLabel": "Mot de passe",
-    "loginButton": "Se Connecter",
-    "usernamePlaceholder": "ex., admin ou employé",
-    "passwordPlaceholder": "••••••••",
-    "loggingIn": "Connexion en cours...",
-    "showPassword": "Afficher le mot de passe",
-    "hidePassword": "Masquer le mot de passe",
-    "pageTitle": "Connexion",
-    "alreadyLoggedIn": "Déjà connecté. Redirection en cours...",
-    "copyright": "Tous droits réservés.",
-    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants."
+    "loginButton": "Se Connecter"
   },
   "landing": {
       "headline": "Optimisez Votre Entreprise de Pressing.",

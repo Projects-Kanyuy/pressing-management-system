@@ -19,16 +19,7 @@
     "title": "Connexion Employé",
     "usernameLabel": "Nom d'utilisateur",
     "passwordLabel": "Mot de passe",
-    "loginButton": "Se Connecter",
-    "usernamePlaceholder": "ex., admin ou employé",
-    "passwordPlaceholder": "••••••••",
-    "loggingIn": "Connexion en cours...",
-    "showPassword": "Afficher le mot de passe",
-    "hidePassword": "Masquer le mot de passe",
-    "pageTitle": "Connexion",
-    "alreadyLoggedIn": "Déjà connecté. Redirection en cours...",
-    "copyright": "Tous droits réservés.",
-    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants."
+    "loginButton": "Se Connecter"
   },
   "landing": {
       "headline": "Optimisez Votre Entreprise de Pressing.",
@@ -260,6 +251,90 @@
         "subtitle": "Prêt à prendre le contrôle de votre flux de travail ? Commencez votre essai gratuit et découvrez la différence dès aujourd'hui.",
         "getStartedFree": "Commencer Gratuitement"
       }
+    }
+  },
+  "signup": {
+    "title": "Configurez Votre Entreprise",
+    "stepProgress": "Étape {{current}} sur {{total}}",
+    "finalStep": "Étape Finale : Vérification",
+    "step1": {
+      "title": "Créez Votre Compte Administrateur",
+      "subtitle": "Ce sera votre identifiant personnel pour gérer l'entreprise.",
+      "username": "Nom d'utilisateur*",
+      "email": "E-mail (pour vérification)*",
+      "password": "Mot de passe*",
+      "confirmPassword": "Confirmer le mot de passe*",
+      "nextButton": "Suivant : Infos Entreprise",
+      "errors": {
+        "usernameRequired": "Le nom d'utilisateur et le mot de passe sont requis.",
+        "emailInvalid": "Un e-mail valide est requis pour la vérification.",
+        "passwordLength": "Le mot de passe doit contenir au moins 6 caractères.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
+      }
+    },
+    "step2": {
+      "title": "Parlez-nous de Votre Entreprise",
+      "businessName": "Nom de l'Entreprise*",
+      "businessAddress": "Adresse de l'Entreprise",
+      "businessPhone": "Téléphone de l'Entreprise",
+      "currencySymbol": "Symbole Monétaire*",
+      "nextButton": "Suivant : Configuration Services",
+      "backButton": "Retour",
+      "errors": {
+        "nameRequired": "Le nom de l'entreprise est requis.",
+        "currencyRequired": "Le symbole monétaire est requis."
+      }
+    },
+    "step3": {
+      "title": "Configurez Vos Services et Tarifs",
+      "subtitle": "Définissez ce que vous nettoyez et combien cela coûte. Vous pourrez modifier ceci plus tard dans les paramètres.",
+      "itemTypes": {
+        "title": "Types d'Articles",
+        "placeholder": "ex. Veste, Literie",
+        "addButton": "Ajouter"
+      },
+      "serviceTypes": {
+        "title": "Types de Services",
+        "placeholder": "ex. Retouches",
+        "addButton": "Ajouter"
+      },
+      "pricingGrid": {
+        "header": "Article / Service"
+      },
+      "nextButton": "Suivant : Révision et Finalisation",
+      "backButton": "Retour",
+      "errors": {
+        "itemTypesRequired": "Veuillez ajouter au moins un Type d'Article (ex. Chemise).",
+        "serviceTypesRequired": "Veuillez ajouter au moins un Type de Service (ex. Lavage).",
+        "noPricesConfirm": "Vous n'avez défini aucun prix. Le système utilisera 0 pour tous les services. Êtes-vous sûr de vouloir continuer ?"
+      }
+    },
+    "step4": {
+      "title": "Révision et Confirmation",
+      "subtitle": "Veuillez confirmer tous les détails. Après confirmation, un code de vérification sera envoyé à votre e-mail pour finaliser votre compte.",
+      "adminUsername": "Nom d'utilisateur Admin :",
+      "adminEmail": "E-mail Admin :",
+      "businessName": "Nom de l'Entreprise :",
+      "itemsServices": "Articles/Services Définis :",
+      "itemsServicesCount": "{{items}} articles, {{services}} services, {{prices}} prix définis.",
+      "confirmButton": "Confirmer et Envoyer le Code",
+      "backButton": "Retour"
+    },
+    "step5": {
+      "title": "Vérifiez Votre E-mail",
+      "subtitle": "Un code à 6 chiffres a été envoyé à {{email}}. Il expire dans 15 minutes.",
+      "verificationCode": "Code de Vérification*",
+      "codePlaceholder": "123456",
+      "verifyButton": "Vérifier et Créer le Compte",
+      "backButton": "Retour"
+    },
+    "success": {
+      "message": "Succès ! Compte créé. Vous êtes maintenant redirigé vers votre tableau de bord."
+    },
+    "errors": {
+      "registrationFailed": "Échec du démarrage du processus d'inscription.",
+      "otpInvalid": "Veuillez entrer un code valide à 6 chiffres.",
+      "verificationFailed": "Échec de la vérification. Veuillez vérifier votre code ou revenir en arrière."
     }
   },
   "signup": {

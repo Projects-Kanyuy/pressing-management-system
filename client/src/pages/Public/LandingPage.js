@@ -1,6 +1,7 @@
 // client/src/pages/Public/LandingPage.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BarChart2, Bell, Smartphone, DollarSign, Zap, Users} from 'lucide-react';
 
 const FeatureCard = ({ icon, title, description }) => (
@@ -14,6 +15,8 @@ const FeatureCard = ({ icon, title, description }) => (
 );
 
 const LandingPage = () => {
+    const { t } = useTranslation();
+    
     return (
         <>
             {/* Hero Section */}
@@ -21,17 +24,17 @@ const LandingPage = () => {
                 <div className="container mx-auto px-6">
                     <div className="max-w-3xl mx-auto">
                         <h1 className="text-4xl md:text-6xl font-bold text-apple-gray-900 dark:text-white mb-4 leading-tight">
-                            Streamline Your Laundry Business with <span className="text-apple-blue">PressFlow</span>
+                            {t('public.landing.hero.title')} <span className="text-apple-blue">PressFlow</span>
                         </h1>
                         <p className="text-lg text-apple-gray-600 dark:text-apple-gray-300 mb-8">
-                            The all-in-one management system for order tracking, customer notifications, and payment handling. Spend less time managing, more time growing.
+                            {t('public.landing.hero.subtitle')}
                         </p>
                         <div className="flex justify-center space-x-4">
                             <Link to="/pricing" className="bg-apple-blue text-white px-8 py-3 rounded-apple font-semibold hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-lg">
-                                Get Started for Free
+                                {t('public.landing.hero.getStartedFree')}
                             </Link>
                             <Link to="/features" className="bg-white dark:bg-apple-gray-800 text-apple-blue dark:text-white px-8 py-3 rounded-apple font-semibold hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-transform transform hover:scale-105 shadow-apple-lg">
-                                Learn More
+                                {t('public.landing.hero.learnMore')}
                             </Link>
                         </div>
                     </div>
@@ -42,39 +45,39 @@ const LandingPage = () => {
             <section id="features" className="py-20 bg-white dark:bg-apple-gray-950">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-apple-gray-800 dark:text-white">Everything You Need to Run Your Shop</h2>
-                        <p className="text-md text-apple-gray-500 dark:text-apple-gray-400 mt-2">From drop-off to pickup, PressFlow has you covered.</p>
+                        <h2 className="text-3xl font-bold text-apple-gray-800 dark:text-white">{t('public.landing.features.title')}</h2>
+                        <p className="text-md text-apple-gray-500 dark:text-apple-gray-400 mt-2">{t('public.landing.features.subtitle')}</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <FeatureCard
                             icon={<Zap size={24} className="text-apple-blue" />}
-                            title="Effortless Order Management"
-                            description="Log orders in seconds. Track items, services, quantities, and special instructions with ease. Never lose an order again."
+                            title={t('public.landing.features.orderManagement.title')}
+                            description={t('public.landing.features.orderManagement.description')}
                         />
                         <FeatureCard
                             icon={<Bell size={24} className="text-apple-blue" />}
-                            title="Automated Notifications"
-                            description="Automatically notify customers via Email or SMS/WhatsApp when their orders are ready for pickup, reducing calls and improving satisfaction."
+                            title={t('public.landing.features.notifications.title')}
+                            description={t('public.landing.features.notifications.description')}
                         />
                         <FeatureCard
                             icon={<DollarSign size={24} className="text-apple-blue" />}
-                            title="Simple Payment Tracking"
-                            description="Keep track of payments with a clear view of what's paid, what's due, and apply discounts on the fly."
+                            title={t('public.landing.features.payments.title')}
+                            description={t('public.landing.features.payments.description')}
                         />
                         <FeatureCard
                             icon={<Users size={24} className="text-apple-blue" />}
-                            title="Customer Database"
-                            description="Build a relationship with your customers. View their history and contact information all in one place."
+                            title={t('public.landing.features.customers.title')}
+                            description={t('public.landing.features.customers.description')}
                         />
                         <FeatureCard
                             icon={<BarChart2 size={24} className="text-apple-blue" />}
-                            title="Admin Dashboard"
-                            description="Get a high-level overview of your operations. See key metrics, overdue orders, and manage everything from a central hub."
+                            title={t('public.landing.features.dashboard.title')}
+                            description={t('public.landing.features.dashboard.description')}
                         />
                         <FeatureCard
                             icon={<Smartphone size={24} className="text-apple-blue" />}
-                            title="Desktop & Web Access"
-                            description="Manage your business from anywhere with our web application, and provide a stable desktop experience for your in-store staff."
+                            title={t('public.landing.features.access.title')}
+                            description={t('public.landing.features.access.description')}
                         />
                     </div>
                 </div>
@@ -83,12 +86,12 @@ const LandingPage = () => {
             {/* Call to Action Section */}
             <section className="bg-apple-gray-100 dark:bg-apple-gray-900 py-20">
                 <div className="container mx-auto px-6 text-center">
-                    <h2 className="text-3xl font-bold text-apple-gray-800 dark:text-white">Ready to Modernize Your Business?</h2>
+                    <h2 className="text-3xl font-bold text-apple-gray-800 dark:text-white">{t('public.landing.cta.title')}</h2>
                     <p className="text-lg text-apple-gray-600 dark:text-apple-gray-300 mt-2 mb-8">
-                        Join dozens of other laundry services simplifying their workflow with PressFlow.
+                        {t('public.landing.cta.subtitle')}
                     </p>
                     <Link to="/pricing" className="bg-apple-blue text-white px-10 py-4 rounded-apple font-semibold text-lg hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-xl">
-                        Start Your Free Trial
+                        {t('public.landing.cta.startTrial')}
                     </Link>
                 </div>
             </section>
