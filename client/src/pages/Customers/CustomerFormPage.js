@@ -1,6 +1,7 @@
 // client/src/pages/Customers/CustomerFormPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
     fetchCustomerById,
     createNewCustomer,
@@ -15,6 +16,7 @@ import { UserPlus, Edit3, Save, ArrowLeft, AlertTriangle, CheckCircle2 } from 'l
 const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
     const { id } = useParams(); // For edit mode
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -44,7 +46,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
                         address: data.address || '',
                     });
                 } catch (err) {
-                    setError(err.response?.data?.message || `Failed to fetch customer data for ID: ${id}.`);
+                    setError(err.response?.data?.message || t('customerForm.messages.fetchFailed', { id }));
                     console.error("Fetch Customer Error (Edit):", err);
                 } finally {
                     setLoading(false);
@@ -68,7 +70,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
         setSuccess('');
 
         if (!formData.name || !formData.phone) {
-            setError('Customer name and phone number are required.');
+            setError(t('customerForm.validation.namePhoneRequired'));
             setSaving(false);
             return;
         }
@@ -76,15 +78,18 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
         try {
             if (isEditMode) {
                 const { data: updatedCustomer } = await updateExistingCustomer(id, formData);
-                setSuccess(`Customer "${updatedCustomer.name}" updated successfully!`);
+                setSuccess(t('customerForm.messages.updateSuccess', { name: updatedCustomer.name }));
             } else {
                 const { data: newCustomer } = await createNewCustomer(formData);
-                setSuccess(`Customer "${newCustomer.name}" created successfully!`);
+                setSuccess(t('customerForm.messages.createSuccess', { name: newCustomer.name }));
                 // Optionally navigate to customer list or details after creation
                 setTimeout(() => navigate('/customers'), 1500); // Redirect after a short delay
             }
         } catch (err) {
-            setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} customer.`);
+            const errorMessage = isEditMode 
+                ? t('customerForm.messages.updateFailed')
+                : t('customerForm.messages.createFailed');
+            setError(err.response?.data?.message || errorMessage);
             console.error("Customer Form Submit Error:", err);
         } finally {
             setSaving(false);
@@ -107,7 +112,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
                     <AlertTriangle size={48} className="mx-auto text-apple-red mb-4" />
                     <p className="text-xl text-apple-red">{error}</p>
                     <Link to="/customers">
-                        <Button variant="secondary" className="mt-6">Back to Customers</Button>
+                        <Button variant="secondary" className="mt-6">{t('customerForm.backToCustomers')}</Button>
                     </Link>
                 </Card>
             </div>
@@ -123,7 +128,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
                 </Link>
                 {isEditMode ? <Edit3 size={28} className="text-apple-blue" /> : <UserPlus size={28} className="text-apple-blue" />}
                 <h1 className="text-2xl sm:text-3xl font-semibold">
-                    {isEditMode ? 'Edit Customer' : 'Add New Customer'}
+                    {isEditMode ? t('customerForm.editTitle') : t('customerForm.addTitle')}
                 </h1>
             </div>
 
@@ -141,47 +146,47 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
             <Card>
                 <form onSubmit={handleSubmit} className="space-y-6 p-2 sm:p-0"> {/* No Card padding if form has its own */}
                     <Input
-                        label="Full Name"
+                        label={t('customerForm.form.fullName')}
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        placeholder="Enter customer's full name"
+                        placeholder={t('customerForm.form.namePlaceholder')}
                     />
                     <Input
-                        label="Phone Number"
+                        label={t('customerForm.form.phoneNumber')}
                         id="phone"
                         name="phone"
                         type="tel"
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        placeholder="e.g., 555-123-4567"
+                        placeholder={t('customerForm.form.phonePlaceholder')}
                     />
                     <Input
-                        label="Email Address (Optional)"
+                        label={t('customerForm.form.emailAddress')}
                         id="email"
                         name="email"
                         type="email"
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="customer@example.com"
+                        placeholder={t('customerForm.form.emailPlaceholder')}
                     />
                     <Input
-                        label="Address (Optional)"
+                        label={t('customerForm.form.address')}
                         id="address"
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        placeholder="123 Main St, City, State"
+                        placeholder={t('customerForm.form.addressPlaceholder')}
                     />
                     <div className="flex justify-end space-x-3 pt-4">
                         <Button type="button" variant="secondary" onClick={() => navigate('/customers')} disabled={saving}>
-                            Cancel
+                            {t('customerForm.actions.cancel')}
                         </Button>
                         <Button type="submit" variant="primary" isLoading={saving} iconLeft={<Save size={16} />}>
-                            {isEditMode ? 'Save Changes' : 'Create Customer'}
+                            {isEditMode ? t('customerForm.actions.saveChanges') : t('customerForm.actions.createCustomer')}
                         </Button>
                     </div>
                 </form>

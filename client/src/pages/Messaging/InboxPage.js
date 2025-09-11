@@ -1,6 +1,7 @@
 // client/src/pages/Messaging/InboxPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { fetchInboundMessagesApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -34,6 +35,7 @@ const MessageItem = ({ message }) => (
 
 
 const InboxPage = () => {
+    const { t } = useTranslation();
     const [messages, setMessages] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, pages: 1, totalMessages: 0 });
     const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const InboxPage = () => {
                 totalMessages: data.totalMessages,
             });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch messages.');
+            setError(err.response?.data?.message || t('inbox.error'));
             console.error("Fetch Inbox Error:", err);
         } finally {
             setLoading(false);
@@ -67,10 +69,10 @@ const InboxPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center space-x-3">
                     <Inbox size={28} className="text-apple-blue" />
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Customer Messages</h1>
+                    <h1 className="text-2xl sm:text-3xl font-semibold">{t('inbox.title')}</h1>
                 </div>
                 <Button variant="secondary" onClick={() => loadMessages(pagination.page)} isLoading={loading} iconLeft={<RefreshCw size={16} />}>
-                    Refresh
+                    {t('inbox.refresh')}
                 </Button>
             </div>
 
@@ -86,8 +88,8 @@ const InboxPage = () => {
                 ) : messages.length === 0 ? (
                     <div className="p-8 text-center text-apple-gray-500 dark:text-apple-gray-400">
                         <MessageSquare size={48} className="mx-auto mb-4" />
-                        <h3 className="font-semibold text-lg">Your inbox is empty.</h3>
-                        <p className="text-sm mt-1">When customers message your business number, their messages will appear here.</p>
+                        <h3 className="font-semibold text-lg">{t('inbox.emptyTitle')}</h3>
+                        <p className="text-sm mt-1">{t('inbox.emptyDescription')}</p>
                     </div>
                 ) : (
                     <ul>
@@ -99,10 +101,14 @@ const InboxPage = () => {
                  {/* Pagination Controls */}
                 {pagination.pages > 1 && (
                     <div className="p-4 border-t border-apple-gray-200 dark:border-apple-gray-700 flex justify-between items-center text-sm">
-                        <span>Page {pagination.page} of {pagination.pages} ({pagination.totalMessages} total)</span>
+                        <span>{t('inbox.pagination.pageInfo', { 
+                            currentPage: pagination.page, 
+                            totalPages: pagination.pages, 
+                            totalMessages: pagination.totalMessages 
+                        })}</span>
                         <div className="space-x-2">
-                            <Button onClick={() => loadMessages(pagination.page - 1)} disabled={pagination.page <= 1 || loading} variant="secondary" size="sm">Previous</Button>
-                            <Button onClick={() => loadMessages(pagination.page + 1)} disabled={pagination.page >= pagination.pages || loading} variant="secondary" size="sm">Next</Button>
+                            <Button onClick={() => loadMessages(pagination.page - 1)} disabled={pagination.page <= 1 || loading} variant="secondary" size="sm">{t('inbox.pagination.previous')}</Button>
+                            <Button onClick={() => loadMessages(pagination.page + 1)} disabled={pagination.page >= pagination.pages || loading} variant="secondary" size="sm">{t('inbox.pagination.next')}</Button>
                         </div>
                     </div>
                 )}

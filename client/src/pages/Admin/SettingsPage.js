@@ -1,5 +1,6 @@
 // client/src/pages/Admin/SettingsPage.js
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchAppSettings, updateAppSettingsApi, getMyTenantProfileApi, updateMyTenantProfileApi, uploadTenantLogoApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Input from '../../components/UI/Input';
@@ -8,6 +9,7 @@ import Spinner from '../../components/UI/Spinner';
 import Select from '../../components/UI/Select'; 
 import { Save, Settings as SettingsIcon, AlertTriangle, CheckCircle2, UploadCloud } from 'lucide-react';
 const PublicProfileManager = () => {
+    const { t } = useTranslation();
     const [profile, setProfile] = useState({
         name: '', publicAddress: '', publicPhone: '', publicEmail: '',
         city: '', country: '', description: '', logoUrl: '', logoCloudinaryId: '', // Added logoCloudinaryId
@@ -31,7 +33,7 @@ const PublicProfileManager = () => {
                 setProfile(data);
                 setLogoPreview(data.logoUrl || ''); // Set initial logo preview
             } catch (err) {
-                setError("Failed to load public profile data.");
+                setError(t('settings.publicProfile.loadError'));
                 console.error("Load Tenant Profile Error:", err);
             } finally {
                 setLoading(false);
@@ -51,7 +53,7 @@ const PublicProfileManager = () => {
         if (!file) return;
 
         if (file.size > 2 * 1024 * 1024) { // 2MB limit
-            setError("Image file must be under 2MB.");
+            setError(t('settings.publicProfile.logoError'));
             return;
         }
 
@@ -73,7 +75,7 @@ const PublicProfileManager = () => {
             }));
         } catch (err) {
             console.error("Logo upload failed:", err);
-            setError(err.response?.data?.message || "Logo upload failed. Please try again.");
+            setError(err.response?.data?.message || t('settings.publicProfile.logoUploadError'));
             setLogoPreview(profile.logoUrl || ''); // Revert preview to the last saved logo on failure
         } finally {
             setIsUploading(false);
@@ -89,9 +91,9 @@ const PublicProfileManager = () => {
             const { data } = await updateMyTenantProfileApi(profile);
             setProfile(data); // Re-sync state with saved data
             setLogoPreview(data.logoUrl || ''); // Update preview with confirmed URL
-            setSuccess("Public profile updated successfully!");
+            setSuccess(t('settings.publicProfile.saveSuccess'));
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to save profile.");
+            setError(err.response?.data?.message || t('settings.publicProfile.saveError'));
             console.error("Save Tenant Profile Error:", err);
         } finally {
             setSaving(false);
@@ -104,31 +106,31 @@ const PublicProfileManager = () => {
     // if (error && !loading) return ...
 
     return (
-        <Card title="Public Directory Profile" className="mb-8 shadow-apple-md">
+        <Card title={t('settings.publicProfile.title')} className="mb-8 shadow-apple-md">
             <form onSubmit={handleSubmit}>
                 <div className="p-4 space-y-4">
                     {success && <p className="p-3 text-sm bg-green-100 text-apple-green rounded-apple flex items-center"><CheckCircle2 size={18} className="mr-2"/>{success}</p>}
                     {error && <p className="p-3 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{error}</p>}
                     <p className="text-sm text-apple-gray-500 dark:text-apple-gray-400">
-                        This information will be visible to the public on the PressFlow Business Directory page.
+                        {t('settings.publicProfile.description')}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <Input label="Public Business Name" id="name" name="name" value={profile.name || ''} onChange={handleChange} disabled helperText="Business name is set during signup and cannot be changed here."/>
-                        <Input label="Public Phone" id="publicPhone" name="publicPhone" value={profile.publicPhone || ''} onChange={handleChange} />
-                        <Input label="Public Email" id="publicEmail" name="publicEmail" type="email" value={profile.publicEmail || ''} onChange={handleChange} />
-                        <Input label="City" id="city" name="city" value={profile.city || ''} onChange={handleChange} />
-                        <Input label="Country" id="country" name="country" value={profile.country || ''} onChange={handleChange} />
+                        <Input label={t('settings.publicProfile.businessName')} id="name" name="name" value={profile.name || ''} onChange={handleChange} disabled helperText={t('settings.publicProfile.businessNameHelper')}/>
+                        <Input label={t('settings.publicProfile.publicPhone')} id="publicPhone" name="publicPhone" value={profile.publicPhone || ''} onChange={handleChange} />
+                        <Input label={t('settings.publicProfile.publicEmail')} id="publicEmail" name="publicEmail" type="email" value={profile.publicEmail || ''} onChange={handleChange} />
+                        <Input label={t('settings.publicProfile.city')} id="city" name="city" value={profile.city || ''} onChange={handleChange} />
+                        <Input label={t('settings.publicProfile.country')} id="country" name="country" value={profile.country || ''} onChange={handleChange} />
                         <div className="md:col-span-2">
-                            <Input label="Public Address" id="publicAddress" name="publicAddress" value={profile.publicAddress || ''} onChange={handleChange} />
+                            <Input label={t('settings.publicProfile.publicAddress')} id="publicAddress" name="publicAddress" value={profile.publicAddress || ''} onChange={handleChange} />
                         </div>
                         <div className="md:col-span-2">
-                            <label htmlFor="description" className="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300">Short Description</label>
-                            <textarea id="description" name="description" rows="3" value={profile.description || ''} onChange={handleChange} className="form-textarea mt-1 block w-full text-black rounded-apple-md" placeholder="A short bio about your business..." />
+                            <label htmlFor="description" className="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300">{t('settings.publicProfile.shortDescription')}</label>
+                            <textarea id="description" name="description" rows="3" value={profile.description || ''} onChange={handleChange} className="form-textarea mt-1 block w-full text-black rounded-apple-md" placeholder={t('settings.publicProfile.descriptionPlaceholder')} />
                         </div>
 
                         {/* --- MODIFIED LOGO SECTION --- */}
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium mb-1">Business Logo</label>
+                            <label className="block text-sm font-medium mb-1">{t('settings.publicProfile.businessLogo')}</label>
                             <div className="mt-1 flex items-center gap-4">
                                 <div className="w-24 h-24 rounded-lg bg-apple-gray-100 dark:bg-apple-gray-800 flex items-center justify-center overflow-hidden">
                                     {isUploading ? <Spinner /> : logoPreview ? (
@@ -145,7 +147,7 @@ const PublicProfileManager = () => {
                                     accept="image/png, image/jpeg, image/webp"
                                 />
                                 <Button type="button" variant="secondary" onClick={() => fileInputRef.current.click()} disabled={isUploading}>
-                                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                                    {isUploading ? t('settings.publicProfile.uploading') : t('settings.publicProfile.uploadImage')}
                                 </Button>
                             </div>
                         </div>
@@ -160,12 +162,12 @@ const PublicProfileManager = () => {
                                 onChange={handleChange}
                                 className="form-checkbox h-5 w-5 text-apple-blue"
                             />
-                            <label htmlFor="isListedInDirectory" className="text-sm font-medium">List my business in the public directory</label>
+                            <label htmlFor="isListedInDirectory" className="text-sm font-medium">{t('settings.publicProfile.listInDirectory')}</label>
                         </div>
                     </div>
                 </div>
                 <div className="flex justify-end p-4 bg-apple-gray-50 dark:bg-apple-gray-800/50 border-t">
-                    <Button type="submit" isLoading={saving} iconLeft={<Save size={16} />}>Save Public Profile</Button>
+                    <Button type="submit" isLoading={saving} iconLeft={<Save size={16} />}>{t('settings.publicProfile.saveProfile')}</Button>
                 </div>
             </form>
         </Card>
@@ -173,6 +175,7 @@ const PublicProfileManager = () => {
 };
 
 const SettingsPage = () => {
+    const { t } = useTranslation();
     const [settings, setSettings] = useState({
         companyInfo: { name: '', address: '', phone: '', logoUrl: '' },
         notificationTemplates: {
@@ -203,7 +206,7 @@ const SettingsPage = () => {
                 preferredNotificationChannel: data.preferredNotificationChannel || prev.preferredNotificationChannel,
             }));
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load settings. Please try again.');
+            setError(err.response?.data?.message || t('settings.messages.loadError'));
             console.error("Load settings error:", err.response || err);
         } finally {
             setLoading(false);
@@ -248,12 +251,12 @@ const SettingsPage = () => {
                     defaultCurrencySymbol: updatedSettingsResponse.defaultCurrencySymbol || prev.defaultCurrencySymbol,
                     preferredNotificationChannel: updatedSettingsResponse.preferredNotificationChannel || prev.preferredNotificationChannel,
                 }));
-                setSuccessMessage('Settings saved successfully!');
+                setSuccessMessage(t('settings.messages.saveSuccess'));
             } else {
-                setError('Received an unexpected response from the server when saving.');
+                setError(t('settings.messages.unexpectedResponse'));
             }
         } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to save settings. Please try again.';
+            const errorMessage = err.response?.data?.message || err.message || t('settings.messages.saveError');
             setError(errorMessage);
             console.error("Save settings error caught:", err.response || err.message || err);
         } finally {
@@ -276,13 +279,13 @@ const SettingsPage = () => {
                 <div className="flex items-center space-x-3 mb-6">
                     <SettingsIcon size={28} className="text-apple-blue" />
                     <h1 className="text-2xl sm:text-3xl font-semibold text-apple-gray-800 dark:text-apple-gray-100">
-                        Application Settings
+                        {t('settings.title')}
                     </h1>
                 </div>
                 <div className="p-4 text-center text-apple-red bg-red-50 dark:bg-red-900/30 rounded-apple border border-red-200 dark:border-red-700">
                     <AlertTriangle size={32} className="mx-auto mb-2" />
                     <p>{error}</p>
-                    <Button onClick={loadSettings} variant="secondary" className="mt-3">Try Again</Button>
+                    <Button onClick={loadSettings} variant="secondary" className="mt-3">{t('settings.actions.tryAgain')}</Button>
                 </div>
             </div>
         );
@@ -292,7 +295,7 @@ const SettingsPage = () => {
             <div className="flex items-center space-x-3 mb-6">
                 <SettingsIcon size={28} className="text-apple-blue" />
                 <h1 className="text-2xl sm:text-3xl font-semibold text-apple-gray-800 dark:text-apple-gray-100">
-                    Application Settings
+                    {t('settings.title')}
                 </h1>
             </div>
              <PublicProfileManager />
@@ -300,45 +303,49 @@ const SettingsPage = () => {
             {error && !successMessage && ( <div className="p-3 mb-4 bg-red-100 text-apple-red rounded-apple border border-red-300 dark:border-red-700 dark:text-red-300 dark:bg-red-900/30"> <div className="flex items-center"><AlertTriangle size={20} className="mr-2 flex-shrink-0" /><span>{error}</span></div> </div> )}
 
             <form onSubmit={handleSubmit}>
-                <Card title="Company Information" className="mb-8 shadow-apple-md">
+                <Card title={t('settings.companyInfo.title')} className="mb-8 shadow-apple-md">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                        <Input label="Company Name" id="companyName" value={settings.companyInfo?.name || ''} onChange={(e) => handleDeepChange(['companyInfo', 'name'], e.target.value)} />
-                        <Input label="Company Phone" id="companyPhone" value={settings.companyInfo?.phone || ''} onChange={(e) => handleDeepChange(['companyInfo', 'phone'], e.target.value)} />
-                        <div className="md:col-span-2"> <Input label="Company Address" id="companyAddress" value={settings.companyInfo?.address || ''} onChange={(e) => handleDeepChange(['companyInfo', 'address'], e.target.value)} /> </div>
-                        <div className="md:col-span-2"> <Input label="Logo URL (for receipts/emails)" id="companyLogoUrl" value={settings.companyInfo?.logoUrl || ''} onChange={(e) => handleDeepChange(['companyInfo', 'logoUrl'], e.target.value)} /> </div>
+                        <Input label={t('settings.companyInfo.companyName')} id="companyName" value={settings.companyInfo?.name || ''} onChange={(e) => handleDeepChange(['companyInfo', 'name'], e.target.value)} />
+                        <Input label={t('settings.companyInfo.companyPhone')} id="companyPhone" value={settings.companyInfo?.phone || ''} onChange={(e) => handleDeepChange(['companyInfo', 'phone'], e.target.value)} />
+                        <div className="md:col-span-2"> <Input label={t('settings.companyInfo.companyAddress')} id="companyAddress" value={settings.companyInfo?.address || ''} onChange={(e) => handleDeepChange(['companyInfo', 'address'], e.target.value)} /> </div>
+                        <div className="md:col-span-2"> <Input label={t('settings.companyInfo.logoUrl')} id="companyLogoUrl" value={settings.companyInfo?.logoUrl || ''} onChange={(e) => handleDeepChange(['companyInfo', 'logoUrl'], e.target.value)} /> </div>
                     </div>
                 </Card>
 
-                <Card title="Notification Templates" className="mb-8 shadow-apple-md">
-                    <Input label="Default Email Subject (General)" id="defaultSubject" value={settings.notificationTemplates?.subject || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'subject'], e.target.value)} className="mb-6" helperText={`Placeholders: {{customerName}}, {{receiptNumber}}, {{companyName}}`} />
+                <Card title={t('settings.notifications.title')} className="mb-8 shadow-apple-md">
+                    <Input label={t('settings.notifications.defaultSubject')} id="defaultSubject" value={settings.notificationTemplates?.subject || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'subject'], e.target.value)} className="mb-6" helperText={t('settings.notifications.subjectHelper')} />
                     <div className="mb-6">
-                        <label htmlFor="readyForPickupBody" className="block text-sm font-medium mb-1">'Ready for Pickup' Email/SMS Body</label>
+                        <label htmlFor="readyForPickupBody" className="block text-sm font-medium mb-1">{t('settings.notifications.readyForPickupBody')}</label>
                         <textarea id="readyForPickupBody" rows="6" className="form-textarea block w-full sm:text-sm" value={settings.notificationTemplates?.readyForPickupBody || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'readyForPickupBody'], e.target.value)} />
-                        <p className="mt-1 text-xs text-apple-gray-500">Placeholders: {`{{customerName}}`}, {`{{receiptNumber}}`}, {`{{companyName}}`}. Use `\n` for new lines.</p>
+                        <p className="mt-1 text-xs text-apple-gray-500">{t('settings.notifications.bodyHelper')}</p>
                     </div>
                     {/* Add more template fields as needed */}
 
-                    <h4 className="text-md font-semibold mt-6 mb-2 border-t pt-4">WhatsApp Template SIDs (Optional)</h4>
-                    <p className="text-xs text-apple-gray-500 mb-4">For production WhatsApp notifications, you must use pre-approved templates from Twilio. Enter the Template SIDs here.</p>
-                    <Input label="'Order Ready' Template SID" id="whatsappOrderReadySid" value={settings.notificationTemplates?.whatsappOrderReadySid || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'whatsappOrderReadySid'], e.target.value)} className="mb-4" helperText="e.g., HX..." />
-                    <Input label="'Manual Reminder' Template SID" id="whatsappManualReminderSid" value={settings.notificationTemplates?.whatsappManualReminderSid || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'whatsappManualReminderSid'], e.target.value)} helperText="e.g., HX..." />
+                    <h4 className="text-md font-semibold mt-6 mb-2 border-t pt-4">{t('settings.notifications.whatsappTemplates')}</h4>
+                    <p className="text-xs text-apple-gray-500 mb-4">{t('settings.notifications.whatsappDescription')}</p>
+                    <Input label={t('settings.notifications.orderReadySid')} id="whatsappOrderReadySid" value={settings.notificationTemplates?.whatsappOrderReadySid || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'whatsappOrderReadySid'], e.target.value)} className="mb-4" helperText={t('settings.notifications.orderReadyHelper')} />
+                    <Input label={t('settings.notifications.manualReminderSid')} id="whatsappManualReminderSid" value={settings.notificationTemplates?.whatsappManualReminderSid || ''} onChange={(e) => handleDeepChange(['notificationTemplates', 'whatsappManualReminderSid'], e.target.value)} helperText={t('settings.notifications.manualReminderHelper')} />
                 </Card>
 
-                <Card title="General Settings" className="mb-8 shadow-apple-md">
-                    <Input label="Default Currency Symbol" id="defaultCurrencySymbol" value={settings.defaultCurrencySymbol || ''} onChange={(e) => setSettings(prev => ({...prev, defaultCurrencySymbol: e.target.value}))} className="max-w-xs" />
+                <Card title={t('settings.general.title')} className="mb-8 shadow-apple-md">
+                    <Input label={t('settings.general.currencySymbol')} id="defaultCurrencySymbol" value={settings.defaultCurrencySymbol || ''} onChange={(e) => setSettings(prev => ({...prev, defaultCurrencySymbol: e.target.value}))} className="max-w-xs" />
                     <Select
-                        label="Preferred Notification Channel"
+                        label={t('settings.general.notificationChannel')}
                         id="preferredNotificationChannel"
                         value={settings.preferredNotificationChannel || 'whatsapp'}
                         onChange={(e) => setSettings(prev => ({...prev, preferredNotificationChannel: e.target.value}))}
-                        options={[ { value: 'whatsapp', label: 'WhatsApp / SMS First' }, { value: 'email', label: 'Email First' }, { value: 'none', label: 'Disable All Notifications' }]}
+                        options={[ 
+                            { value: 'whatsapp', label: t('settings.general.channels.whatsapp') }, 
+                            { value: 'email', label: t('settings.general.channels.email') }, 
+                            { value: 'none', label: t('settings.general.channels.none') }
+                        ]}
                         className="mt-4"
-                        helperText="The system will try this channel first if contact info is available."
+                        helperText={t('settings.general.channelHelper')}
                     />
                 </Card>
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" variant="primary" isLoading={saving} iconLeft={<Save size={18} />}> Save All Settings </Button>
+                    <Button type="submit" variant="primary" isLoading={saving} iconLeft={<Save size={18} />}> {t('settings.actions.saveAll')} </Button>
                 </div>
             </form>
         </div>
