@@ -1,6 +1,7 @@
 // client/src/pages/Reports/DailyPaymentsPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { fetchDailyPaymentsReport } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -10,6 +11,7 @@ import { CreditCard, AlertTriangle, CalendarDays } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 const DailyPaymentsPage = () => {
+    const { t } = useTranslation();
     const [reportData, setReportData] = useState(null);
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [loading, setLoading] = useState(true); // Start true for initial load
@@ -24,7 +26,7 @@ const DailyPaymentsPage = () => {
             const { data } = await fetchDailyPaymentsReport(dateToFetch);
             setReportData(data);
         } catch (err) {
-            setError(err.response?.data?.message || `Failed to fetch payment report for ${dateToFetch}.`);
+            setError(err.response?.data?.message || t('dailyPayments.error', { date: dateToFetch }));
             setReportData(null); // Clear old data on error
         } finally {
             setLoading(false);
@@ -45,7 +47,7 @@ const DailyPaymentsPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center space-x-3">
                     <CreditCard size={28} className="text-apple-blue" />
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Daily Payments Report</h1>
+                    <h1 className="text-2xl sm:text-3xl font-semibold">{t('dailyPayments.title')}</h1>
                 </div>
             </div>
             <Card>
@@ -53,7 +55,7 @@ const DailyPaymentsPage = () => {
                     <div className="flex flex-col sm:flex-row items-end gap-4 max-w-md">
                         <div className="flex-grow w-full">
                             <DatePicker
-                                label="Select Report Date"
+                                label={t('dailyPayments.selectDate')}
                                 id="reportDate"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
@@ -67,7 +69,7 @@ const DailyPaymentsPage = () => {
                                 iconLeft={<CalendarDays size={16} />}
                                 className="w-full"
                             >
-                                Fetch Report
+                                {t('dailyPayments.fetchReport')}
                             </Button>
                         </div>
                     </div>
@@ -77,31 +79,31 @@ const DailyPaymentsPage = () => {
                 {reportData && !loading && (
                     <div className="p-4 space-y-6">
                         <h3 className="text-xl font-semibold text-center">
-                            Report for: {format(parseISO(reportData.date), 'MMMM d, yyyy')}
+                            {t('dailyPayments.reportFor', { date: format(parseISO(reportData.date), 'MMMM d, yyyy') })}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
                             <div className="p-4 bg-apple-gray-100 dark:bg-apple-gray-800 rounded-apple-md">
-                                <p className="text-sm text-apple-gray-500 dark:text-apple-gray-400">Total Amount Collected</p>
+                                <p className="text-sm text-apple-gray-500 dark:text-apple-gray-400">{t('dailyPayments.totalCollected')}</p>
                                 <p className="text-2xl font-bold">{currencySymbol}{reportData.totalAmountCollected.toFixed(2)}</p>
                             </div>
                             <div className="p-4 bg-apple-gray-100 dark:bg-apple-gray-800 rounded-apple-md">
-                                <p className="text-sm text-apple-gray-500 dark:text-apple-gray-400"># of Payment Transactions</p>
+                                <p className="text-sm text-apple-gray-500 dark:text-apple-gray-400">{t('dailyPayments.numberOfTransactions')}</p>
                                 <p className="text-2xl font-bold">{reportData.numberOfTransactions}</p>
                             </div>
                         </div>
                         {reportData.detailedTransactions && reportData.detailedTransactions.length > 0 && (
                             <div className="mt-6">
-                                <h4 className="text-lg font-semibold mb-2">Detailed Transactions:</h4>
+                                <h4 className="text-lg font-semibold mb-2">{t('dailyPayments.detailedTransactions')}</h4>
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-apple-gray-200 dark:divide-apple-gray-700 text-sm">
                                         <thead className="bg-apple-gray-50 dark:bg-apple-gray-800/50">
                                             <tr>
-                                                <th className="px-3 py-2 text-left font-semibold">Payment Time</th>
-                                                <th className="px-3 py-2 text-left font-semibold">Receipt #</th>
-                                                <th className="px-3 py-2 text-left font-semibold">Customer</th>
-                                                <th className="px-3 py-2 text-right font-semibold">Amount Paid</th>
-                                                <th className="px-3 py-2 text-left font-semibold">Method</th>
-                                                <th className="px-3 py-2 text-left font-semibold">Recorded By</th>
+                                                <th className="px-3 py-2 text-left font-semibold">{t('dailyPayments.table.paymentTime')}</th>
+                                                <th className="px-3 py-2 text-left font-semibold">{t('dailyPayments.table.receiptNumber')}</th>
+                                                <th className="px-3 py-2 text-left font-semibold">{t('dailyPayments.table.customer')}</th>
+                                                <th className="px-3 py-2 text-right font-semibold">{t('dailyPayments.table.amountPaid')}</th>
+                                                <th className="px-3 py-2 text-left font-semibold">{t('dailyPayments.table.method')}</th>
+                                                <th className="px-3 py-2 text-left font-semibold">{t('dailyPayments.table.recordedBy')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
@@ -123,7 +125,7 @@ const DailyPaymentsPage = () => {
                             </div>
                         )}
                          {reportData.detailedTransactions.length === 0 && (
-                            <p className="text-center text-sm text-apple-gray-500 py-6">No payment transactions were recorded on this date.</p>
+                            <p className="text-center text-sm text-apple-gray-500 py-6">{t('dailyPayments.noTransactions')}</p>
                          )}
                     </div>
                 )}

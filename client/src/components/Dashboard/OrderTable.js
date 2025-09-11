@@ -1,6 +1,7 @@
 // client/src/components/Dashboard/OrderTable.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { format, parseISO, isPast } from 'date-fns';
 import { useAppSettings } from '../../contexts/SettingsContext'; 
 import {
@@ -16,14 +17,19 @@ import {
 } from 'lucide-react';
 import OrderStatusBadge from './OrderStatusBadge'; 
 const OrderTable = ({ orders }) => {
+    const { t } = useTranslation();
     const { settings } = useAppSettings(); 
+
+    // Helper function to get translated status list
+    const getTranslatableStatuses = () => ['Pending', 'Processing', 'Ready for Pickup'];
+
     if (!orders || orders.length === 0) {
         return (
             <div className="text-center py-10">
                 <Shirt size={48} className="mx-auto text-apple-gray-400 dark:text-apple-gray-500 mb-4" />
-                <p className="text-apple-gray-600 dark:text-apple-gray-400">No orders found.</p>
+                <p className="text-apple-gray-600 dark:text-apple-gray-400">{t('orderTable.noOrders')}</p>
                 <p className="text-sm text-apple-gray-500 dark:text-apple-gray-500 mt-1">
-                    Try adjusting your filters or create a new order.
+                    {t('orderTable.noOrdersSubtext')}
                 </p>
             </div>
         );
@@ -37,14 +43,14 @@ const OrderTable = ({ orders }) => {
             <table className="min-w-full divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
                 <thead className="bg-apple-gray-50 dark:bg-apple-gray-800/50">
                     <tr>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Receipt #</th>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Customer</th>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Drop-off</th>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Pickup Due</th>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Status</th>
-                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Payment</th>
-                        <th scope="col" className="px-4 py-3.5 text-right text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Total ({currencySymbol})</th>
-                        <th scope="col" className="px-4 py-3.5 text-center text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Actions</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.receiptNumber')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.customer')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.dropOff')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.pickupDue')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.status')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.payment')}</th>
+                        <th scope="col" className="px-4 py-3.5 text-right text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.total')} ({currencySymbol})</th>
+                        <th scope="col" className="px-4 py-3.5 text-center text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('orderTable.headers.actions')}</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-apple-gray-200 dark:divide-apple-gray-700 bg-white dark:bg-apple-gray-900">
@@ -59,7 +65,7 @@ const OrderTable = ({ orders }) => {
                                     <Link to={`/app/orders/${order._id}`} className="text-apple-blue hover:text-apple-blue-dark dark:text-apple-blue-light dark:hover:text-apple-blue hover:underline">
                                         {order.receiptNumber}
                                     </Link>
-                                    {isOrderOverdue && <AlertTriangle size={14} className="inline ml-1.5 text-apple-red" title="Overdue"/>}
+                                    {isOrderOverdue && <AlertTriangle size={14} className="inline ml-1.5 text-apple-red" title={t('orderTable.overdue')}/>}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-apple-gray-700 dark:text-apple-gray-300">
                                     {order.customer?.name || 'N/A'}
@@ -77,15 +83,15 @@ const OrderTable = ({ orders }) => {
                                 <td className="px-4 py-3 whitespace-nowrap text-sm">
                                     {order.isFullyPaid ? (
                                         <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-apple-green dark:bg-green-700/30 dark:text-green-300">
-                                            <CheckCircle2 size={14} className="mr-1.5 -ml-0.5"/> Paid
+                                            <CheckCircle2 size={14} className="mr-1.5 -ml-0.5"/> {t('orderTable.paymentStatus.paid')}
                                         </span>
                                     ) : isPartiallyPaid ? (
                                         <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-800/40 dark:text-yellow-300">
-                                         Partially Paid
+                                         {t('orderTable.paymentStatus.partiallyPaid')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-red-100 text-apple-red dark:bg-red-800/40 dark:text-red-300">
-                                            <Clock3 size={14} className="mr-1.5 -ml-0.5"/> Unpaid
+                                            <Clock3 size={14} className="mr-1.5 -ml-0.5"/> {t('orderTable.paymentStatus.unpaid')}
                                         </span>
                                     )}
                                 </td>
@@ -94,16 +100,16 @@ const OrderTable = ({ orders }) => {
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
                                     <div className="flex items-center justify-center space-x-2">
-                                        {!order.isFullyPaid && ['Pending', 'Processing', 'Ready for Pickup'].includes(order.status) && (
+                                        {!order.isFullyPaid && getTranslatableStatuses().includes(order.status) && (
                                             <Link
                                                 to={`/app/orders/${order._id}#paymentAction`} 
                                                 className="text-apple-blue hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300 p-1 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-colors"
-                                                title="Record Payment"
+                                                title={t('orderTable.actions.recordPayment')}
                                             >
-                                                Pay
+                                                {t('orderTable.actions.pay')}
                                             </Link>
                                         )}
-                                        <Link to={`/app/orders/${order._id}`} className="text-apple-gray-500 hover:text-apple-blue dark:text-apple-gray-400 dark:hover:text-apple-blue-light p-1 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-colors" title="View Details">
+                                        <Link to={`/app/orders/${order._id}`} className="text-apple-gray-500 hover:text-apple-blue dark:text-apple-gray-400 dark:hover:text-apple-blue-light p-1 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-colors" title={t('orderTable.actions.viewDetails')}>
                                             <Eye size={18} />
                                         </Link>
                                       {/*<Link to={`/orders/${order._id}/edit`} className="text-apple-gray-500 hover:text-apple-orange dark:text-apple-gray-400 dark:hover:text-orange-400 p-1 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-colors" title="Edit Order">

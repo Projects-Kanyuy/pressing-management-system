@@ -1,5 +1,6 @@
 // client/src/pages/Orders/CreateOrderPage.js
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import CreateOrderForm from '../../components/Orders/CreateOrderForm'; // Path might need adjustment
 import Card from '../../components/UI/Card';
 import { Link } // Keep Link if you have a back button here
@@ -7,6 +8,8 @@ import { Link } // Keep Link if you have a back button here
 import { ArrowLeft } from 'lucide-react';
 
 const CreateOrderPage = () => {
+    const { t } = useTranslation();
+    
     return (
         <div className="space-y-6">
              <div className="flex items-center justify-between mb-6"> {/* Added mb-6 */}
@@ -15,7 +18,7 @@ const CreateOrderPage = () => {
                         <ArrowLeft size={20} />
                     </Link>
                     <h1 className="text-2xl sm:text-3xl font-semibold text-apple-gray-800 dark:text-apple-gray-100">
-                        Create New Order
+                        {t('createOrder.title')}
                     </h1>
                 </div>
             </div>

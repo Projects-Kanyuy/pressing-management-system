@@ -1,5 +1,6 @@
 // client/src/pages/Admin/ManageUsersPage.js
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchUsersApi, createStaffUserApi, updateUserByIdApi, deleteUserApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -11,6 +12,7 @@ import { KeyRound, PlusCircle, Edit, Trash2, AlertTriangle, CheckCircle2 } from 
 import { format, parseISO } from 'date-fns';
 
 const ManageUsersPage = () => {
+    const { t } = useTranslation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -34,7 +36,7 @@ const ManageUsersPage = () => {
             const { data } = await fetchUsersApi();
             setUsers(data);
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to fetch users.");
+            setError(err.response?.data?.message || t('manageUsers.messages.fetchFailed'));
         } finally {
             setLoading(false);
         }
@@ -72,13 +74,13 @@ const ManageUsersPage = () => {
     };
 
     const handleDelete = async (userId, username) => {
-        if (window.confirm(`Are you sure you want to delete user "${username}"? This is irreversible and only works if they have no associated orders.`)) {
+        if (window.confirm(t('manageUsers.actions.deleteConfirm', { username }))) {
             try {
                 await deleteUserApi(userId);
-                setSuccess(`User "${username}" deleted successfully.`);
+                setSuccess(t('manageUsers.messages.deleteSuccess', { username }));
                 loadUsers(); // Refresh list
             } catch (err) {
-                setError(err.response?.data?.message || "Failed to delete user.");
+                setError(err.response?.data?.message || t('manageUsers.messages.deleteFailed'));
             } finally {
                 setTimeout(() => setSuccess(''), 4000);
             }
@@ -93,22 +95,25 @@ const ManageUsersPage = () => {
         const payload = { username, role, isActive };
         if (!isEditing && password) payload.password = password; // Only send password on create
         if (isEditing && password) {
-             alert("Password changes should be handled via a 'Reset Password' feature for security. This form only updates role/status.");
+             alert(t('manageUsers.actions.passwordChangeAlert'));
              // For now, we won't handle password changes here. A separate form would be better.
         }
 
         try {
             if (isEditing) {
                 await updateUserByIdApi(currentUser._id, payload);
-                setSuccess(`User "${username}" updated successfully.`);
+                setSuccess(t('manageUsers.messages.updateSuccess', { username }));
             } else {
                 await createStaffUserApi(payload);
-                setSuccess(`User "${username}" created successfully.`);
+                setSuccess(t('manageUsers.messages.createSuccess', { username }));
             }
             closeModal();
             loadUsers(); // Refresh the list
         } catch (err) {
-            setModalError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} user.`);
+            const errorMessage = isEditing 
+                ? t('manageUsers.messages.updateFailed')
+                : t('manageUsers.messages.createFailed');
+            setModalError(err.response?.data?.message || errorMessage);
         } finally {
             setIsSubmitting(false);
              setTimeout(() => setSuccess(''), 4000);
@@ -121,10 +126,10 @@ const ManageUsersPage = () => {
             <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
                     <KeyRound size={28} className="text-apple-blue" />
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Manage Staff & Admins</h1>
+                    <h1 className="text-2xl sm:text-3xl font-semibold">{t('manageUsers.title')}</h1>
                 </div>
                 <Button variant="primary" onClick={openCreateModal} iconLeft={<PlusCircle size={18} />}>
-                    Add New User
+                    {t('manageUsers.addNewUser')}
                 </Button>
             </div>
             
@@ -137,19 +142,19 @@ const ManageUsersPage = () => {
                         <table className="min-w-full divide-y divide-apple-gray-200">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800">
                                 <tr>
-                                    <th className="px-4 py-3 text-left ...">Username</th>
-                                    <th className="px-4 py-3 text-left ...">Role</th>
-                                    <th className="px-4 py-3 text-left ...">Status</th>
-                                    <th className="px-4 py-3 text-left ...">Created At</th>
-                                    <th className="px-4 py-3 text-center ...">Actions</th>
+                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.username')}</th>
+                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.role')}</th>
+                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.status')}</th>
+                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.createdAt')}</th>
+                                    <th className="px-4 py-3 text-center ...">{t('manageUsers.table.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-apple-gray-900 divide-y divide-apple-gray-200">
                                 {users.map(user => (
                                     <tr key={user._id}>
                                         <td className="px-4 py-3 ...">{user.username}</td>
-                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>{user.role}</span></td>
-                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}>{user.isActive ? 'Active' : 'Disabled'}</span></td>
+                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>{t(`manageUsers.roles.${user.role}`)}</span></td>
+                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}>{user.isActive ? t('manageUsers.status.active') : t('manageUsers.status.disabled')}</span></td>
                                         <td className="px-4 py-3 ...">{format(parseISO(user.createdAt), 'MMM d, yyyy')}</td>
                                         <td className="px-4 py-3 text-center ...">
                                             <div className="flex justify-center space-x-2">
@@ -166,19 +171,19 @@ const ManageUsersPage = () => {
             </Card>
 
             {isModalOpen && (
-                <Modal isOpen={isModalOpen} onClose={closeModal} title={isEditing ? 'Edit User' : 'Create New User'}>
+                <Modal isOpen={isModalOpen} onClose={closeModal} title={isEditing ? t('manageUsers.modal.editTitle') : t('manageUsers.modal.createTitle')}>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {modalError && <p className="p-3 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{modalError}</p>}
-                        <Input label="Username*" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                        <Input label={`Password ${isEditing ? '(leave blank to keep unchanged)' : '*'}`} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required={!isEditing} />
-                        <Select label="Role*" id="role" value={role} onChange={(e) => setRole(e.target.value)} options={[{value: 'staff', label: 'Staff'}, {value: 'admin', label: 'Admin'}]} />
+                        <Input label={t('manageUsers.modal.username')} id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                        <Input label={isEditing ? t('manageUsers.modal.passwordEdit') : t('manageUsers.modal.password')} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required={!isEditing} />
+                        <Select label={t('manageUsers.modal.role')} id="role" value={role} onChange={(e) => setRole(e.target.value)} options={[{value: 'staff', label: t('manageUsers.roles.staff')}, {value: 'admin', label: t('manageUsers.roles.admin')}]} />
                         <div className="flex items-center space-x-2">
                              <input type="checkbox" id="isActive" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="form-checkbox h-4 w-4 rounded text-apple-blue" />
-                             <label htmlFor="isActive" className="text-sm">User is Active</label>
+                             <label htmlFor="isActive" className="text-sm">{t('manageUsers.modal.userIsActive')}</label>
                         </div>
                         <div className="flex justify-end space-x-3 pt-4 border-t border-apple-gray-200">
-                             <Button type="button" variant="secondary" onClick={closeModal} disabled={isSubmitting}>Cancel</Button>
-                             <Button type="submit" variant="primary" isLoading={isSubmitting} disabled={isSubmitting}>{isEditing ? 'Save Changes' : 'Create User'}</Button>
+                             <Button type="button" variant="secondary" onClick={closeModal} disabled={isSubmitting}>{t('manageUsers.modal.cancel')}</Button>
+                             <Button type="submit" variant="primary" isLoading={isSubmitting} disabled={isSubmitting}>{isEditing ? t('manageUsers.modal.saveChanges') : t('manageUsers.modal.createUser')}</Button>
                         </div>
                     </form>
                 </Modal>

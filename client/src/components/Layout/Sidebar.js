@@ -74,19 +74,19 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                             Press<span className="text-apple-blue">Flow</span>
                         </span>
                     </Link>
-                    <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="p-1 lg:hidden" aria-label="Close sidebar">
+                    <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="p-1 lg:hidden" aria-label={t('sidebar.closeSidebar')}>
                         <X size={20} />
                     </Button>
                 </div>
 
                 <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar"> {/* Added custom-scrollbar if you defined it */}
-                     <NavItem to="dashboard" icon={LayoutDashboard} end={true}>Dashboard</NavItem>
-                    <NavItem to="/app/orders/new" icon={PlusCircle}>New Order</NavItem>
+                     <NavItem to="dashboard" icon={LayoutDashboard} end={true}>{t('sidebar.navigation.dashboard')}</NavItem>
+                    <NavItem to="/app/orders/new" icon={PlusCircle}>{t('sidebar.navigation.newOrder')}</NavItem>
 
                     {/* MODIFIED: "Manage Users" is now "Customers" and points to /customers */}
-                    <NavItem to="/app/customers" icon={Users}>Customers</NavItem>
-                    <NavItem to="/app/payments" icon={CreditCard}>Payments</NavItem>
-                    <NavItem to="/app/inbox" icon={Inbox}>Inbox</NavItem>
+                    <NavItem to="/app/customers" icon={Users}>{t('sidebar.navigation.customers')}</NavItem>
+                    <NavItem to="/app/payments" icon={CreditCard}>{t('sidebar.navigation.payments')}</NavItem>
+                    <NavItem to="/app/inbox" icon={Inbox}>{t('sidebar.navigation.inbox')}</NavItem>
                     {/* If you still wanted a placeholder for Payments, it would go here */}
                     {/* <NavItem to="/payments" icon={CreditCard} disabled={true}>Payments (Soon)</NavItem> */}
 
@@ -95,11 +95,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     {user?.role === 'admin' && (
                         <>
                             <div className="pt-4 pb-1 px-3"> {/* Added more top padding */}
-                                <span className="text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Admin Area</span>
+                                <span className="text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('sidebar.admin.title')}</span>
                             </div>
-                            <NavItem to="/app/admin/settings" icon={Settings}>Settings</NavItem>
-                            <NavItem to="/app/admin/users" icon={KeyRound}>Manage Staff</NavItem>
-                            <NavItem to="/app/admin/pricing" icon={Tags}>Services & Pricing</NavItem>
+                            <NavItem to="/app/admin/settings" icon={Settings}>{t('sidebar.admin.settings')}</NavItem>
+                            <NavItem to="/app/admin/users" icon={KeyRound}>{t('sidebar.admin.manageStaff')}</NavItem>
+                            <NavItem to="/app/admin/pricing" icon={Tags}>{t('sidebar.admin.servicesPricing')}</NavItem>
                             {/*<NavItem to="/app/admin/manage-users" icon={Users}>Manage Users</NavItem> */}
                             {/* <NavItem to="/admin-guide/user-management" icon={UsersCog} disabled={true}>Manage Logins (Guide)</NavItem> */}
                         </>

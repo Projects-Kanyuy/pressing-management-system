@@ -1,6 +1,7 @@
 // client/src/pages/Customers/CustomerListPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { fetchCustomers, deleteCustomerApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -10,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext'; // Import useAuth for role
 import { Users, PlusCircle, Search, Edit3, Trash2, Eye, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 const CustomerListPage = () => {
+    const { t } = useTranslation();
     const { user } = useAuth(); // Get user for role-based actions
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ const CustomerListPage = () => {
                 setPagination({ currentPage: 1, totalPages: 1, totalCustomers: 0 });
             }
         } catch (err) {
-            const errMsg = err.response?.data?.message || err.message || 'Failed to fetch customers.';
+            const errMsg = err.response?.data?.message || err.message || t('customers.messages.failedToFetch');
             setError(errMsg);
             console.error("CustomerListPage: Fetch Customers Error:", err);
         } finally {
@@ -82,11 +84,11 @@ const CustomerListPage = () => {
     }, [actionError, actionSuccess]);
 
     const handleDeleteCustomer = async (customerId, customerName) => {
-        if (window.confirm(`Are you sure you want to delete customer "${customerName}"? This may be restricted if they have existing orders.`)) {
+        if (window.confirm(t('customers.messages.deleteConfirm', { customerName }))) {
             setActionError(''); setActionSuccess('');
             try {
                 await deleteCustomerApi(customerId);
-                setActionSuccess(`Customer "${customerName}" deleted successfully.`);
+                setActionSuccess(t('customers.messages.deleteSuccess', { customerName }));
                 // If on the last page with only one item, go back a page
                 if (customers.length === 1 && pagination.currentPage > 1) {
                     handlePageChange(pagination.currentPage - 1);
@@ -94,7 +96,7 @@ const CustomerListPage = () => {
                     loadCustomers(debouncedSearchTerm, pagination.currentPage); // Refresh current page
                 }
             } catch (err) {
-                setActionError(err.response?.data?.message || `Failed to delete customer "${customerName}".`);
+                setActionError(err.response?.data?.message || t('customers.messages.deleteFailed', { customerName }));
             }
         }
     };
@@ -115,14 +117,14 @@ const CustomerListPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center space-x-3">
                     <Users size={28} className="text-apple-blue" />
-                    <h1 className="text-2xl sm:text-3xl font-semibold">Manage Customers</h1>
+                    <h1 className="text-2xl sm:text-3xl font-semibold">{t('customers.title')}</h1>
                 </div>
-                <Link to="/app/customers/new"><Button variant="primary" iconLeft={<PlusCircle size={18} />}>Add New Customer</Button></Link>
+                <Link to="/app/customers/new"><Button variant="primary" iconLeft={<PlusCircle size={18} />}>{t('customers.addNewCustomer')}</Button></Link>
             </div>
 
             <Card>
                 <div className="p-4 border-b border-apple-gray-200 dark:border-apple-gray-700">
-                    <Input id="customerSearch" placeholder="Search by name, phone, or email..." value={searchTerm} onChange={handleSearchChange} prefixIcon={<Search size={16} />} className="mb-0 max-w-sm" />
+                    <Input id="customerSearch" placeholder={t('customers.searchPlaceholder')} value={searchTerm} onChange={handleSearchChange} prefixIcon={<Search size={16} />} className="mb-0 max-w-sm" />
                 </div>
 
                 {actionSuccess && ( <div className="p-3 m-4 text-sm bg-green-100 text-apple-green rounded-apple flex items-center"><CheckCircle2 size={18} className="mr-2"/>{actionSuccess}</div> )}
@@ -134,21 +136,21 @@ const CustomerListPage = () => {
                     ) : error ? (
                         <div className="p-4 text-center text-apple-red bg-red-50 dark:bg-red-900/30 rounded-apple m-4">
                             <AlertTriangle size={24} className="mx-auto mb-2" /> {error}
-                            <Button onClick={() => loadCustomers(searchTerm, pagination.currentPage)} variant="secondary" className="mt-3 ml-2" isLoading={loading}>Try Again</Button>
+                            <Button onClick={() => loadCustomers(searchTerm, pagination.currentPage)} variant="secondary" className="mt-3 ml-2" isLoading={loading}>{t('customers.messages.tryAgain')}</Button>
                         </div>
                     ) : customers.length === 0 ? (
                         <div className="p-6 text-center text-apple-gray-500 dark:text-apple-gray-400">
-                            {searchTerm ? `No customers found matching "${searchTerm}".` : "No customers have been added yet."}
-                            {!searchTerm && <p className="mt-2"><Link to="/app/customers/new" className="text-apple-blue hover:underline">Add the first customer!</Link></p>}
+                            {searchTerm ? t('customers.messages.noCustomersFound', { searchTerm }) : t('customers.messages.noCustomersYet')}
+                            {!searchTerm && <p className="mt-2"><Link to="/app/customers/new" className="text-apple-blue hover:underline">{t('customers.messages.addFirstCustomer')}</Link></p>}
                         </div>
                     ) : (
                         <table className="min-w-full divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800/50">
                                 <tr>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Name</th>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Phone</th>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Email</th>
-                                    <th className="px-4 py-3.5 text-center text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">Actions</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('customers.table.name')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('customers.table.phone')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('customers.table.email')}</th>
+                                    <th className="px-4 py-3.5 text-center text-xs font-semibold text-apple-gray-500 dark:text-apple-gray-400 uppercase tracking-wider">{t('customers.table.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-apple-gray-200 dark:divide-apple-gray-700 bg-white dark:bg-apple-gray-900">
@@ -159,14 +161,14 @@ const CustomerListPage = () => {
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-apple-gray-600 dark:text-apple-gray-300">{customer.email || <span className="italic text-apple-gray-400 dark:text-apple-gray-500">N/A</span>}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
                                             <div className="flex items-center justify-center space-x-2">
-                                                <Link to={`/app/customers/${customer._id}/details`} className="p-1.5 rounded-full hover:bg-apple-gray-200 dark:hover:bg-apple-gray-700" title="View Details">
+                                                <Link to={`/app/customers/${customer._id}/details`} className="p-1.5 rounded-full hover:bg-apple-gray-200 dark:hover:bg-apple-gray-700" title={t('customers.actions.viewDetails')}>
                                                     <Eye size={18} className="text-apple-gray-500 hover:text-apple-blue dark:text-apple-gray-400 dark:hover:text-apple-blue-light" />
                                                 </Link>
-                                                <Link to={`/app/customers/${customer._id}/edit`} className="p-1.5 rounded-full hover:bg-apple-gray-200 dark:hover:bg-apple-gray-700" title="Edit Customer">
+                                                <Link to={`/app/customers/${customer._id}/edit`} className="p-1.5 rounded-full hover:bg-apple-gray-200 dark:hover:bg-apple-gray-700" title={t('customers.actions.editCustomer')}>
                                                     <Edit3 size={18} className="text-apple-gray-500 hover:text-apple-orange dark:text-apple-gray-400 dark:hover:text-orange-400" />
                                                 </Link>
                                                 {user?.role === 'admin' && (
-                                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteCustomer(customer._id, customer.name)} className="p-1.5 text-apple-gray-500 hover:text-apple-red dark:text-apple-gray-400 dark:hover:text-red-400" title="Delete Customer">
+                                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteCustomer(customer._id, customer.name)} className="p-1.5 text-apple-gray-500 hover:text-apple-red dark:text-apple-gray-400 dark:hover:text-red-400" title={t('customers.actions.deleteCustomer')}>
                                                         <Trash2 size={18} />
                                                     </Button>
                                                 )}
@@ -181,11 +183,15 @@ const CustomerListPage = () => {
                 {!loading && !error && pagination.totalPages > 1 && (
                     <div className="p-4 border-t border-apple-gray-200 dark:border-apple-gray-700 flex flex-col sm:flex-row justify-between items-center gap-2">
                         <span className="text-sm text-apple-gray-600 dark:text-apple-gray-400">
-                            Page {pagination.currentPage} of {pagination.totalPages} (Total: {pagination.totalCustomers} customers)
+                            {t('customers.pagination.pageInfo', {
+                                currentPage: pagination.currentPage,
+                                totalPages: pagination.totalPages,
+                                totalCustomers: pagination.totalCustomers
+                            })}
                         </span>
                         <div className="flex space-x-2">
-                            <Button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1 || loading} variant="secondary" size="sm">Previous</Button>
-                            <Button onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages || loading} variant="secondary" size="sm">Next</Button>
+                            <Button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1 || loading} variant="secondary" size="sm">{t('customers.pagination.previous')}</Button>
+                            <Button onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages || loading} variant="secondary" size="sm">{t('customers.pagination.next')}</Button>
                         </div>
                     </div>
                 )}

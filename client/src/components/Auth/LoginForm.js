@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from '../UI/Input';
 import Button from '../UI/Button';
 import { LogIn, Eye, EyeOff } from 'lucide-react'; 
 
 const LoginForm = ({ onSubmit, isLoading, error }) => {
+    const { t } = useTranslation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); 
@@ -21,9 +23,19 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
 
     const passwordIcon = (
         showPassword ? (
-            <EyeOff size={18} onClick={togglePasswordVisibility} className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200" />
+            <EyeOff 
+                size={18} 
+                onClick={togglePasswordVisibility} 
+                className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200"
+                title={t('login.hidePassword')}
+            />
         ) : (
-            <Eye size={18} onClick={togglePasswordVisibility} className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200" />
+            <Eye 
+                size={18} 
+                onClick={togglePasswordVisibility} 
+                className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200"
+                title={t('login.showPassword')}
+            />
         )
     );
 
@@ -35,26 +47,26 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
                 </div>
             )}
             <Input
-                label="Username"
+                label={t('login.usernameLabel')}
                 id="username"
                 name="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required 
-                placeholder="e.g., admin or staff"
+                placeholder={t('login.usernamePlaceholder')}
                 autoComplete="username"
                 disabled={isLoading}
             />
             <Input
-                label="Password"
+                label={t('login.passwordLabel')}
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"} 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
-                placeholder="••••••••"
+                placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
                 disabled={isLoading}
                 suffixIcon={passwordIcon} 
@@ -67,8 +79,9 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
                 disabled={isLoading}
                 iconLeft={<LogIn size={18} />}
             >
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? t('login.loggingIn') : t('login.loginButton')}
             </Button>
+            
         </form>
     );
 };

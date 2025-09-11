@@ -1,6 +1,7 @@
 // client/src/components/Layout/Navbar.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAdminNotifications } from '../../contexts/NotificationContext';
 import {
@@ -8,9 +9,11 @@ import {
     Settings as SettingsIconLucide, XCircle, PlusCircle 
 } from 'lucide-react'; 
 import Button from '../UI/Button';
+import LanguageSwitcher from '../UI/LanguageSwitcher';
 import { formatDistanceToNowStrict, isValid as isValidDate } from 'date-fns';
 
 const Navbar = ({ toggleSidebar, sidebarOpen }) => { 
+    const { t } = useTranslation();
     const { user, logout, isAuthenticated } = useAuth();
     const { notifications, unreadCount, markAsRead, clearAllNotifications, loadingNotifications } = useAdminNotifications();
     const [darkMode, setDarkMode] = useState(() => {
@@ -67,20 +70,22 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
         <header className="sticky top-0 z-40 bg-white/80 dark:bg-apple-gray-900/80 backdrop-blur-apple shadow-apple-sm">
             <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                 <div className="flex items-center">
-                    <Button variant="ghost" size="sm" onClick={toggleSidebar} className="p-1.5 mr-2 lg:hidden" aria-label="Toggle Sidebar">
+                    <Button variant="ghost" size="sm" onClick={toggleSidebar} className="p-1.5 mr-2 lg:hidden" aria-label={t('navbar.toggleSidebar')}>
                         <Menu size={22} />
                     </Button>
                     <Link to="/" className="text-xl font-semibold text-apple-blue dark:text-apple-blue-light hidden sm:block">PressFlow</Link>
                 </div>
 
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                    <Button variant="ghost" size="sm" onClick={toggleDarkMode} className="p-1.5" aria-label="Toggle Dark Mode">
+                    <LanguageSwitcher/>
+                    
+                    <Button variant="ghost" size="sm" onClick={toggleDarkMode} className="p-1.5" aria-label={t('navbar.toggleDarkMode')}>
                         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
                     </Button>
 
                     {isAuthenticated && (
                         <div className="relative" ref={notificationRef}>
-                            <Button variant="ghost" size="sm" onClick={handleBellClick} className="p-1.5" aria-label="View Notifications" aria-expanded={showNotifications}>
+                            <Button variant="ghost" size="sm" onClick={handleBellClick} className="p-1.5" aria-label={t('navbar.viewNotifications')} aria-expanded={showNotifications}>
                                 <Bell size={20} />
                                 {unreadCount > 0 && (
                                     <span className="absolute top-0 right-0 block h-4 w-4 transform -translate-y-1/2 translate-x-1/2">
@@ -94,12 +99,12 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                             {showNotifications && (
                                 <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-xl border border-apple-gray-200 dark:border-apple-gray-700 origin-top-right z-50 max-h-[calc(100vh-100px)] flex flex-col">
                                     <div className="flex justify-between items-center p-3 border-b border-apple-gray-200 dark:border-apple-gray-700">
-                                        <h3 className="font-semibold text-apple-gray-800 dark:text-apple-gray-100">Notifications</h3>
-                                        {notifications.length > 0 && (<Button variant="link" size="sm" onClick={() => { clearAllNotifications(); /* setShowNotifications(false); Optional: keep open */}} className="text-xs">Mark all as read</Button>)}
+                                        <h3 className="font-semibold text-apple-gray-800 dark:text-apple-gray-100">{t('navbar.notifications.title')}</h3>
+                                        {notifications.length > 0 && (<Button variant="link" size="sm" onClick={() => { clearAllNotifications(); /* setShowNotifications(false); Optional: keep open */}} className="text-xs">{t('navbar.notifications.markAllRead')}</Button>)}
                                     </div>
                                     <div className="overflow-y-auto flex-grow custom-scrollbar">
-                                        {loadingNotifications && <div className="p-4 text-center text-sm text-apple-gray-500">Loading...</div>}
-                                        {!loadingNotifications && notifications.length === 0 && (<p className="text-sm text-apple-gray-500 dark:text-apple-gray-400 text-center py-8 px-3">No new notifications.</p>)}
+                                        {loadingNotifications && <div className="p-4 text-center text-sm text-apple-gray-500">{t('navbar.notifications.loading')}</div>}
+                                        {!loadingNotifications && notifications.length === 0 && (<p className="text-sm text-apple-gray-500 dark:text-apple-gray-400 text-center py-8 px-3">{t('navbar.notifications.noNotifications')}</p>)}
                                         {!loadingNotifications && notifications.map(notif => {
                                             const dateToFormat = new Date(notif.timestamp);
                                             const isValidTimestamp = notif.timestamp && isValidDate(dateToFormat);
@@ -121,7 +126,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                                                                 {notif.message}
                                                             </p>
                                                             <p className="text-xs text-apple-gray-500 dark:text-apple-gray-400 mt-0.5">
-                                                                {isValidTimestamp ? formatDistanceToNowStrict(dateToFormat, { addSuffix: true }) : 'Recently'}
+                                                                {isValidTimestamp ? formatDistanceToNowStrict(dateToFormat, { addSuffix: true }) : t('navbar.notifications.recently')}
                                                             </p>
                                                         </div>
                                                         {!notif.read && <span className="ml-2 mt-1 h-2 w-2 bg-apple-blue rounded-full flex-shrink-0"></span>}
@@ -136,7 +141,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                     )}
 
                     <div className="relative" ref={userMenuRef}>
-                         <Button variant="ghost" size="sm" onClick={handleUserMenuClick} className="p-1 flex items-center space-x-1.5" aria-label="Open User Menu" aria-expanded={showUserMenu}>
+                         <Button variant="ghost" size="sm" onClick={handleUserMenuClick} className="p-1 flex items-center space-x-1.5" aria-label={t('navbar.openUserMenu')} aria-expanded={showUserMenu}>
                             {user?.profilePictureUrl ? (
                                 <img src={user.profilePictureUrl} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
                             ) : (
@@ -147,17 +152,17 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                         {showUserMenu && (
                             <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-apple-gray-800 rounded-apple-md shadow-apple-lg py-1 origin-top-right z-50 border border-apple-gray-200 dark:border-apple-gray-700">
                                 <div className="px-4 py-3">
-                                    <p className="text-sm text-apple-gray-700 dark:text-apple-gray-200">Signed in as</p>
+                                    <p className="text-sm text-apple-gray-700 dark:text-apple-gray-200">{t('navbar.userMenu.signedInAs')}</p>
                                     <p className="text-sm font-semibold text-apple-gray-900 dark:text-apple-gray-50 truncate">{user?.username}</p>
-                                    <p className="text-xs text-apple-gray-500 dark:text-apple-gray-400 capitalize">{user?.role} role</p>
+                                    <p className="text-xs text-apple-gray-500 dark:text-apple-gray-400 capitalize">{t('navbar.userMenu.role', { role: user?.role })}</p>
                                 </div>
                                 <div className="border-t border-apple-gray-200 dark:border-apple-gray-700"></div>
                                 <Link to="/app/profile" onClick={() => setShowUserMenu(false)} className="flex items-center w-full text-left px-4 py-2 text-sm text-apple-gray-700 dark:text-apple-gray-200 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50">
-                                    <UserCircle size={16} className="mr-2 text-apple-gray-500"/> My Profile
+                                    <UserCircle size={16} className="mr-2 text-apple-gray-500"/> {t('navbar.userMenu.myProfile')}
                                 </Link>
                                 {user?.role === 'admin' && (
                                 <Link to="/app/admin/settings" onClick={() => setShowUserMenu(false)} className="flex items-center w-full text-left px-4 py-2 text-sm text-apple-gray-700 dark:text-apple-gray-200 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50">
-                                    <SettingsIconLucide size={16} className="mr-2 text-apple-gray-500"/> App Settings
+                                    <SettingsIconLucide size={16} className="mr-2 text-apple-gray-500"/> {t('navbar.userMenu.appSettings')}
                                 </Link>
                                 )}
                                 <div className="border-t border-apple-gray-200 dark:border-apple-gray-700"></div>
@@ -165,7 +170,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                                     onClick={() => { logout(); setShowUserMenu(false); }}
                                     className="w-full text-left flex items-center px-4 py-2 text-sm text-apple-red hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50"
                                 >
-                                    <LogOut size={16} className="mr-2"/> Logout
+                                    <LogOut size={16} className="mr-2"/> {t('navbar.userMenu.logout')}
                                 </button>
                             </div>
                         )}
