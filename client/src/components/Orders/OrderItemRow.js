@@ -1,5 +1,6 @@
 // client/src/components/Orders/OrderItemRow.js
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from '../UI/Input';
 import Select from '../UI/Select';
 import Button from '../UI/Button';
@@ -19,21 +20,22 @@ const OrderItemRow = ({
     const handleFieldChange = (field, value) => {
         onChange(item.id, field, value);
     };
-     const { settings, loadingSettings } = useAppSettings();
+       const { t } = useTranslation();
+  const { settings } = useAppSettings();
     const currencySymbol = settings.defaultCurrencySymbol;
 
     return (
         <div className="p-4 border border-apple-gray-200 dark:border-apple-gray-700 rounded-apple-md shadow-apple-sm bg-apple-gray-50 dark:bg-apple-gray-800/30">
             <div className="flex justify-between items-center mb-3">
-                <h4 className="text-md font-medium text-apple-gray-700 dark:text-apple-gray-300">Item #{index + 1}</h4>
+                <h4 className="text-md font-medium text-apple-gray-700 dark:text-apple-gray-300">{t('orderItemRow.itemNumber', { number: index + 1 })}</h4>
                 <Button
                     type="button"
                     onClick={onRemove}
                     variant="ghost"
                     size="sm"
                     className="text-apple-red hover:bg-red-100/50 dark:hover:bg-red-900/30 p-1 -mr-1 -mt-1"
-                    title="Remove item"
-                    aria-label={`Remove item ${index + 1}`}
+                    title={t('orderItemRow.accessibility.removeItem')}
+                    aria-label={t('orderItemRow.accessibility.removeItemWithNumber', { number: index + 1 })}
                 >
                     <X size={18} />
                 </Button>
@@ -41,31 +43,31 @@ const OrderItemRow = ({
             <div className="grid grid-cols-1 md:grid-cols-12 gap-x-4 gap-y-2 items-end">
                 <div className="md:col-span-3">
                     <Select
-                        label="Item Type*"
+                        label={t('orderItemRow.itemType')}
                         id={`itemType-${item.id}`}
                         value={item.itemType} // This is bound to the state from the parent
                         onChange={(e) => handleFieldChange('itemType', e.target.value)}
                         options={itemTypes.map(type => ({ value: type, label: type }))}
-                        placeholder="Select Item"
+                        placeholder={t('orderItemRow.placeholders.selectItemType')}
                         required
                         className="mb-0"
                     />
                 </div>
                 <div className="md:col-span-3">
                     <Select
-                        label="Service Type*"
+                        label={t('orderItemRow.serviceType')}
                         id={`serviceType-${item.id}`}
                         value={item.serviceType}
                         onChange={(e) => handleFieldChange('serviceType', e.target.value)}
                         options={serviceTypes}
-                        placeholder="Select Service"
+                        placeholder={t('orderItemRow.placeholders.selectServiceType')}
                         required
                         className="mb-0"
                     />
                 </div>
                 <div className="md:col-span-1">
                     <Input
-                        label="Qty*"
+                        label={t('orderItemRow.quantity')}
                         id={`quantity-${item.id}`}
                         type="number"
                         value={item.quantity}
@@ -77,17 +79,17 @@ const OrderItemRow = ({
                 </div>
                 <div className="md:col-span-3">
                      <Input
-                        label="Special Instructions"
+                        label={t('orderItemRow.specialInstructions')}
                         id={`specialInstructions-${item.id}`}
                         value={item.specialInstructions}
                         onChange={(e) => handleFieldChange('specialInstructions', e.target.value)}
-                        placeholder="e.g., No starch"
+                        placeholder={t('orderItemRow.placeholders.specialInstructions')}
                         className="mb-0"
                     />
                 </div>
                 <div className="md:col-span-2">
                     <label htmlFor={`itemPrice-${item.id}`} className="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 ">
-                        Line Price
+                        {t('orderItemRow.linePrice')}
                     </label>
                     <div
                         id={`itemPrice-${item.id}`}

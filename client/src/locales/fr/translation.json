@@ -15,6 +15,34 @@
     },
     "closeSidebar": "Fermer la barre latérale"
   },
+  "orderItemRow": {
+    "itemNumber": "Article #{{number}}",
+    "removeItem": "Supprimer l'article",
+    "removeItemAria": "Supprimer l'article {{number}}",
+    "itemType": "Type d'Article*",
+    "serviceType": "Type de Service*",
+    "quantity": "Qté*",
+    "specialInstructions": "Instructions Spéciales",
+    "linePrice": "Prix Ligne",
+    "selectItem": "Sélectionner l'Article",
+    "selectService": "Sélectionner le Service",
+    "instructionsPlaceholder": "ex: Pas d'amidon",
+    "placeholders": {
+      "selectItemType": "Sélectionner l'Article",
+      "selectServiceType": "Sélectionner le Service",
+      "quantity": "1",
+      "specialInstructions": "ex: Pas d'amidon"
+    },
+    "accessibility": {
+      "itemType": "Sélectionner le type d'article",
+      "serviceType": "Sélectionner le type de service",
+      "quantity": "Saisir la quantité",
+      "specialInstructions": "Instructions spéciales pour cet article",
+      "linePrice": "Total du prix de ligne",
+      "removeItem": "Supprimer l'article",
+      "removeItemWithNumber": "Supprimer l'article {{number}}"
+    }
+  },
   "dashboard": {
     "title": "Tableau de Bord",
     "totalOrders": "Commandes Totales",
@@ -837,6 +865,109 @@
       "wash": "Lavage",
       "ironOnly": "Repassage Seulement",
       "dryClean": "Nettoyage à Sec"
+    }
+  },
+  "navbar": {
+    "toggleSidebar": "Basculer la barre latérale",
+    "toggleDarkMode": "Basculer le mode sombre",
+    "viewNotifications": "Voir les notifications",
+    "openUserMenu": "Ouvrir le menu utilisateur",
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Marquer toutes comme lues",
+      "loading": "Chargement...",
+      "noNotifications": "Aucune nouvelle notification.",
+      "recently": "Récemment"
+    },
+    "userMenu": {
+      "signedInAs": "Connecté en tant que",
+      "role": "Rôle {{role}}",
+      "myProfile": "Mon Profil",
+      "appSettings": "Paramètres de l'App",
+      "logout": "Déconnexion"
+    }
+  },
+  "profile": {
+    "notSet": "Non défini",
+    "userDataNotAvailable": "Données utilisateur non disponibles. Veuillez vous connecter.",
+    "changeProfilePicture": "Changer la photo de profil",
+    "upload": "Télécharger",
+    "cancel": "Annuler",
+    "uploading": "Téléchargement...",
+    "accountInformation": "Informations du Compte",
+    "edit": "Modifier",
+    "username": "Nom d'utilisateur",
+    "role": "Rôle",
+    "saveProfile": "Sauvegarder le Profil",
+    "changePassword": "Changer le Mot de Passe",
+    "currentPassword": "Mot de Passe Actuel",
+    "newPassword": "Nouveau Mot de Passe",
+    "confirmNewPassword": "Confirmer le Nouveau Mot de Passe",
+    "sendVerificationCode": "Envoyer le Code de Vérification",
+    "sixDigitVerificationCode": "Code de Vérification à 6 Chiffres",
+    "back": "Retour",
+    "confirmAndChangePassword": "Confirmer et Changer le Mot de Passe",
+    "verificationCodeInstruction": "Un code de vérification a été envoyé à votre email enregistré. Saisissez-le ci-dessous pour confirmer le changement de mot de passe.",
+    "profileUpdated": "Profil mis à jour avec succès !",
+    "profileUpdateFailed": "Échec de la mise à jour du profil.",
+    "fileTooLarge": "Le fichier est trop volumineux (max 2 Mo).",
+    "invalidFileType": "Type de fichier invalide (JPG, PNG, GIF uniquement).",
+    "selectImageFile": "Veuillez sélectionner un fichier image.",
+    "pictureUpdated": "Photo de profil mise à jour !",
+    "unexpectedResponse": "Réponse inattendue du serveur.",
+    "pictureUploadFailed": "Échec du téléchargement de la photo de profil.",
+    "passwordsDoNotMatch": "Les nouveaux mots de passe ne correspondent pas.",
+    "passwordTooShort": "Le nouveau mot de passe doit comporter au moins 6 caractères.",
+    "verificationCodeSent": "Un code de vérification a été envoyé à votre email.",
+    "failedToRequestOtp": "Échec de la demande d'OTP.",
+    "enterSixDigitCode": "Veuillez saisir le code à 6 chiffres.",
+    "passwordChangedSuccessfully": "Mot de passe changé avec succès !",
+    "verificationFailed": "La vérification a échoué. Veuillez vérifier votre code ou revenir en arrière."
+  },
+  "notFound": {
+    "message": "Oups ! La page que vous recherchez n'existe pas.",
+    "goBackToDashboard": "Retourner au Tableau de Bord",
+    "contactSupport": "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support."
+  },
+  "filterControls": {
+    "searchReceipt": "Rechercher Reçu #",
+    "searchCustomerName": "Rechercher Nom Client",
+    "searchCustomerPhone": "Rechercher Téléphone Client",
+    "orderStatus": "Statut de Commande",
+    "paymentStatus": "Statut de Paiement",
+    "dueDate": "Date d'Échéance",
+    "serviceType": "Type de Service",
+    "hideAdvanced": "Masquer les Avancés",
+    "showAdvanced": "Afficher les Filtres Avancés",
+    "reset": "Réinitialiser",
+    "applyFilters": "Appliquer les Filtres",
+    "advancedDescription": "Des filtres avancés (ex: par type de service, plage de dates) peuvent être ajoutés ici.",
+    "placeholders": {
+      "customerName": "Jean Dupont",
+      "customerPhone": "555-1234"
+    },
+    "statusOptions": {
+      "allStatuses": "Tous les Statuts",
+      "pending": "En Attente",
+      "processing": "En Traitement",
+      "readyForPickup": "Prêt à Récupérer",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "paymentOptions": {
+      "allPayments": "Tous les Paiements",
+      "paid": "Payé",
+      "unpaid": "Non Payé"
+    },
+    "overdueOptions": {
+      "anyDate": "Toute Date",
+      "overdueOnly": "En Retard Seulement"
+    },
+    "serviceOptions": {
+      "allServices": "Tous les Services",
+      "wash": "Lavage",
+      "dryClean": "Nettoyage à Sec",
+      "iron": "Repassage"
     }
   }
 }

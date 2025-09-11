@@ -13,7 +13,37 @@
       "manageStaff": "Manage Staff",
       "servicesPricing": "Services & Pricing"
     },
-    "closeSidebar": "Close sidebar"
+        "closeSidebar": "Close sidebar"
+  },
+  "orderItemRow": {
+    "itemNumber": "Item #{{number}}",
+    "removeItem": "Remove item",
+    "removeItemAria": "Remove item {{number}}",
+    "itemType": "Item Type*",
+    "serviceType": "Service Type*",
+    "quantity": "Qty*",
+    "specialInstructions": "Special Instructions",
+    "linePrice": "Line Price",
+    "selectItem": "Select Item",
+    "selectService": "Select Service",
+    "instructionsPlaceholder": "e.g., No starch",
+    "placeholders": {
+      "selectItemType": "Select Item",
+      "selectServiceType": "Select Service",
+      "quantity": "1",
+      "specialInstructions": "e.g., No starch"
+    },
+    "accessibility": {
+      "itemType": "Select item type",
+      "serviceType": "Select service type",
+      "quantity": "Enter quantity",
+      "specialInstructions": "Special instructions for this item",
+      "linePrice": "Line price total",
+      "removeItem": "Remove item",
+      "removeItemWithNumber": "Remove item {{number}}"
+    }
+  },
+  "login": {
   },
   "dashboard": {
     "title": "Dashboard",
@@ -501,21 +531,6 @@
       "saveError": "Failed to save settings."
     }
   },
-  "login": {
-    "title": "Staff Login",
-    "usernameLabel": "Username",
-    "passwordLabel": "Password",
-    "loginButton": "Login",
-    "usernamePlaceholder": "e.g., admin or staff",
-    "passwordPlaceholder": "••••••••",
-    "loggingIn": "Logging in...",
-    "showPassword": "Show password",
-    "hidePassword": "Hide password",
-    "pageTitle": "Login",
-    "alreadyLoggedIn": "Already logged in. Redirecting...",
-    "copyright": "All rights reserved.",
-    "loginFailed": "Failed to login. Please check your credentials."
-  },
   "landing": {
       "headline": "Streamline Your Pressing Business.",
       "subheadline": "From order logging and payment tracking to customer notifications, PressFlow is the all-in-one system to manage your laundry and dry cleaning operations effortlessly."
@@ -830,6 +845,109 @@
       "wash": "Wash",
       "ironOnly": "Iron Only",
       "dryClean": "Dry Clean"
+    }
+  },
+  "navbar": {
+    "toggleSidebar": "Toggle Sidebar",
+    "toggleDarkMode": "Toggle Dark Mode",
+    "viewNotifications": "View Notifications",
+    "openUserMenu": "Open User Menu",
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "loading": "Loading...",
+      "noNotifications": "No new notifications.",
+      "recently": "Recently"
+    },
+    "userMenu": {
+      "signedInAs": "Signed in as",
+      "role": "{{role}} role",
+      "myProfile": "My Profile",
+      "appSettings": "App Settings",
+      "logout": "Logout"
+    }
+  },
+  "profile": {
+    "notSet": "Not set",
+    "userDataNotAvailable": "User data not available. Please log in.",
+    "changeProfilePicture": "Change profile picture",
+    "upload": "Upload",
+    "cancel": "Cancel",
+    "uploading": "Uploading...",
+    "accountInformation": "Account Information",
+    "edit": "Edit",
+    "username": "Username",
+    "role": "Role",
+    "saveProfile": "Save Profile",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "sendVerificationCode": "Send Verification Code",
+    "sixDigitVerificationCode": "6-Digit Verification Code",
+    "back": "Back",
+    "confirmAndChangePassword": "Confirm & Change Password",
+    "verificationCodeInstruction": "A verification code was sent to your registered email. Enter it below to confirm the password change.",
+    "profileUpdated": "Profile updated successfully!",
+    "profileUpdateFailed": "Failed to update profile.",
+    "fileTooLarge": "File is too large (max 2MB).",
+    "invalidFileType": "Invalid file type (JPG, PNG, GIF only).",
+    "selectImageFile": "Please select an image file.",
+    "pictureUpdated": "Profile picture updated!",
+    "unexpectedResponse": "Unexpected response from server.",
+    "pictureUploadFailed": "Failed to upload profile picture.",
+    "passwordsDoNotMatch": "New passwords do not match.",
+    "passwordTooShort": "New password must be at least 6 characters.",
+    "verificationCodeSent": "A verification code has been sent to your email.",
+    "failedToRequestOtp": "Failed to request OTP.",
+    "enterSixDigitCode": "Please enter the 6-digit code.",
+    "passwordChangedSuccessfully": "Password changed successfully!",
+    "verificationFailed": "Verification failed. Please check your code or go back."
+  },
+  "notFound": {
+    "message": "Oops! The page you're looking for doesn't exist.",
+    "goBackToDashboard": "Go Back to Dashboard",
+    "contactSupport": "If you think this is an error, please contact support."
+  },
+  "filterControls": {
+    "searchReceipt": "Search Receipt #",
+    "searchCustomerName": "Search Customer Name",
+    "searchCustomerPhone": "Search Customer Phone",
+    "orderStatus": "Order Status",
+    "paymentStatus": "Payment Status",
+    "dueDate": "Due Date",
+    "serviceType": "Service Type",
+    "hideAdvanced": "Hide Advanced",
+    "showAdvanced": "Show Advanced Filters",
+    "reset": "Reset",
+    "applyFilters": "Apply Filters",
+    "advancedDescription": "Advanced filters (e.g., by service type, date range) can be added here.",
+    "placeholders": {
+      "customerName": "John Doe",
+      "customerPhone": "555-1234"
+    },
+    "statusOptions": {
+      "allStatuses": "All Statuses",
+      "pending": "Pending",
+      "processing": "Processing",
+      "readyForPickup": "Ready for Pickup",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "paymentOptions": {
+      "allPayments": "All Payments",
+      "paid": "Paid",
+      "unpaid": "Unpaid"
+    },
+    "overdueOptions": {
+      "anyDate": "Any Date",
+      "overdueOnly": "Overdue Only"
+    },
+    "serviceOptions": {
+      "allServices": "All Services",
+      "wash": "Wash",
+      "dryClean": "Dry Clean",
+      "iron": "Iron"
     }
   }
 }
