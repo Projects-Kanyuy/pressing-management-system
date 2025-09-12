@@ -9,6 +9,7 @@ import './i18n';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminNotificationProvider } from './contexts/NotificationContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { LocalizationProvider } from './contexts/LocalizationContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -17,7 +18,9 @@ root.render(
       <AuthProvider>
         <SettingsProvider>
           <AdminNotificationProvider>
+            <LocalizationProvider>
             <App />
+            </LocalizationProvider>
           </AdminNotificationProvider>
         </SettingsProvider>
       </AuthProvider>

@@ -20,6 +20,7 @@ import webhookRoutes from './routes/webhookRoutes.js';
 import inboundMessageRoutes from './routes/inboundMessageRoutes.js';
 import directoryAdminRoutes from './routes/directoryAdminRoutes.js'; // <-- IMPORT
 import uploadRoutes from './routes/uploadRoutes.js'; 
+import currencyRoutes from './routes/currencyRoutes.js';
 
 // Import scheduler
 import { startOrderChecks } from './schedulers/orderChecker.js'; 
@@ -67,6 +68,7 @@ app.use('/api/tenant-profile', tenantProfileRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/inbound-messages', inboundMessageRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/currency', currencyRoutes);
 
 // Error handling middleware (should be last for API routes)
 app.use(notFound);

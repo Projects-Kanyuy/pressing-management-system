@@ -1,137 +1,109 @@
-// client/src/pages/Public/PricingPage.js
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import Button from '../../components/UI/Button';
+// client/src/pages/Public/PricingPage.jsx
+
+import React from 'react';
+import { useLocalization } from '../../contexts/LocalizationContext';
+import Spinner from '../../components/UI/Spinner';
 import { Check } from 'lucide-react';
-
-// --- Reusable Public Header and Footer (Ideally from shared components) ---
-
-
-
-// --- Reusable Pricing Card Component ---
-const PricingCard = ({ plan, price, frequency, features, isFeatured = false, chooseText }) => (
-    <div className={`relative p-8 rounded-apple-xl border ${isFeatured ? 'border-apple-blue shadow-apple-xl' : 'border-apple-gray-200 dark:border-apple-gray-700 bg-white dark:bg-apple-gray-800/50'}`}>
-        {isFeatured && (
-            <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold text-white bg-apple-blue">
-                    {chooseText}
-                </span>
-            </div>
-        )}
-        <h3 className="text-2xl font-semibold text-apple-gray-800 dark:text-white mb-2">{plan}</h3>
-        <div className="flex items-baseline mb-6">
-            <span className="text-5xl font-bold tracking-tight text-apple-gray-900 dark:text-white">{price}</span>
-            <span className="ml-1 text-xl font-medium text-apple-gray-500 dark:text-apple-gray-400">/{frequency}</span>
-        </div>
-        <ul className="space-y-3 mb-8">
-            {features.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                    <Check size={16} className="text-apple-green flex-shrink-0 mr-3 mt-1" />
-                    <span className="text-apple-gray-600 dark:text-apple-gray-300">{feature}</span>
-                </li>
-            ))}
-        </ul>
-        <Link to="/signup" className="w-full">
-             <Button variant={isFeatured ? 'primary' : 'secondary'} size="lg" className="w-full">
-                {chooseText} {plan}
-            </Button>
-        </Link>
-    </div>
-);
-
+import { Link } from 'react-router-dom';
 
 const PricingPage = () => {
-    const { t } = useTranslation();
-    // You can manage this with state if you have monthly/yearly toggles
-    const [billingCycle, setBillingCycle] = useState('monthly');
+    const { convertPrice, loading: isLocalizationLoading } = useLocalization();
 
-    const plans = {
-        monthly: [
-            {
-                plan: t('public.pricing.plans.basic.name'),
-                price: t('public.pricing.plans.basic.price'),
-                frequency: t('public.pricing.plans.basic.frequency'),
-                features: t('public.pricing.plans.basic.features', { returnObjects: true }),
-                isFeatured: false,
-            },
-            {
-                plan: t('public.pricing.plans.pro.name'),
-                price: t('public.pricing.plans.pro.price'),
-                frequency: t('public.pricing.plans.pro.frequency'),
-                features: t('public.pricing.plans.pro.features', { returnObjects: true }),
-                isFeatured: true,
-            },
-            {
-                plan: t('public.pricing.plans.enterprise.name'),
-                price: t('public.pricing.plans.enterprise.price'),
-                frequency: t('public.pricing.plans.enterprise.frequency'),
-                features: t('public.pricing.plans.enterprise.features', { returnObjects: true }),
-                isFeatured: false,
-            },
-        ],
-        // You could define yearly plans here and toggle between them
-        // yearly: [ ... ]
+    const basePrices = {
+        basic: 29,
+        pro: 59,
     };
 
+    const CheckListItem = ({ children }) => (
+        <li className="flex items-start">
+            <Check size={20} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+            <span>{children}</span>
+        </li>
+    );
+
+    if (isLocalizationLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-[60vh]">
+                <Spinner text="Localizing prices..." />
+            </div>
+        );
+    }
+
     return (
-        <div className="bg-apple-gray-50 dark:bg-apple-gray-950">
-          
+        <div className="bg-gray-50 dark:bg-apple-gray-900 py-12 md:py-20">
+            <div className="container mx-auto px-4">
+                <div className="text-center max-w-3xl mx-auto">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Fair & Simple Pricing</h1>
+                    <p className="mt-4 text-lg text-gray-600 dark:text-apple-gray-400">
+                        Choose the perfect plan for your laundry business. No hidden fees, ever.
+                    </p>
+                </div>
 
-            <main>
-                {/* --- Page Header Section --- */}
-                <section className="py-20 text-center">
-                    <div className="container mx-auto px-6">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-apple-gray-900 dark:text-white mb-4">
-                            {t('public.pricing.title')}
-                        </h1>
-                        <p className="text-lg text-apple-gray-600 dark:text-apple-gray-400 max-w-2xl mx-auto">
-                            {t('public.pricing.subtitle')}
+                <div className="mt-16 grid lg:grid-cols-3 gap-8 items-stretch">
+                    {/* --- Basic Plan --- */}
+                    <div className="border dark:border-apple-gray-700 rounded-lg p-8 flex flex-col">
+                        <h3 className="text-2xl font-semibold">Basic</h3>
+                        <p className="mt-4 text-4xl font-bold">
+                            {convertPrice(basePrices.basic)}
+                            <span className="text-lg font-medium text-gray-500 dark:text-apple-gray-400"> /mo</span>
                         </p>
+                        <ul className="mt-6 space-y-4 text-gray-600 dark:text-apple-gray-300">
+                            <CheckListItem>Up to 250 Orders per month</CheckListItem>
+                            <CheckListItem>2 Staff Accounts</CheckListItem>
+                            <CheckListItem>Customer Management</CheckListItem>
+                            <CheckListItem>Payment Tracking</CheckListItem>
+                            <CheckListItem>Email Notifications</CheckListItem>
+                        </ul>
+                        <div className="flex-grow"></div> {/* Pushes button to bottom */}
+                        <Link to="/register?plan=basic" className="mt-8 block w-full text-center bg-gray-200 dark:bg-apple-gray-800 text-gray-800 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-apple-gray-700">
+                            Choose Basic
+                        </Link>
                     </div>
-                </section>
 
-                {/* --- Pricing Cards Section --- */}
-                <section className="pb-20">
-                    <div className="container mx-auto px-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                           {plans[billingCycle].map((p, index) => (
-                               <PricingCard
-                                   key={index}
-                                   plan={p.plan}
-                                   price={p.price}
-                                   frequency={p.frequency}
-                                   features={p.features}
-                                   isFeatured={p.isFeatured}
-                                   chooseText={p.isFeatured ? t('public.pricing.mostPopular') : t('public.pricing.choose')}
-                               />
-                           ))}
-                        </div>
+                    {/* --- Pro Plan (Most Popular) --- */}
+                    <div className="border-2 border-apple-blue rounded-lg p-8 relative flex flex-col shadow-2xl">
+                        <span className="absolute top-0 -translate-y-1/2 bg-apple-blue text-white px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span>
+                        <h3 className="text-2xl font-semibold">Pro</h3>
+                        <p className="mt-4 text-4xl font-bold">
+                            {convertPrice(basePrices.pro)}
+                            <span className="text-lg font-medium text-gray-500 dark:text-apple-gray-400"> /mo</span>
+                        </p>
+                        <ul className="mt-6 space-y-4 text-gray-600 dark:text-apple-gray-300">
+                            <CheckListItem>Unlimited Orders</CheckListItem>
+                            <CheckListItem>Up to 10 Staff Accounts</CheckListItem>
+                            <CheckListItem>Everything in Basic</CheckListItem>
+                            <CheckListItem>SMS Notifications (Twilio)</CheckListItem>
+                            <CheckListItem>Basic Sales Reports</CheckListItem>
+                            <CheckListItem>Admin Bell Notifications</CheckListItem>
+                        </ul>
+                        <div className="flex-grow"></div>
+                        <Link to="/register?plan=pro" className="mt-8 block w-full text-center bg-apple-blue text-white font-semibold py-3 rounded-lg hover:bg-blue-600">
+                            Choose Pro
+                        </Link>
                     </div>
-                </section>
 
-                {/* --- FAQ Section (Optional but good) --- */}
-                <section className="py-20 bg-white dark:bg-apple-gray-900">
-                    <div className="container mx-auto px-6 max-w-3xl">
-                        <h2 className="text-3xl font-bold text-center mb-8">{t('public.pricing.faq.title')}</h2>
-                        <div className="space-y-6">
-                            <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.freeTrial.question')}</h4>
-                                <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.freeTrial.answer')}</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.changePlan.question')}</h4>
-                                <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.changePlan.answer')}</p>
-                            </div>
-                             <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.smsRequirements.question')}</h4>
-                                <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.smsRequirements.answer')}</p>
-                            </div>
-                        </div>
+                    {/* --- Enterprise Plan --- */}
+                    <div className="border dark:border-apple-gray-700 rounded-lg p-8 flex flex-col">
+                        <h3 className="text-2xl font-semibold">Enterprise</h3>
+                        <p className="mt-4 text-4xl font-bold">
+                            Custom
+                            <span className="text-lg font-medium text-gray-500 dark:text-apple-gray-400"> /contact</span>
+                        </p>
+                        <ul className="mt-6 space-y-4 text-gray-600 dark:text-apple-gray-300">
+                            <CheckListItem>Everything in Pro</CheckListItem>
+                            <CheckListItem>Unlimited Staff Accounts</CheckListItem>
+                            <CheckListItem>Custom Branding</CheckListItem>
+                            <CheckListItem>Advanced Analytics</CheckListItem>
+                            <CheckListItem>Priority Support</CheckListItem>
+                            <CheckListItem>Onboarding Assistance</CheckListItem>
+                        </ul>
+                        <div className="flex-grow"></div>
+                        <Link to="/contact" className="mt-8 block w-full text-center bg-gray-200 dark:bg-apple-gray-800 text-gray-800 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-apple-gray-700">
+                            Contact Sales
+                        </Link>
                     </div>
-                </section>
-            </main>
-
+                </div>
+            </div>
         </div>
     );
 };
