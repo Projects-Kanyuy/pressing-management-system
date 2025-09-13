@@ -137,7 +137,7 @@ const ManageUsersPage = () => {
             {error && <div className="p-3 bg-red-100 text-apple-red rounded-apple"><AlertTriangle className="inline mr-2" />{error}</div>}
 
             <Card>
-                {loading ? <div className="p-8 text-center"><Spinner /></div> : (
+                {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-apple-gray-200">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800">

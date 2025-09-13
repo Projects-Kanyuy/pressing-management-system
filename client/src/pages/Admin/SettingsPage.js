@@ -101,7 +101,7 @@ const PublicProfileManager = () => {
         }
     };
 
-    if (loading) return <div className="p-4 text-center"><Spinner /></div>;
+    if (loading) return <div className="p-4 flex justify-center"><Spinner /></div>;
     // The main error display is now inside the form for better context
     // if (error && !loading) return ...
 

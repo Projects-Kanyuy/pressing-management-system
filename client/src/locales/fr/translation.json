@@ -880,7 +880,7 @@
       "recently": "Récemment"
     },
     "userMenu": {
-      "signedInAs": "Connecté en tant que",
+      "signedInAs": "Connecté en tant que ",
       "role": "Rôle {{role}}",
       "myProfile": "Mon Profil",
       "appSettings": "Paramètres de l'App",

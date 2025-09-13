@@ -5,42 +5,27 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAdminNotifications } from '../../contexts/NotificationContext';
 import {
-    Bell, UserCircle, Sun, Moon, Menu, AlertTriangle, LogOut,
-    Settings as SettingsIconLucide, XCircle, PlusCircle 
-} from 'lucide-react'; 
+    Bell, Menu, AlertTriangle,
+    XCircle, PlusCircle
+} from 'lucide-react';
 import Button from '../UI/Button';
 import LanguageSwitcher from '../UI/LanguageSwitcher';
+import UserMenu from '../UI/UserMenu';
+import ThemeToggle from '../UI/ThemeToggle';
 import { formatDistanceToNowStrict, isValid as isValidDate } from 'date-fns';
 
-const Navbar = ({ toggleSidebar, sidebarOpen }) => { 
+const Navbar = ({ toggleSidebar, sidebarOpen }) => {
     const { t } = useTranslation();
     const { user, logout, isAuthenticated } = useAuth();
     const { notifications, unreadCount, markAsRead, clearAllNotifications, loadingNotifications } = useAdminNotifications();
-    const [darkMode, setDarkMode] = useState(() => {
-        const savedMode = localStorage.getItem('darkMode');
-        return savedMode ? JSON.parse(savedMode) : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    });
     const [showNotifications, setShowNotifications] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
 
     const notificationRef = useRef(null);
-    const userMenuRef = useRef(null);
-
-    useEffect(() => {
-        if (darkMode) { document.documentElement.classList.add('dark'); }
-        else { document.documentElement.classList.remove('dark'); }
-        localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    }, [darkMode]);
-
-    const toggleDarkMode = () => setDarkMode(prev => !prev);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
                 setShowNotifications(false);
-            }
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-                setShowUserMenu(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -49,12 +34,6 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
 
     const handleBellClick = () => {
         setShowNotifications(prevShow => !prevShow);
-        setShowUserMenu(false); 
-    };
-
-    const handleUserMenuClick = () => {
-        setShowUserMenu(prevShow => !prevShow);
-        setShowNotifications(false); 
     };
 
     const getIconForNotification = (type) => {
@@ -77,11 +56,9 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                 </div>
 
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                    <LanguageSwitcher/>
-                    
-                    <Button variant="ghost" size="sm" onClick={toggleDarkMode} className="p-1.5" aria-label={t('navbar.toggleDarkMode')}>
-                        {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-                    </Button>
+                    <LanguageSwitcher />
+
+                    <ThemeToggle />
 
                     {isAuthenticated && (
                         <div className="relative" ref={notificationRef}>
@@ -100,7 +77,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                                 <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-apple-gray-800 rounded-apple-lg shadow-apple-xl border border-apple-gray-200 dark:border-apple-gray-700 origin-top-right z-50 max-h-[calc(100vh-100px)] flex flex-col">
                                     <div className="flex justify-between items-center p-3 border-b border-apple-gray-200 dark:border-apple-gray-700">
                                         <h3 className="font-semibold text-apple-gray-800 dark:text-apple-gray-100">{t('navbar.notifications.title')}</h3>
-                                        {notifications.length > 0 && (<Button variant="link" size="sm" onClick={() => { clearAllNotifications(); /* setShowNotifications(false); Optional: keep open */}} className="text-xs">{t('navbar.notifications.markAllRead')}</Button>)}
+                                        {notifications.length > 0 && (<Button variant="link" size="sm" onClick={() => { clearAllNotifications(); /* setShowNotifications(false); Optional: keep open */ }} className="text-xs">{t('navbar.notifications.markAllRead')}</Button>)}
                                     </div>
                                     <div className="overflow-y-auto flex-grow custom-scrollbar">
                                         {loadingNotifications && <div className="p-4 text-center text-sm text-apple-gray-500">{t('navbar.notifications.loading')}</div>}
@@ -140,41 +117,9 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                         </div>
                     )}
 
-                    <div className="relative" ref={userMenuRef}>
-                         <Button variant="ghost" size="sm" onClick={handleUserMenuClick} className="p-1 flex items-center space-x-1.5" aria-label={t('navbar.openUserMenu')} aria-expanded={showUserMenu}>
-                            {user?.profilePictureUrl ? (
-                                <img src={user.profilePictureUrl} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
-                            ) : (
-                                <UserCircle size={24} className="text-apple-gray-500 dark:text-apple-gray-400" />
-                            )}
-                            <span className="hidden md:inline text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300">{user?.username || 'User'}</span>
-                        </Button>
-                        {showUserMenu && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-apple-gray-800 rounded-apple-md shadow-apple-lg py-1 origin-top-right z-50 border border-apple-gray-200 dark:border-apple-gray-700">
-                                <div className="px-4 py-3">
-                                    <p className="text-sm text-apple-gray-700 dark:text-apple-gray-200">{t('navbar.userMenu.signedInAs')}</p>
-                                    <p className="text-sm font-semibold text-apple-gray-900 dark:text-apple-gray-50 truncate">{user?.username}</p>
-                                    <p className="text-xs text-apple-gray-500 dark:text-apple-gray-400 capitalize">{t('navbar.userMenu.role', { role: user?.role })}</p>
-                                </div>
-                                <div className="border-t border-apple-gray-200 dark:border-apple-gray-700"></div>
-                                <Link to="/app/profile" onClick={() => setShowUserMenu(false)} className="flex items-center w-full text-left px-4 py-2 text-sm text-apple-gray-700 dark:text-apple-gray-200 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50">
-                                    <UserCircle size={16} className="mr-2 text-apple-gray-500"/> {t('navbar.userMenu.myProfile')}
-                                </Link>
-                                {user?.role === 'admin' && (
-                                <Link to="/app/admin/settings" onClick={() => setShowUserMenu(false)} className="flex items-center w-full text-left px-4 py-2 text-sm text-apple-gray-700 dark:text-apple-gray-200 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50">
-                                    <SettingsIconLucide size={16} className="mr-2 text-apple-gray-500"/> {t('navbar.userMenu.appSettings')}
-                                </Link>
-                                )}
-                                <div className="border-t border-apple-gray-200 dark:border-apple-gray-700"></div>
-                                <button
-                                    onClick={() => { logout(); setShowUserMenu(false); }}
-                                    className="w-full text-left flex items-center px-4 py-2 text-sm text-apple-red hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700/50"
-                                >
-                                    <LogOut size={16} className="mr-2"/> {t('navbar.userMenu.logout')}
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    <UserMenu
+                        onMenuClose={() => setShowNotifications(false)}
+                    />
                 </div>
             </div>
         </header>

@@ -52,7 +52,7 @@ const ManageDirectoryPage = () => {
                     <h2 className="font-semibold">Existing Manual Listings ({listings.length})</h2>
                     <Button iconLeft={<PlusCircle size={16} />}>Add New Listing</Button>
                 </div>
-                {loading ? <div className="p-8 text-center"><Spinner /></div> : (
+                {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800">

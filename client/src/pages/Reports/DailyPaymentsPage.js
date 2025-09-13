@@ -74,7 +74,7 @@ const DailyPaymentsPage = () => {
                         </div>
                     </div>
                 </div>
-                {loading && <div className="p-6 text-center"><Spinner size="lg" /></div>}
+                {loading && <div className="p-6 flex justify-center"><Spinner size="lg" /></div>}
                 {error && <div className="p-4 m-4 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{error}</div>}
                 {reportData && !loading && (
                     <div className="p-4 space-y-6">

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import Card from '../../components/UI/Card';
 import LoginForm from '../../components/Auth/LoginForm';
-import { Package } from 'lucide-react';
+import { Package, ArrowLeft } from 'lucide-react';
 import Spinner from '../../components/UI/Spinner';
 
 const LoginPage = () => {
@@ -59,6 +59,17 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-apple-gray-100 dark:bg-apple-gray-950 p-4">
+            {/* Back to Home Button */}
+            <div className="absolute top-6 left-6">
+                <Link 
+                    to="/" 
+                    className="flex items-center space-x-2 text-apple-gray-600 dark:text-apple-gray-400 hover:text-apple-blue dark:hover:text-apple-blue transition-colors"
+                >
+                    <ArrowLeft size={20} />
+                    <span className="text-sm font-medium">{t('public.header.home')}</span>
+                </Link>
+            </div>
+
             <div className="flex items-center mb-8">
                 <Package size={48} className="text-apple-blue mr-3" />
                 <h1 className="text-4xl font-bold text-apple-gray-800 dark:text-apple-gray-100">

@@ -29,11 +29,11 @@ const LandingPage = () => {
                         <p className="text-lg text-apple-gray-600 dark:text-apple-gray-300 mb-8">
                             {t('public.landing.hero.subtitle')}
                         </p>
-                        <div className="flex justify-center space-x-4">
-                            <Link to="/pricing" className="bg-apple-blue text-white px-8 py-3 rounded-apple font-semibold hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-lg">
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:space-x-4">
+                            <Link to="/pricing" className="bg-apple-blue text-white px-6 sm:px-8 py-3 rounded-apple font-semibold text-base sm:text-lg hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-lg text-center">
                                 {t('public.landing.hero.getStartedFree')}
                             </Link>
-                            <Link to="/features" className="bg-white dark:bg-apple-gray-800 text-apple-blue dark:text-white px-8 py-3 rounded-apple font-semibold hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-transform transform hover:scale-105 shadow-apple-lg">
+                            <Link to="/features" className="bg-white dark:bg-apple-gray-800 text-apple-blue dark:text-white px-6 sm:px-8 py-3 rounded-apple font-semibold text-base sm:text-lg hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 transition-transform transform hover:scale-105 shadow-apple-lg text-center">
                                 {t('public.landing.hero.learnMore')}
                             </Link>
                         </div>
@@ -90,7 +90,7 @@ const LandingPage = () => {
                     <p className="text-lg text-apple-gray-600 dark:text-apple-gray-300 mt-2 mb-8">
                         {t('public.landing.cta.subtitle')}
                     </p>
-                    <Link to="/pricing" className="bg-apple-blue text-white px-10 py-4 rounded-apple font-semibold text-lg hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-xl">
+                    <Link to="/pricing" className="inline-block bg-apple-blue text-white px-6 sm:px-10 py-3 sm:py-4 rounded-apple font-semibold text-base sm:text-lg hover:bg-sky-600 transition-transform transform hover:scale-105 shadow-apple-xl text-center whitespace-nowrap">
                         {t('public.landing.cta.startTrial')}
                     </Link>
                 </div>

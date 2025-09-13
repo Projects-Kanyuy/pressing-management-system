@@ -122,7 +122,7 @@ const DirectoryAdminDashboard = () => {
                         <TabButton label={`Manual Listings (${listings.length})`} isActive={activeTab === 'listings'} onPress={() => setActiveTab('listings')} />
                     </div>
 
-                    {loading ? <div className="p-8 text-center"><Spinner /></div> : (
+                    {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
                         <div>
                             {activeTab === 'tenants' && (
                                 <Card>

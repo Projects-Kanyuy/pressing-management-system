@@ -10,7 +10,8 @@ const LanguageSwitcher = ({ variant = 'default' }) => {
 
     const languages = [
         { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-        { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' }
+        { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
+        { code: 'fil', name: 'Filipino', nativeName: 'Filipino', flag: '🇵🇭' }
     ];
 
     // Close dropdown when clicking outside
@@ -36,10 +37,16 @@ const LanguageSwitcher = ({ variant = 'default' }) => {
     const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
     if (variant === 'simple') {
-        // Enhanced simple toggle for mobile or compact areas
+        // Enhanced simple toggle for mobile or compact areas - cycles through all languages
+        const handleCycleLanguage = () => {
+            const currentIndex = languages.findIndex(lang => lang.code === i18n.language);
+            const nextIndex = (currentIndex + 1) % languages.length;
+            handleLanguageChange(languages[nextIndex].code);
+        };
+
         return (
             <button
-                onClick={() => handleLanguageChange(i18n.language === 'en' ? 'fr' : 'en')}
+                onClick={handleCycleLanguage}
                 className="group relative flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl"
                 aria-label="Switch language"
             >

@@ -1,18 +1,18 @@
 // client/src/pages/Dashboard/DashboardPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchOrders, fetchDailyPaymentsReport, updateExistingOrder, } from '../../services/api'; 
+import { fetchOrders, fetchDailyPaymentsReport, updateExistingOrder, } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Spinner from '../../components/UI/Spinner';
 import OrderTable from '../../components/Dashboard/OrderTable';
 import FilterControls from '../../components/Dashboard/FilterControls';
-import Modal from '../../components/UI/Modal'; 
-import Input from '../../components/UI/Input';   
+import Modal from '../../components/UI/Modal';
+import Input from '../../components/UI/Input';
 import { PlusCircle, AlertTriangle, CheckCircle2, Clock3, Shirt, TrendingUp, Filter as FilterIcon, Search as SearchIcon, DollarSign } from 'lucide-react'; // Added more icons
 import { format, isPast, parseISO } from 'date-fns';
-import { useAuth } from '../../contexts/AuthContext'; 
-import { useAppSettings } from '../../contexts/SettingsContext'; 
+import { useAuth } from '../../contexts/AuthContext';
+import { useAppSettings } from '../../contexts/SettingsContext';
 import { useTranslation } from 'react-i18next';
 
 const StatCard = ({ title, value, icon, colorClass, isLoading }) => (
@@ -30,7 +30,7 @@ const StatCard = ({ title, value, icon, colorClass, isLoading }) => (
 
 const DashboardPage = () => {
     const { settings, loadingSettings } = useAppSettings();
-     const { t } = useTranslation();
+    const { t } = useTranslation();
     const { user } = useAuth()
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
@@ -40,7 +40,7 @@ const DashboardPage = () => {
         page: 1, pageSize: 10,
     });
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalOrders: 0 });
-    const [stats, setStats] = useState({ total: 0, pending: 0, ready: 0, overdue: 0 }); 
+    const [stats, setStats] = useState({ total: 0, pending: 0, ready: 0, overdue: 0 });
 
     const [dailyTotalPayments, setDailyTotalPayments] = useState(0);
     const [loadingDailyPayments, setLoadingDailyPayments] = useState(true);
@@ -65,7 +65,7 @@ const DashboardPage = () => {
         setLoadingOrders(true);
         setOrdersError('');
         try {
-            const { data } = await fetchOrders(filters); 
+            const { data } = await fetchOrders(filters);
             console.log("[DashboardPage] RAW API Response from fetchOrders:", JSON.stringify(data, null, 2));
 
 
@@ -77,18 +77,18 @@ const DashboardPage = () => {
             }
             setPagination({
                 currentPage: data.page || 1,
-                totalPages: data.pages || 0, 
+                totalPages: data.pages || 0,
                 totalOrders: data.totalOrders || 0,
             });
         } catch (err) {
             const errMsg = err.response?.data?.message || t('dashboard.ordersError');
             setOrdersError(errMsg);
-            setOrders([]); 
-            setPagination({ currentPage: 1, totalPages: 0, totalOrders: 0 }); 
+            setOrders([]);
+            setPagination({ currentPage: 1, totalPages: 0, totalOrders: 0 });
         } finally {
             setLoadingOrders(false);
         }
-    }, [filters]); 
+    }, [filters]);
 
     // Calculate stats based on the currently fetched page of orders
     useEffect(() => {
@@ -99,18 +99,18 @@ const DashboardPage = () => {
             ready: orders.filter(o => o.status === 'Ready for Pickup').length,
             overdue: orders.filter(o => o.expectedPickupDate && isPast(parseISO(o.expectedPickupDate)) && !['Completed', 'Cancelled'].includes(o.status)).length,
         });
-    }, [orders, pagination.totalOrders]); 
-   const loadDailyPayments = useCallback(async () => {
+    }, [orders, pagination.totalOrders]);
+    const loadDailyPayments = useCallback(async () => {
         if (user?.role !== 'admin') {
-            setDailyPaymentsError(''); 
-            return; 
+            setDailyPaymentsError('');
+            return;
         }
         setLoadingDailyPayments(true);
         setDailyPaymentsError('');
         try {
-            const todayStr = format(new Date(), 'yyyy-MM-dd'); 
+            const todayStr = format(new Date(), 'yyyy-MM-dd');
             // This API call now only runs for admins
-            const { data } = await fetchDailyPaymentsReport(todayStr); 
+            const { data } = await fetchDailyPaymentsReport(todayStr);
             setDailyTotalPayments(data.totalAmountFromOrdersWithActivity || 0);
         } catch (err) {
             setDailyPaymentsError(t('dashboard.dailyPaymentsError'));
@@ -118,7 +118,7 @@ const DashboardPage = () => {
         } finally {
             setLoadingDailyPayments(false);
         }
-    }, [user]); 
+    }, [user]);
     useEffect(() => {
         loadOrders();
         loadDailyPayments();
@@ -140,7 +140,7 @@ const DashboardPage = () => {
             prevOrders.map(o => (o._id === updatedOrder._id ? updatedOrder : o))
         );
         // If a payment was made, refresh daily sales (could also just add to existing total if API returns payment amount)
-        if (updatedOrder.isFullyPaid || (selectedOrderForPayment && updatedOrder.amountPaid > selectedOrderForPayment.amountPaid) ) {
+        if (updatedOrder.isFullyPaid || (selectedOrderForPayment && updatedOrder.amountPaid > selectedOrderForPayment.amountPaid)) {
             loadDailyPayments();
         }
         setSelectedOrderForPayment(updatedOrder); // Keep modal updated if still open
@@ -170,19 +170,19 @@ const DashboardPage = () => {
             const { data: updatedOrderFromAPI } = await updateExistingOrder(currentOrder._id, {
                 amountPaid: newTotalAmountPaid
             });
-            setPaymentSuccess(t('dashboard.paymentSuccess', { 
-                amount: `${currencySymbol}${amountToRecord.toFixed(2)}`, 
-                receiptNumber: updatedOrderFromAPI.receiptNumber 
+            setPaymentSuccess(t('dashboard.paymentSuccess', {
+                amount: `${currencySymbol}${amountToRecord.toFixed(2)}`,
+                receiptNumber: updatedOrderFromAPI.receiptNumber
             }));
-            handleOrderPaymentUpdated(updatedOrderFromAPI); 
-            setTimeout(handleClosePaymentModal, 2000); 
+            handleOrderPaymentUpdated(updatedOrderFromAPI);
+            setTimeout(handleClosePaymentModal, 2000);
         } catch (err) {
             setPaymentError(err.response?.data?.message || t('dashboard.paymentError'));
         } finally {
             setPaymentSubmitting(false);
         }
     };
-   
+
     // --- Content for Order List ---
     let ordersContent;
     if (loadingOrders && orders.length === 0 && !ordersError) {
@@ -194,32 +194,32 @@ const DashboardPage = () => {
     } else {
         ordersContent = (
             <>
-               
-                {loadingOrders && orders.length > 0 && ( <div className="absolute inset-0 bg-white/50 dark:bg-black/50 flex items-center justify-center z-10 rounded-b-apple-lg"><Spinner /></div> )}
-                <OrderTable orders={orders} onRecordPaymentClick={handleOpenPaymentModal} /> 
+
+                {loadingOrders && orders.length > 0 && (<div className="absolute inset-0 bg-white/50 dark:bg-black/50 flex items-center justify-center z-10 rounded-b-apple-lg"><Spinner /></div>)}
+                <OrderTable orders={orders} onRecordPaymentClick={handleOpenPaymentModal} />
                 {pagination.totalOrders > 0 && pagination.totalPages > 1 && (
                     <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-2">
                         <span className="text-sm text-apple-gray-600 dark:text-apple-gray-400">
-                            {t('dashboard.pageInfo', { 
-                                currentPage: pagination.currentPage, 
-                                totalPages: pagination.totalPages, 
-                                totalOrders: pagination.totalOrders 
+                            {t('dashboard.pageInfo', {
+                                currentPage: pagination.currentPage,
+                                totalPages: pagination.totalPages,
+                                totalOrders: pagination.totalOrders
                             })}
                         </span>
-                        <div className="flex space-x-2"> 
+                        <div className="flex space-x-2">
                             <Button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1 || loadingOrders} variant="secondary" size="sm">
                                 {t('dashboard.previous')}
-                            </Button> 
+                            </Button>
                             <Button onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages || loadingOrders} variant="secondary" size="sm">
                                 {t('dashboard.next')}
-                            </Button> 
+                            </Button>
                         </div>
                     </div>
                 )}
             </>
         );
     }
-   
+
 
 
     return (
@@ -227,7 +227,7 @@ const DashboardPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-2xl sm:text-3xl font-semibold text-apple-gray-800 dark:text-apple-gray-100">{t('dashboard.title')}</h1>
                 <div className="flex items-center space-x-2">
-                    <Button onClick={() => setShowFilters(prev => !prev)} variant="secondary" size="md" iconLeft={<FilterIcon size={16}/>}>
+                    <Button onClick={() => setShowFilters(prev => !prev)} variant="secondary" size="md" iconLeft={<FilterIcon size={16} />}>
                         {t('dashboard.filters')} {showFilters ? t('dashboard.filtersHide') : t('dashboard.filtersShow')}
                     </Button>
                     <Link to="/app/orders/new">
@@ -239,38 +239,38 @@ const DashboardPage = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {user?.role === 'admin' && ( 
-                <StatCard 
-                    title={t('dashboard.todaysSales')} 
-                    value={`${currencySymbol} ${(typeof dailyTotalPayments === 'number' ? dailyTotalPayments.toFixed(2) : '0.00')}`} 
-                    icon={<TrendingUp size={24} className="text-green-500" />} 
-                    isLoading={loadingDailyPayments} 
-                /> 
-              )}
-                <StatCard 
-                    title={t('dashboard.totalOrders')} 
-                    value={String(pagination.totalOrders)} 
-                    icon={<Shirt size={24} className="text-apple-blue" />} 
-                    isLoading={loadingOrders && pagination.totalOrders === 0 && !ordersError } 
+                {user?.role === 'admin' && (
+                    <StatCard
+                        title={t('dashboard.todaysSales')}
+                        value={`${currencySymbol} ${(typeof dailyTotalPayments === 'number' ? dailyTotalPayments.toFixed(2) : '0.00')}`}
+                        icon={<TrendingUp size={24} className="text-green-500" />}
+                        isLoading={loadingDailyPayments}
+                    />
+                )}
+                <StatCard
+                    title={t('dashboard.totalOrders')}
+                    value={String(pagination.totalOrders)}
+                    icon={<Shirt size={24} className="text-apple-blue" />}
+                    isLoading={loadingOrders && pagination.totalOrders === 0 && !ordersError}
                 />
-                <StatCard 
-                    title={t('dashboard.pendingProcessing')} 
-                    value={String(stats.pending)} 
-                    icon={<Clock3 size={24} className="text-apple-orange" />} 
-                    isLoading={loadingOrders && orders.length === 0 && !ordersError} 
+                <StatCard
+                    title={t('dashboard.pendingProcessing')}
+                    value={String(stats.pending)}
+                    icon={<Clock3 size={24} className="text-apple-orange" />}
+                    isLoading={loadingOrders && orders.length === 0 && !ordersError}
                 />
-                <StatCard 
-                    title={t('dashboard.readyForPickup')} 
-                    value={String(stats.ready)} 
-                    icon={<CheckCircle2 size={24} className="text-apple-green" />} 
-                    isLoading={loadingOrders && orders.length === 0 && !ordersError} 
+                <StatCard
+                    title={t('dashboard.readyForPickup')}
+                    value={String(stats.ready)}
+                    icon={<CheckCircle2 size={24} className="text-apple-green" />}
+                    isLoading={loadingOrders && orders.length === 0 && !ordersError}
                 />
-                <StatCard 
-                    title={t('dashboard.overdueOrders')} 
-                    value={String(stats.overdue)} 
-                    icon={<AlertTriangle size={24} className="text-apple-red" />} 
-                    colorClass={stats.overdue > 0 ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700' : ''} 
-                    isLoading={loadingOrders && orders.length === 0 && !ordersError} 
+                <StatCard
+                    title={t('dashboard.overdueOrders')}
+                    value={String(stats.overdue)}
+                    icon={<AlertTriangle size={24} className="text-apple-red" />}
+                    colorClass={stats.overdue > 0 ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700' : ''}
+                    isLoading={loadingOrders && orders.length === 0 && !ordersError}
                 />
             </div>
             {dailyPaymentsError && <p className="text-xs text-center text-red-500 mt-1">{dailyPaymentsError}</p>}
@@ -282,38 +282,38 @@ const DashboardPage = () => {
             )}
 
             <Card title={t('dashboard.orderList')} className="overflow-visible relative" contentClassName="p-0 sm:p-0">
-                <div className="px-4 sm:px-6 pb-6 relative"> 
+                <div className="px-4 sm:px-6 pb-6 relative">
                     {ordersContent}
                 </div>
             </Card>
 
             {showPaymentModal && selectedOrderForPayment && (
-                <Modal 
-                    isOpen={showPaymentModal} 
-                    onClose={handleClosePaymentModal} 
-                    title={t('dashboard.recordPayment', { receiptNumber: selectedOrderForPayment.receiptNumber })} 
+                <Modal
+                    isOpen={showPaymentModal}
+                    onClose={handleClosePaymentModal}
+                    title={t('dashboard.recordPayment', { receiptNumber: selectedOrderForPayment.receiptNumber })}
                     size="md"
                 >
                     <div className="space-y-4">
-                        {paymentSuccess && <p className="p-3 text-sm bg-green-100 text-apple-green rounded-apple flex items-center"><CheckCircle2 size={18} className="mr-2"/>{paymentSuccess}</p>}
-                        {paymentError && <p className="p-3 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{paymentError}</p>}
+                        {paymentSuccess && <p className="p-3 text-sm bg-green-100 text-apple-green rounded-apple flex items-center"><CheckCircle2 size={18} className="mr-2" />{paymentSuccess}</p>}
+                        {paymentError && <p className="p-3 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2" />{paymentError}</p>}
                         <div>
                             <p className="text-sm"><strong>{t('dashboard.customer')}:</strong> {selectedOrderForPayment.customer?.name}</p>
                             <p className="text-sm"><strong>{t('dashboard.totalAmount')}:</strong> {currencySymbol}{(selectedOrderForPayment.totalAmount || 0).toFixed(2)}</p>
                             <p className="text-sm"><strong>{t('dashboard.currentlyPaid')}:</strong> {currencySymbol}{(selectedOrderForPayment.amountPaid || 0).toFixed(2)}</p>
                             <p className="text-sm font-semibold">{t('dashboard.balanceDue')}: {currencySymbol}{Math.max(0, (selectedOrderForPayment.totalAmount || 0) - (selectedOrderForPayment.amountPaid || 0)).toFixed(2)}</p>
                         </div>
-                        <Input 
-                            label={t('dashboard.paymentAmountToAdd')} 
-                            id="paymentAmountInputModal" 
-                            type="number" 
-                            value={paymentAmountInput} 
-                            onChange={(e) => setPaymentAmountInput(e.target.value)} 
-                            placeholder={t('dashboard.enterAmount')} 
-                            min="0.01" 
-                            step="0.01" 
-                            disabled={paymentSubmitting} 
-                            required 
+                        <Input
+                            label={t('dashboard.paymentAmountToAdd')}
+                            id="paymentAmountInputModal"
+                            type="number"
+                            value={paymentAmountInput}
+                            onChange={(e) => setPaymentAmountInput(e.target.value)}
+                            placeholder={t('dashboard.enterAmount')}
+                            min="0.01"
+                            step="0.01"
+                            disabled={paymentSubmitting}
+                            required
                             autoFocus
                         />
                         <div className="mt-6 flex justify-end space-x-3">
