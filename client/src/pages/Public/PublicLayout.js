@@ -2,13 +2,17 @@
 import React, { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 import { Menu, X } from 'lucide-react';
 import Button from '../../components/UI/Button';
 import LanguageSwitcher from '../../components/UI/LanguageSwitcher';
+import UserMenu from '../../components/UI/UserMenu';
+import ThemeToggle from '../../components/UI/ThemeToggle';
 
 // --- Reusable Public Header Component ---
 export const PublicHeader = () => {
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
     return (
@@ -30,10 +34,21 @@ export const PublicHeader = () => {
                     {/* Desktop Auth & Language */}
                     <div className="hidden md:flex space-x-4 items-center">
                         <LanguageSwitcher />
-                        <Link to="/login" className="text-sm font-medium hover:text-apple-blue transition-colors">{t('public.header.login')}</Link>
-                        <Link to="/signup">
-                            <Button variant="primary" size="md">{t('public.header.getStarted')}</Button>
-                        </Link>
+                        <ThemeToggle />
+                        {!isAuthenticated ? (
+                            // Not authenticated - show login/signup buttons
+                            <>
+                                <Link to="/login" className="text-sm font-medium hover:text-apple-blue transition-colors">
+                                    {t('public.header.login')}
+                                </Link>
+                                <Link to="/signup">
+                                    <Button variant="primary" size="md">{t('public.header.getStarted')}</Button>
+                                </Link>
+                            </>
+                        ) : (
+                            // Authenticated - show user menu
+                            <UserMenu />
+                        )}
                     </div>
 
                     {/* Mobile Hamburger Button */}
@@ -92,30 +107,44 @@ export const PublicHeader = () => {
                                     <div className="text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400 mb-3">
                                         Language / Langue
                                     </div>
-                                    <LanguageSwitcher />
+                                    <div className="flex items-center space-x-3">
+                                        <LanguageSwitcher />
+                                        <ThemeToggle />
+                                    </div>
                                 </div>
                             </div>
                             
                             {/* Auth Buttons at Bottom */}
                             <div className="px-6 py-6 border-t border-apple-gray-200 dark:border-apple-gray-800 space-y-3">
-                                <Link 
-                                    to="/login" 
-                                    className="block w-full"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    <Button variant="secondary" size="lg" className="w-full justify-center">
-                                        {t('public.header.login')}
-                                    </Button>
-                                </Link>
-                                <Link 
-                                    to="/signup" 
-                                    className="block w-full"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    <Button variant="primary" size="lg" className="w-full justify-center">
-                                        {t('public.header.getStarted')}
-                                    </Button>
-                                </Link>
+                                {!isAuthenticated ? (
+                                    // Not authenticated - show login/signup buttons
+                                    <>
+                                        <Link 
+                                            to="/login" 
+                                            className="block w-full"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            <Button variant="secondary" size="lg" className="w-full justify-center">
+                                                {t('public.header.login')}
+                                            </Button>
+                                        </Link>
+                                        <Link 
+                                            to="/signup" 
+                                            className="block w-full"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            <Button variant="primary" size="lg" className="w-full justify-center">
+                                                {t('public.header.getStarted')}
+                                            </Button>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    // Authenticated - show user menu options
+                                    <UserMenu 
+                                        variant="compact"
+                                        onMenuClose={() => setIsMobileMenuOpen(false)}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>

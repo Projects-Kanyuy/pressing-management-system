@@ -44,6 +44,19 @@
     }
   },
   "login": {
+    "title": "Staff Login",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "pageTitle": "Login",
+    "alreadyLoggedIn": "Already logged in. Redirecting...",
+    "copyright": "All rights reserved.",
+    "loginFailed": "Login failed. Please check your credentials."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -860,7 +873,7 @@
       "recently": "Recently"
     },
     "userMenu": {
-      "signedInAs": "Signed in as",
+      "signedInAs": "Signed in as ",
       "role": "{{role}} role",
       "myProfile": "My Profile",
       "appSettings": "App Settings",
