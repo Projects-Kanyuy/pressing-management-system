@@ -59,7 +59,7 @@ export const PublicHeader = () => {
                         {!isAuthenticated ? (
                             // Not authenticated - show login/signup buttons
                             <>
-                                <Link to="/login" className="text-sm font-medium hover:text-apple-blue transition-colors">
+                                <Link to="/login" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">
                                     {t('public.header.login')}
                                 </Link>
                                 <Link to="/signup">

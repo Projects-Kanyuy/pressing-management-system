@@ -7,7 +7,7 @@ import { initiateRegistrationApi, finalizeRegistrationApi } from '../../services
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
-import { ArrowLeft, ArrowRight, PartyPopper, AlertTriangle,Plus, Trash2, User, Building, Wrench, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PartyPopper, AlertTriangle,Plus, Trash2, User, Building, Wrench, CheckCircle2, KeyRound, Eye, EyeOff, ChevronLeft, ChevronsLeft, ChevronsLeftIcon, ChevronLeftCircle } from 'lucide-react';
 
 // --- Step Components (can be moved to separate files) ---
 const Step1AdminAccount = ({ data, setData, onNext }) => {
@@ -40,7 +40,7 @@ const Step1AdminAccount = ({ data, setData, onNext }) => {
     };
     return (
         <div className="space-y-4 animate-fade-in">
-            <div className="flex items-center space-x-3 mb-4"><div className="bg-apple-blue text-white rounded-full p-2"><User size={20} /></div><h3 className="font-semibold text-xl">{t('signup.step1.title')}</h3></div>
+            <div className="flex items-center space-x-3 mb-4"><div className="bg-apple-blue text-white rounded-full p-2"><User size={20} /></div><h3 className="font-semibold text-xl dark:text-white">{t('signup.step1.title')}</h3></div>
             <p className="text-sm text-apple-gray-500">{t('signup.step1.subtitle')}</p>
             {error && <p className="text-sm text-red-500 p-2 bg-red-100 dark:bg-red-900/30 rounded-md">{error}</p>}
             <Input label={t('signup.step1.username')} name="username" value={data.username} onChange={e => setData('adminUser', 'username', e.target.value)}  />
@@ -74,7 +74,7 @@ const Step2CompanyInfo = ({ data, setData, onNext, onPrev }) => {
     };
     return (
         <div className="space-y-4 animate-fade-in">
-            <div className="flex items-center space-x-3 mb-4"><div className="bg-apple-blue text-white rounded-full p-2"><Building size={20} /></div><h3 className="font-semibold text-xl">{t('signup.step2.title')}</h3></div>
+            <div className="flex items-center space-x-3 mb-4"><div className="bg-apple-blue text-white rounded-full p-2"><Building size={20} /></div><h3 className="font-semibold text-xl dark:text-white">{t('signup.step2.title')}</h3></div>
             {error && <p className="text-sm text-red-500 p-2 bg-red-100 dark:bg-red-900/30 rounded-md">{error}</p>}
             <Input label={t('signup.step2.businessName')} name="name" value={data.name} onChange={e => setData('companyInfo', 'name', e.target.value)} />
             <Input label={t('signup.step2.businessAddress')} name="address" value={data.address} onChange={e => setData('companyInfo', 'address', e.target.value)} />
@@ -380,11 +380,21 @@ const SignUpPage = () => {
 
     return (
         <div className="min-h-screen bg-apple-gray-100 dark:bg-apple-gray-950 flex flex-col items-center justify-center p-4">
+            {/* Back to Home Button */}
+            <div className="absolute top-6 left-6">
+                <Link 
+                    to="/" 
+                    className="flex items-center space-x-2 text-apple-gray-600 dark:text-apple-gray-400 hover:text-apple-blue dark:hover:text-apple-blue transition-colors"
+                >
+                    <ArrowLeft size={20} />
+                                    </Link>
+            </div>
+
              <Link to="/" className="flex items-center space-x-2 mb-8"><svg className="h-10 w-10 text-apple-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                 <span className="text-3xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressFlow</span></Link>
             <Card className="w-full max-w-3xl shadow-apple-lg">
                 <div className="flex items-center p-4 border-b dark:border-apple-gray-700">
-                    <h2 className="text-xl font-bold text-center flex-grow">{t('signup.title')}</h2>
+                    <h2 className="text-xl font-bold text-center flex-grow dark:text-white">{t('signup.title')}</h2>
                     <span className="text-sm font-medium text-apple-gray-500">{step < 5 ? t('signup.stepProgress', { current: step, total: 4 }) : t('signup.finalStep')}</span>
                 </div>
                 {error && <div className="p-3 m-4 text-sm bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{error}</div>}
