@@ -32,9 +32,21 @@ api.interceptors.response.use(
 );
 
 // --- Public Routes ---
+
+// --- THIS IS THE FIX #1 ---
+// Changed the bitwise OR '|' to a logical OR '||'.
+// Also, the baseURL for public routes should match the main API_URL.
+const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000' });
+
 export const registerTenantWithSetup = async (setupData) => {
     return api.post('/public/register-with-setup', setupData);
 };
+
+// --- THIS IS THE FIX #2 ---
+// The function now uses the corrected PublicAPI instance.
+// The path now includes '/api' to form the correct full URL: http://localhost:5000/api/plans
+export const getPublicPlansApi = () => PublicAPI.get('/api/plans');
+
 
 // --- Authentication & User Profile ---
 export const loginUser = (credentials) => api.post('/auth/login', credentials);
@@ -91,11 +103,6 @@ export const recordPartialPaymentApi = async (orderId, paymentData) => {
     return api.post(`/orders/${orderId}/payments`, paymentData);
 };
 
-// export const recordPaymentApi = async (orderId, paymentData) => {
-//     // paymentData should be { amount, method }
-//     return api.post(`/orders/${orderId}/payments`, paymentData);
-// };
-
 // --- Customers ---
 export const fetchCustomers = (searchQuery = '') => {
     const params = searchQuery ? { search: searchQuery } : {};
@@ -121,7 +128,6 @@ export const fetchAdminNotificationsApi = async () => api.get('/admin-notificati
 export const markAdminNotificationReadApi = async (notificationId) => api.put(`/admin-notifications/${notificationId}/read`);
 export const markAllAdminNotificationsReadApi = async () => api.put('/admin-notifications/read-all');
 export const uploadMyProfilePicture = async (formData) => {
-    // formData will contain the file under the key 'profilePicture'
     return api.put('/auth/me/profile-picture', formData, {
         headers: {
             'Content-Type': 'multipart/form-data', 
@@ -145,17 +151,15 @@ export const fetchInboundMessagesApi = async (page = 1, pageSize = 25) => {
 export const recordPaymentApi = async (orderId, paymentData) => {
     return api.post(`/orders/${orderId}/payments`, paymentData);
 };
-export const getAllPlansAdminApi = () => api.get('/api/plans/all');
-export const updatePlanApi = (id, planData) => api.put(`/api/plans/${id}`, planData);
+export const getAllPlansAdminApi = () => api.get('/plans/all');
+export const updatePlanApi = (id, planData) => api.put(`/plans/${id}`, planData);
 
 // --- DIRECTORY ADMIN API ---
-// Let's create a separate instance for simplicity
 const directoryAdminApi = axios.create({ baseURL: API_URL });
 
-// Interceptor to add the DIRECTORY ADMIN token
 directoryAdminApi.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('directoryAdminToken'); // Use the separate token
+        const token = localStorage.getItem('directoryAdminToken');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -167,11 +171,10 @@ directoryAdminApi.interceptors.request.use(
 directoryAdminApi.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Handle 401 specifically for the directory admin
         if (error.response && error.response.status === 401 && window.location.pathname.includes('/directory-admin')) {
              console.warn('[api.js] Directory Admin Unauthorized (401). Redirecting to dir-admin login.');
              localStorage.removeItem('directoryAdminToken');
-             window.location.href = '/#/directory-admin/login'; // Use hash if you are using HashRouter
+             window.location.href = '/#/directory-admin/login';
         }
         return Promise.reject(error);
     }
@@ -179,11 +182,9 @@ directoryAdminApi.interceptors.response.use(
 
 
 export const loginDirectoryAdminApi = async (credentials) => {
-    // Login doesn't need a token, so we can use the main `api` instance
     return api.post('/directory-admin/login', credentials);
 };
 
-// --- CORRECTED: These functions MUST use the `directoryAdminApi` instance ---
 export const getAllDirectoryListingsApi = async () => {
     return directoryAdminApi.get('/directory-admin/listings');
 };
@@ -204,14 +205,12 @@ export const updateTenantApi = async (id, tenantData) => {
     return api.put(`/directory-admin/tenants/${id}`, tenantData);
 };
 export const uploadTenantLogoApi = async (formData) => {
-    // This uses the main `api` instance which sends the tenant user's token
     return api.post('/uploads/tenant-logo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 };
 
 export const uploadListingLogoApi = async (formData) => {
-    // This uses the `directoryAdminApi` instance which sends the super admin's token
     return directoryAdminApi.post('/uploads/listing-logo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
