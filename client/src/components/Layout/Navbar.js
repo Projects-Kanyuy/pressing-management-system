@@ -117,8 +117,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                         </div>
                     )}
 
-                    <UserMenu 
-                        showAdminSettings={true}
+                    <UserMenu
                         onMenuClose={() => setShowNotifications(false)}
                     />
                 </div>
