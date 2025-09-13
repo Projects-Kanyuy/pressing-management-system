@@ -113,18 +113,18 @@ const PricingPage = () => {
                 {/* --- FAQ Section (Optional but good) --- */}
                 <section className="py-20 bg-white dark:bg-apple-gray-900">
                     <div className="container mx-auto px-6 max-w-3xl">
-                        <h2 className="text-3xl font-bold text-center mb-8">{t('public.pricing.faq.title')}</h2>
+                        <h2 className="text-3xl font-bold text-center mb-8 dark:text-white">{t('public.pricing.faq.title')}</h2>
                         <div className="space-y-6">
                             <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.freeTrial.question')}</h4>
+                                <h4 className="font-semibold mb-1 dark:text-white">{t('public.pricing.faq.freeTrial.question')}</h4>
                                 <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.freeTrial.answer')}</p>
                             </div>
                             <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.changePlan.question')}</h4>
+                                <h4 className="font-semibold mb-1 dark:text-white">{t('public.pricing.faq.changePlan.question')}</h4>
                                 <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.changePlan.answer')}</p>
                             </div>
                              <div>
-                                <h4 className="font-semibold mb-1">{t('public.pricing.faq.smsRequirements.question')}</h4>
+                                <h4 className="font-semibold mb-1 dark:text-white">{t('public.pricing.faq.smsRequirements.question')}</h4>
                                 <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">{t('public.pricing.faq.smsRequirements.answer')}</p>
                             </div>
                         </div>

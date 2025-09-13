@@ -233,7 +233,7 @@ const currencySymbol = settings.defaultCurrencySymbol;
         } finally { setIsLoading(false); }
     };
     if (operationalData.loading) {
-        return <div className="p-8 text-center"><Spinner size="lg" /><p className="mt-2 text-sm text-apple-gray-500">{t('createOrder.form.loadingData')}</p></div>;
+        return <div className="p-8 flex justify-center items-center"><Spinner size="lg" /><p className="ml-1 mt-2 text-sm text-apple-gray-500">{t('createOrder.form.loadingData')}</p></div>;
     }
 
     if (!operationalData.loading && operationalData.itemTypes.length === 0) {

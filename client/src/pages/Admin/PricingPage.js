@@ -91,7 +91,7 @@ const PricingManager = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center"><Spinner size="lg" /><p className="mt-2 text-sm">{t('pricing.loadingText')}</p></div>;
+    if (loading) return <div className="p-8 flex justify-center"><Spinner size="lg" /><p className="mt-2 text-sm">{t('pricing.loadingText')}</p></div>;
 
     return (
         <div className="space-y-6">

@@ -128,7 +128,7 @@ const FeaturesPage = () => {
                 {/* --- CTA Section --- */}
                 <section className="py-20 text-center bg-white dark:bg-apple-gray-900">
                     <div className="container mx-auto px-6">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('public.features.cta.title')}</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4 dark:text-white">{t('public.features.cta.title')}</h2>
                         <p className="text-lg text-apple-gray-600 dark:text-apple-gray-400 max-w-2xl mx-auto mb-8">
                             {t('public.features.cta.subtitle')}
                         </p>

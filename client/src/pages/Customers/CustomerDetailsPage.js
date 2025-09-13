@@ -132,7 +132,7 @@ const CustomerDetailsPage = () => {
 
             <Card title="Order History" contentClassName="p-0"> {/* No Card padding to allow table full width */}
                 {loadingOrders ? (
-                    <div className="p-6 text-center"><Spinner /></div>
+                    <div className="p-6 flex justify-center "><Spinner /></div>
                 ) : orders.length === 0 ? (
                     <p className="p-6 text-center text-sm text-apple-gray-500 dark:text-apple-gray-400">This customer has no orders recorded.</p>
                 ) : (
