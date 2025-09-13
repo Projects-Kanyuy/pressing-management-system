@@ -10,7 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:admin": "node seedAdmin.js",
     "seed:dir-admin": "node seedDirectoryAdmin.js",
-    "seed:dir-admin-destroy": "node seedDirectoryAdmin.js -d" 
+    "seed:dir-admin-destroy": "node seedDirectoryAdmin.js -d" ,
+    "data:import": "node seeder.js",
+    "data:destroy": "node seeder.js -d"
   },
   "keywords": [],
   "author": "",

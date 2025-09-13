@@ -1,31 +1,126 @@
 // client/src/pages/Admin/DirectoryAdminDashboard.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDirectoryAuth } from '../../contexts/DirectoryAuthContext';
 import {
     getAllDirectoryListingsApi, createDirectoryListingApi, updateDirectoryListingApi, deleteDirectoryListingApi,
-    getAllTenantsApi, updateTenantApi
+    getAllTenantsApi, updateTenantApi, getAllPlansAdminApi, updatePlanApi
 } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Spinner from '../../components/UI/Spinner';
 import ListingFormModal from '../../components/Admin/ListingFormModal';
-import TenantFormModal from '../../components/Admin/TenantFormModal'; // Import new modal
-import { List, Users, PlusCircle, Edit3, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react';
-
-const TabButton = ({ label, isActive, onPress }) => (
+import TenantFormModal from '../../components/Admin/TenantFormModal';
+import { List, Users, Tag, PlusCircle, Edit3, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-hot-toast';
+// Reusable Tab Button Component
+const TabButton = ({ label, icon, isActive, onPress }) => (
     <button
         onClick={onPress}
-        className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 ${
+        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 ${
             isActive
                 ? 'border-apple-blue text-apple-blue font-semibold'
                 : 'border-transparent text-apple-gray-500 hover:border-apple-gray-300 hover:text-apple-gray-800'
         }`}
     >
-        {label}
+        {icon}
+        <span>{label}</span>
     </button>
 );
 
+// Self-contained component for the Pricing Management Tab
+const PricingTab = () => {
+    const [plans, setPlans] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [savingPlanId, setSavingPlanId] = useState(null);
+    const { t } = useTranslation();
+
+    const fetchPlans = useCallback(async () => {
+        setLoading(true);
+        try {
+            const { data } = await getAllPlansAdminApi();
+            setPlans(data);
+        } catch (error) {
+            toast.error("Failed to load pricing plans.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchPlans();
+    }, [fetchPlans]);
+
+    const handlePriceChange = (planId, currency, newAmount) => {
+        setPlans(currentPlans =>
+            currentPlans.map(plan => {
+                if (plan._id === planId) {
+                    const updatedPrices = plan.prices.map(price => 
+                        price.currency === currency 
+                            ? { ...price, amount: parseFloat(newAmount) || 0 } 
+                            : price
+                    );
+                    return { ...plan, prices: updatedPrices };
+                }
+                return plan;
+            })
+        );
+    };
+
+    const handleSave = async (planToSave) => {
+        setSavingPlanId(planToSave._id);
+        try {
+            // Only send the fields that can be updated from this interface
+            await updatePlanApi(planToSave._id, {
+                prices: planToSave.prices.map(({ currency, amount }) => ({ currency, amount }))
+            });
+            toast.success(`${planToSave.name} plan prices updated successfully!`);
+        } catch (error) {
+            toast.error(`Failed to save ${planToSave.name} plan prices.`);
+            fetchPlans(); // Re-fetch to revert optimistic update on failure
+        } finally {
+            setSavingPlanId(null);
+        }
+    };
+
+    if (loading) return <div className="p-8 flex justify-center"><Spinner /></div>;
+
+    return (
+        <Card>
+            <div className="p-4 border-b dark:border-apple-gray-700">
+                <h2 className="font-semibold text-lg">Subscription Price Management</h2>
+                <p className="text-sm text-apple-gray-500">Set the price for each plan in all supported currencies.</p>
+            </div>
+            <div className="p-4 space-y-8">
+                {plans.filter(p => p.name !== 'Trial').map((plan) => (
+                    <div key={plan._id} className="bg-apple-gray-50 dark:bg-apple-gray-900 p-4 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-4">{t(`public.pricing.plans.${plan.name.toLowerCase()}.name`, plan.name)} Plan</h3>
+                        <div className="space-y-3">
+                            {plan.prices.map((price) => (
+                                <div key={price.currency} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                    <label className="font-medium text-apple-gray-600 dark:text-apple-gray-300">{price.currency}</label>
+                                    <div className="md:col-span-2 relative">
+                                        <input type="number" value={price.amount} onChange={(e) => handlePriceChange(plan._id, price.currency, e.target.value)} className="w-full p-2 border rounded-md dark:bg-apple-gray-800 dark:border-apple-gray-700 pr-12" placeholder="0.00" />
+                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-apple-gray-400">{price.currency}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="text-right mt-6">
+                            <Button onClick={() => handleSave(plan)} isLoading={savingPlanId === plan._id}>
+                                Save {t(`public.pricing.plans.${plan.name.toLowerCase()}.name`, plan.name)} Prices
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </Card>
+    );
+};
+
+// Main Dashboard Component
 const DirectoryAdminDashboard = () => {
     const navigate = useNavigate();
     const { dirAdminLogout } = useDirectoryAuth();
@@ -38,10 +133,8 @@ const DirectoryAdminDashboard = () => {
     const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [apiError, setApiError] = useState('');
-
     const [isListingModalOpen, setIsListingModalOpen] = useState(false);
     const [editingListing, setEditingListing] = useState(null);
-
     const [isTenantModalOpen, setIsTenantModalOpen] = useState(false);
     const [editingTenant, setEditingTenant] = useState(null);
 
@@ -59,9 +152,7 @@ const DirectoryAdminDashboard = () => {
 
     useEffect(() => {
         let timer;
-        if (success || error) {
-            timer = setTimeout(() => { setSuccess(''); setError(''); }, 4000);
-        }
+        if (success || error) { timer = setTimeout(() => { setSuccess(''); setError(''); }, 4000); }
         return () => clearTimeout(timer);
     }, [success, error]);
 
@@ -72,13 +163,8 @@ const DirectoryAdminDashboard = () => {
     const handleListingFormSubmit = async (formData) => {
         setIsSubmitting(true); setApiError('');
         try {
-            if (editingListing) {
-                const { data } = await updateDirectoryListingApi(editingListing._id, formData);
-                setSuccess(`Listing "${data.name}" updated successfully.`);
-            } else {
-                const { data } = await createDirectoryListingApi(formData);
-                setSuccess(`Listing "${data.name}" created successfully.`);
-            }
+            const data = editingListing ? await updateDirectoryListingApi(editingListing._id, formData) : await createDirectoryListingApi(formData);
+            setSuccess(`Listing "${data.data.name}" ${editingListing ? 'updated' : 'created'} successfully.`);
             setIsListingModalOpen(false); loadData();
         } catch (err) { setApiError(err.response?.data?.message || "An error occurred."); throw err;
         } finally { setIsSubmitting(false); }
@@ -118,8 +204,9 @@ const DirectoryAdminDashboard = () => {
                     {error && <div className="p-3 mb-4 bg-red-100 text-apple-red rounded-apple flex items-center"><AlertTriangle size={18} className="mr-2"/>{error}</div>}
 
                     <div className="flex space-x-2 border-b dark:border-apple-gray-700 mb-6">
-                        <TabButton label={`Software Customers (${tenants.length})`} isActive={activeTab === 'tenants'} onPress={() => setActiveTab('tenants')} />
-                        <TabButton label={`Manual Listings (${listings.length})`} isActive={activeTab === 'listings'} onPress={() => setActiveTab('listings')} />
+                        <TabButton label={`Software Customers (${tenants.length})`} icon={<Users size={16}/>} isActive={activeTab === 'tenants'} onPress={() => setActiveTab('tenants')} />
+                        <TabButton label={`Manual Listings (${listings.length})`} icon={<List size={16}/>} isActive={activeTab === 'listings'} onPress={() => setActiveTab('listings')} />
+                        <TabButton label="Plan Pricing" icon={<Tag size={16}/>} isActive={activeTab === 'pricing'} onPress={() => setActiveTab('pricing')} />
                     </div>
 
                     {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
@@ -127,7 +214,7 @@ const DirectoryAdminDashboard = () => {
                             {activeTab === 'tenants' && (
                                 <Card>
                                     <div className="p-4 border-b dark:border-apple-gray-700"><h2 className="font-semibold text-lg">Software Customers (Tenants)</h2><p className="text-sm text-apple-gray-500">Businesses that signed up for PressFlow. Edit their public directory profile here.</p></div>
-                                    <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr><th className="px-4 py-3 text-left">Name</th><th className="px-4 py-3 text-left">City</th><th className="px-4 py-3 text-left">Listed in Directory?</th><th className="px-4 py-3 text-center">Actions</th></tr></thead><tbody className="divide-y">
+                                    <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr><th className="px-4 py-3 text-left">Name</th><th className="px-4 py-3 text-left">City</th><th className="px-4 py-3 text-left">Listed in Directory?</th><th className="px-4 py-3 text-center">Actions</th></tr></thead><tbody className="divide-y dark:divide-apple-gray-700">
                                         {tenants.map(tenant => (<tr key={tenant._id}>
                                             <td className="px-4 py-2 font-medium">{tenant.name}</td>
                                             <td className="px-4 py-2">{tenant.city || 'N/A'}</td>
@@ -139,7 +226,7 @@ const DirectoryAdminDashboard = () => {
                             {activeTab === 'listings' && (
                                 <Card>
                                     <div className="flex justify-between items-center p-4 border-b dark:border-apple-gray-700"><h2 className="font-semibold text-lg">Manual Directory Listings</h2><Button iconLeft={<PlusCircle size={16} />} onClick={handleOpenCreateListingModal}>Add New Listing</Button></div>
-                                    <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr><th>Business Name</th><th>City</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody className="divide-y">
+                                    <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr><th className="px-4 py-3 text-left">Business Name</th><th className="px-4 py-3 text-left">City</th><th className="px-4 py-3 text-left">Phone</th><th className="px-4 py-3 text-left">Status</th><th className="px-4 py-3 text-center">Actions</th></tr></thead><tbody className="divide-y dark:divide-apple-gray-700">
                                         {listings.map(listing => (<tr key={listing._id}>
                                             <td className="px-4 py-2 font-medium">{listing.name}</td>
                                             <td className="px-4 py-2">{listing.city || 'N/A'}</td>
@@ -148,6 +235,9 @@ const DirectoryAdminDashboard = () => {
                                             <td className="px-4 py-2 text-center"><div className="flex justify-center space-x-2"><Button size="sm" variant="ghost" onClick={() => handleOpenEditListingModal(listing)}><Edit3 size={16} /></Button><Button size="sm" variant="ghost" className="text-apple-red" onClick={() => handleDeleteListing(listing)}><Trash2 size={16} /></Button></div></td>
                                         </tr>))}</tbody></table></div>
                                 </Card>
+                            )}
+                            {activeTab === 'pricing' && (
+                                <PricingTab />
                             )}
                         </div>
                     )}

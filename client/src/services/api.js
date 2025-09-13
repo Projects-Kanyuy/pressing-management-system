@@ -145,6 +145,8 @@ export const fetchInboundMessagesApi = async (page = 1, pageSize = 25) => {
 export const recordPaymentApi = async (orderId, paymentData) => {
     return api.post(`/orders/${orderId}/payments`, paymentData);
 };
+export const getAllPlansAdminApi = () => api.get('/api/plans/all');
+export const updatePlanApi = (id, planData) => api.put(`/api/plans/${id}`, planData);
 
 // --- DIRECTORY ADMIN API ---
 // Let's create a separate instance for simplicity
