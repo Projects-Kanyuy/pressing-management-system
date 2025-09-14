@@ -22,9 +22,11 @@ import directoryAdminRoutes from './routes/directoryAdminRoutes.js'; // <-- IMPO
 import uploadRoutes from './routes/uploadRoutes.js'; 
 import currencyRoutes from './routes/currencyRoutes.js';
 import planRoutes from './routes/planRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js'
 
 // Import scheduler
 import { startOrderChecks } from './schedulers/orderChecker.js'; 
+import checkSubscriptions from './schedulers/subscriptionScheduler.js';
 
 dotenv.config();
 
@@ -36,6 +38,7 @@ connectDB().then(() => {
     // that might not want schedulers running.
     if (process.env.NODE_ENV !== 'test' && process.env.DISABLE_SCHEDULER !== 'true') {
         startOrderChecks();
+        checkSubscriptions();
     }
 }).catch(err => {
     console.error("CRITICAL: Failed to connect to DB. Application will not start properly.", err);
@@ -71,6 +74,7 @@ app.use('/api/inbound-messages', inboundMessageRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/currency', currencyRoutes);
 app.use('/api/plans', planRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Error handling middleware (should be last for API routes)
 app.use(notFound);

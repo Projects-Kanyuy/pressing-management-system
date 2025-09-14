@@ -45,7 +45,7 @@ export const registerTenantWithSetup = async (setupData) => {
 // --- THIS IS THE FIX #2 ---
 // The function now uses the corrected PublicAPI instance.
 // The path now includes '/api' to form the correct full URL: http://localhost:5000/api/plans
-export const getPublicPlansApi = () => PublicAPI.get('/api/plans');
+export const getPublicPlansApi = () => PublicAPI.get('/plans');
 
 
 // --- Authentication & User Profile ---
@@ -88,6 +88,7 @@ export const createNewOrder = (orderData) => api.post('/orders', orderData);
 export const updateExistingOrder = (orderId, orderData) => api.put(`/orders/${orderId}`, orderData);
 export const deleteOrderApi = (orderId) => api.delete(`/orders/${orderId}`);
 export const sendManualNotification = (orderId) => api.post(`/orders/${orderId}/notify`);
+export const changeSubscriptionPlanApi = (planData) => api.post('/subscriptions/change-plan', planData);
 
 // --- Payments ---
 export const markOrderPaidApi = async (orderId) => {

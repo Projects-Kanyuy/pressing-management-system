@@ -61,6 +61,24 @@ const tenantSchema = new mongoose.Schema({
         default: true, 
         index: true 
     },
+     plan: {
+      type: String,
+      required: true,
+      enum: ['Trial', 'Basic', 'Pro', 'Enterprise'],
+      default: 'Trial',
+    },
+    subscriptionStatus: {
+      type: String,
+      required: true,
+      enum: ['active', 'trialing', 'past_due', 'canceled'],
+      default: 'trialing',
+    },
+    trialEndsAt: {
+      type: Date,
+    },
+    nextBillingAt: {
+      type: Date,
+    },
     // Billing fields
     stripeCustomerId: { 
         type: String 

@@ -51,23 +51,34 @@ const initiateRegistration = asyncHandler(async (req, res) => {
 });
 
 // --- STEP 2: VERIFY OTP & FINALIZE REGISTRATION ---
+
 const finalizeRegistration = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
-    if (!email || !otp) { res.status(400); throw new Error('Email and OTP are required.'); }
+    if (!email || !otp) {
+        res.status(400);
+        throw new Error('Email and OTP are required.');
+    }
 
     const pendingUser = await PendingUser.findOne({ email: email.toLowerCase() });
 
-    if (!pendingUser) { res.status(400); throw new Error('Invalid registration request or it has expired. Please start over.'); }
-    // The expireAt field in the model handles automatic deletion, but this is a good manual check
+    if (!pendingUser) {
+        res.status(400);
+        throw new Error('Invalid registration request or it has expired. Please start over.');
+    }
+    
     if (new Date() > pendingUser.expireAt) {
-        await pendingUser.deleteOne(); // Clean up expired entry
-        res.status(400); throw new Error('Your OTP has expired. Please start the registration over.');
+        await pendingUser.deleteOne();
+        res.status(400);
+        throw new Error('Your OTP has expired. Please start the registration over.');
     }
 
     const isMatch = await pendingUser.matchOtp(otp);
-    if (!isMatch) { res.status(400); throw new Error('Invalid verification code.'); }
+    if (!isMatch) {
+        res.status(400);
+        throw new Error('Invalid verification code.');
+    }
 
-    const { adminUser, companyInfo, currencySymbol, itemTypes, serviceTypes, priceList } = pendingUser.signupData;
+    const { adminUser, companyInfo, currencySymbol, itemTypes, serviceTypes, priceList, plan: planName } = pendingUser.signupData;
 
     if (!adminUser || !companyInfo) {
         throw new Error("Internal Server Error: Pending registration data is incomplete.");
@@ -76,7 +87,36 @@ const finalizeRegistration = asyncHandler(async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const tenant = new Tenant({ name: companyInfo.name, /* ... other tenant fields from companyInfo if any ... */ });
+        // --- Subscription Logic ---
+        const chosenPlanName = planName ? (planName.charAt(0).toUpperCase() + planName.slice(1)) : 'Trial';
+        const selectedPlan = await Plan.findOne({ name: chosenPlanName }).session(session);
+
+        if (!selectedPlan) {
+            throw new Error('Selected plan could not be found. Cannot create tenant.');
+        }
+
+        let trialEndDate = undefined;
+        let nextBillingDate = undefined;
+        let status = 'active';
+
+        if (selectedPlan.name === 'Trial') {
+            trialEndDate = new Date();
+            trialEndDate.setDate(trialEndDate.getDate() + 30);
+            status = 'trialing';
+        } else {
+            console.log(`Simulating payment for new Tenant ${companyInfo.name} for the ${selectedPlan.name} plan.`);
+            nextBillingDate = new Date();
+            nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+        }
+        // --- End of Subscription Logic ---
+
+        const tenant = new Tenant({ 
+            name: companyInfo.name, 
+            plan: selectedPlan.name,
+            subscriptionStatus: status,
+            trialEndsAt: trialEndDate,
+            nextBillingAt: nextBillingDate
+        });
         const savedTenant = await tenant.save({ session });
         const tenantId = savedTenant._id;
 
@@ -89,9 +129,6 @@ const finalizeRegistration = asyncHandler(async (req, res) => {
         });
         const savedUser = await user.save({ session });
 
-        // The post('save') hook on Tenant model will create settings, so this is redundant and can be removed
-        // await Settings.create([{ tenantId, companyInfo, defaultCurrencySymbol, itemTypes, serviceTypes }], { session });
-        // Instead, let's update the settings that the hook created
         await Settings.findOneAndUpdate(
             { tenantId: tenantId },
             {
@@ -102,9 +139,8 @@ const finalizeRegistration = asyncHandler(async (req, res) => {
                     serviceTypes: serviceTypes
                 }
             },
-            { session }
+            { session, new: true, upsert: true } // Upsert ensures it gets created
         );
-
 
         if (priceList && priceList.length > 0) {
             await Price.insertMany(priceList.map(p => ({ ...p, tenantId })), { session });
@@ -114,11 +150,23 @@ const finalizeRegistration = asyncHandler(async (req, res) => {
         await session.commitTransaction();
 
         const token = generateToken(savedUser._id, savedUser.username, savedUser.role, savedUser.tenantId);
+        
+        // Send back a comprehensive user object for the frontend context
         res.status(201).json({
-            _id: savedUser._id, username: savedUser.username, role: savedUser.role,
-            tenantId: savedUser.tenantId, token,
+            _id: savedUser._id, 
+            username: savedUser.username, 
+            role: savedUser.role,
+            tenantId: savedUser.tenantId, 
+            token,
+            tenant: { // Include tenant subscription details in the login response
+                plan: savedTenant.plan,
+                subscriptionStatus: savedTenant.subscriptionStatus,
+                trialEndsAt: savedTenant.trialEndsAt,
+                nextBillingAt: savedTenant.nextBillingAt,
+            },
             message: `Account for '${tenant.name}' created successfully!`
         });
+
     } catch (error) {
         await session.abortTransaction();
         console.error("Finalize Registration Transaction Failed:", error);
