@@ -68,6 +68,7 @@ export const finalizeRegistrationApi = async (verificationData) => {
     // verificationData = { email, otp }
     return api.post('/public/finalize-registration', verificationData);
 };
+export const getTenantPriceListApi = (tenantId) => PublicAPI.get(`/public/tenants/${tenantId}/prices`);
 
 // --- Admin User Management ---
 export const fetchUsersApi = async () => api.get('/auth/users');

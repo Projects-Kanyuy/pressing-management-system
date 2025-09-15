@@ -88,13 +88,36 @@ const logoutUser = asyncHandler(async (req, res) => {
 // @route   GET /api/auth/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    if (req.user) {
-        res.json({ _id: req.user._id, username: req.user.username, role: req.user.role });
-    } else {
-        res.status(404); throw new Error('User not found.');
-    }
-});
+    // req.user is from the 'protect' middleware which attaches the user's ID and tenantId
+    const user = await User.findById(req.user.id).select('-password');
 
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // --- THIS IS THE FIX ---
+    // If the user is associated with a tenant, fetch the tenant's data
+    let tenantData = null;
+    if (user.tenantId) {
+        const tenant = await Tenant.findById(user.tenantId).select(
+            'name plan subscriptionStatus trialEndsAt nextBillingAt'
+        );
+        if (tenant) {
+            tenantData = tenant;
+        }
+    }
+    
+    // Respond with a comprehensive object containing user and tenant data
+    res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId,
+        tenant: tenantData, // <-- NESTED TENANT OBJECT
+    });
+});
 // @desc    Update current user's own profile (e.g., username)
 // @route   PUT /api/auth/me
 // @access  Private

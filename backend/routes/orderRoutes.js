@@ -13,23 +13,24 @@ import {
     recordPayment
 } from '../controllers/orderController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
+import { checkSubscription } from '../middleware/subscriptionCheckMiddleware.js'; 
 import { body, validationResult } from 'express-validator';
 const router = express.Router();
 
 router.route('/')
-    .post(protect, createOrder)
+    .post(protect,checkSubscription, createOrder)
     .get(protect, getOrders);
 
 router.route('/:id')
-    .get(protect, getOrderById)
-    .put(protect, updateOrder)
-    .delete(protect, authorize('admin'), deleteOrder);
+    .get(protect,checkSubscription, getOrderById)
+    .put(protect, checkSubscription,updateOrder)
+    .delete(protect, checkSubscription, authorize('admin'), deleteOrder);
 
 router.post('/:id/notify', protect, manuallyNotifyCustomer);
-router.put('/:id/mark-paid', protect, markOrderAsFullyPaid);
-router.put('/:id/mark-paid', protect, markOrderAsPaid); 
-router.post('/:id/payments', protect, recordPartialPayment); 
-router.post('/:id/payments', protect, recordPayment);
+router.put('/:id/mark-paid', protect,checkSubscription, markOrderAsFullyPaid);
+router.put('/:id/mark-paid', protect,checkSubscription, markOrderAsPaid); 
+router.post('/:id/payments', protect,checkSubscription, recordPartialPayment); 
+router.post('/:id/payments', protect,checkSubscription, recordPayment);
 
 
 export default router;

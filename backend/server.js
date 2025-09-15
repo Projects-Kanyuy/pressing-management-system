@@ -56,6 +56,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/public', publicRoutes); 
+
 app.use('/api/directory-admin', directoryAdminRoutes); // <-- MOUNT
 app.use('/api/auth', authRoutes)
 app.use('/api/prices', priceRoutes);
@@ -75,6 +76,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/currency', currencyRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+
 
 // Error handling middleware (should be last for API routes)
 app.use(notFound);

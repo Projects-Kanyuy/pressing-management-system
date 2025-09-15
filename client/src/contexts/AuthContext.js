@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     const loginWithToken = useCallback(async (newToken) => {
         await fetchAndSetUser(newToken);
     }, [fetchAndSetUser]);
-
+    const isSubscriptionActive = user?.tenant?.subscriptionStatus === 'active' || user?.tenant?.subscriptionStatus === 'trialing';
     const updateUserInContext = (updatedUserData) => {
         setUser(prevUser => ({
             ...prevUser,
@@ -92,6 +92,7 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         isAuthenticated: !!user && !!token,
+        isSubscriptionActive,
         loading,
         login,
         logout,

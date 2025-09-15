@@ -1,43 +1,85 @@
-// client/src/pages/Public/DirectoryPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPublicDirectoryApi } from '../../services/api';
 import Spinner from '../../components/UI/Spinner';
 import Input from '../../components/UI/Input';
-import { MapPin, Search, Aperture } from 'lucide-react';
+import Button from '../../components/UI/Button'; // Assuming you have this for the WhatsApp button
+import { MapPin, Search, Aperture, Phone } from 'lucide-react';
 
-// --- NEW, IMPROVED BusinessCard Component ---
-const BusinessCard = ({ business }) => (
-    <div className="bg-white dark:bg-apple-gray-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2">
-        <div className="p-6">
-            <div className="flex items-center">
-                <div className="w-16 h-16 rounded-lg bg-apple-gray-100 dark:bg-apple-gray-700 flex-shrink-0 mr-5 flex items-center justify-center overflow-hidden">
-                    {business.logoUrl ? (
-                        <img src={business.logoUrl} alt={`${business.name} logo`} className="w-full h-full object-cover" />
+// --- SELF-CONTAINED, UPGRADED BusinessCard Component ---
+const BusinessCard = ({ business }) => {
+    // Provide a professional fallback image if a business hasn't uploaded a banner.
+    const bannerUrl = business.bannerUrl || 'https://images.unsplash.com/photo-1582735689369-7fe275765448?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNzEyNjZ8MHwxfHNlYXJjaHwxfHxMYXVuZHJ5fGVufDB8MHx8fDE3MjE2Nzg0MDR8MA&ixlib=rb-4.0.3&q=80&w=1080';
+    const logoUrl = business.logoUrl;
+
+    const handleWhatsAppContact = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!business.publicPhone) return;
+        
+        const phoneNumber = business.publicPhone.replace(/\s/g, '').replace('+', '');
+        const message = `Hello ${business.name}, I found you on PressFlow and would like to inquire about your services.`;
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
+    return (
+        <div className="bg-white dark:bg-apple-gray-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 flex flex-col">
+            
+            {/* --- Banner and Logo Section --- */}
+            <div className="relative">
+                {/* 1. The Banner Image (fills the top) */}
+                <div 
+                    className="h-32 bg-cover bg-center" 
+                    style={{ backgroundImage: `url(${bannerUrl})` }}
+                />
+                
+                {/* 2. The Logo (overlaid on top of the banner) */}
+                <div className="absolute top-20 left-6 w-20 h-20 rounded-lg bg-white dark:bg-apple-gray-800 p-1 shadow-md flex items-center justify-center overflow-hidden">
+                    {logoUrl ? (
+                        <img src={logoUrl} alt={`${business.name} logo`} className="w-full h-full object-cover rounded-md" />
                     ) : (
                         <span className="text-3xl font-bold text-apple-blue">{business.name?.charAt(0).toUpperCase()}</span>
                     )}
                 </div>
-                <div className="flex-1 overflow-hidden">
-                    <h3 className="font-bold text-lg text-apple-gray-900 dark:text-white truncate" title={business.name}>
-                        {business.name}
-                    </h3>
-                    <div className="flex items-center mt-1 text-xs text-apple-gray-500 dark:text-apple-gray-400">
-                        <MapPin size={12} className="mr-1.5 flex-shrink-0" />
-                        <span className="truncate">{business.city || 'N/A'}{business.country && `, ${business.country}`}</span>
-                    </div>
+            </div>
+
+            {/* --- Content Section --- */}
+            <div className="p-6 pt-12 flex-grow flex flex-col">
+                <h3 className="font-bold text-lg text-apple-gray-900 dark:text-white truncate" title={business.name}>
+                    {business.name}
+                </h3>
+                <div className="flex items-center mt-1 text-xs text-apple-gray-500 dark:text-apple-gray-400">
+                    <MapPin size={12} className="mr-1.5 flex-shrink-0" />
+                    <span className="truncate">{business.city || 'N/A'}{business.country && `, ${business.country}`}</span>
+                </div>
+                <p className="mt-4 text-sm text-apple-gray-600 dark:text-apple-gray-400 h-10 line-clamp-2 flex-grow">
+                    {business.description || 'Professional pressing, laundry, and dry cleaning services.'}
+                </p>
+                
+                {/* Action Buttons */}
+                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <Link to={`/directory/${business.slug}`} className="flex-1">
+                        <Button variant="secondary" className="w-full">
+                            View Details
+                        </Button>
+                    </Link>
+                    <Button 
+                        onClick={handleWhatsAppContact} 
+                        className="flex-1"
+                        variant="primary"
+                        iconLeft={<Phone size={16} />}
+                        disabled={!business.publicPhone}
+                    >
+                        Contact
+                    </Button>
                 </div>
             </div>
-            <p className="mt-4 text-sm text-apple-gray-600 dark:text-apple-gray-400 h-10 line-clamp-2">
-                {business.description || 'Professional pressing, laundry, and dry cleaning services.'}
-            </p>
         </div>
-        <Link to={`/directory/${business.slug}`} className="block px-6 py-3 bg-apple-gray-50 dark:bg-apple-gray-800/50 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-800 transition-colors">
-            <span className="text-sm font-semibold text-apple-blue dark:text-sky-400">View Profile &rarr;</span>
-        </Link>
-    </div>
-);
+    );
+};
 
+// --- Main DirectoryPage Component ---
 const DirectoryPage = () => {
     const [businesses, setBusinesses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -45,32 +87,33 @@ const DirectoryPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [cityFilter, setCityFilter] = useState('');
 
-    const loadBusinesses = useCallback(async () => {
-        if (!loading) setLoading(true); // Re-show spinner on filter change
-        setError('');
-        try {
-            const filters = {};
-            if (searchTerm) filters.search = searchTerm;
-            if (cityFilter) filters.city = cityFilter;
-            const { data } = await getPublicDirectoryApi(filters);
-            setBusinesses(data || []);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load directory.');
-        } finally {
-            setLoading(false);
-        }
-    }, [searchTerm, cityFilter]); // Removed loading from deps to control it manually
-
     useEffect(() => {
+        const loadBusinesses = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const filters = {};
+                if (searchTerm) filters.search = searchTerm;
+                if (cityFilter) filters.city = cityFilter;
+                const { data } = await getPublicDirectoryApi(filters);
+                setBusinesses(data || []);
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to load directory.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        
         const handler = setTimeout(() => {
             loadBusinesses();
-        }, 400);
+        }, 500); // Debounce search to prevent API calls on every keystroke
+
         return () => clearTimeout(handler);
-    }, [searchTerm, cityFilter, loadBusinesses]);
+    }, [searchTerm, cityFilter]);
 
     return (
         <>
-            {/* --- Vibrant Header/Search Section --- */}
+            {/* --- Header/Search Section --- */}
             <section className="py-16 md:py-20 bg-gradient-hero text-white">
                 <div className="container mx-auto px-6 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-shadow-sm">
@@ -87,7 +130,6 @@ const DirectoryPage = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             prefixIcon={<Search size={18} />}
                             className="mb-0"
-                            // Custom styling for dark background
                             inputClassName="bg-white/20 text-white placeholder-gray-300 border-white/30 focus:bg-white/30 focus:border-white"
                         />
                         <Input

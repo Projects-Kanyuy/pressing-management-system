@@ -7,6 +7,7 @@ import Tenant from '../models/Tenant.js';
 import User from '../models/User.js';
 import Settings from '../models/Settings.js';
 import Price from '../models/Price.js';
+import Plan from '../models/Plan.js';
 import { sendOtpEmail } from '../services/notificationService.js';
 import generateToken from '../utils/generateToken.js';
 import DirectoryListing from '../models/DirectoryListing.js';
@@ -231,7 +232,7 @@ const getPublicDirectory = asyncHandler(async (req, res) => {
 // @access  Public
 const getBusinessBySlug = asyncHandler(async (req, res) => {
     const slug = req.params.slug;
-    const publicFields = 'name slug description publicAddress publicPhone publicEmail city country logoUrl';
+    const publicFields = 'name slug description publicAddress publicPhone publicEmail city country logoUrl bannerUrl ';
 
     let business = await Tenant.findOne({ slug, isActive: true, isListedInDirectory: true }).select(publicFields).lean();
     if (!business) {
@@ -244,10 +245,31 @@ const getBusinessBySlug = asyncHandler(async (req, res) => {
     }
     res.json(business);
 });
+// @desc    Get the public price list for a single tenant
+// @route   GET /api/public/tenants/:tenantId/prices
+// @access  Public
+const getTenantPriceList = asyncHandler(async (req, res) => {
+    const tenantId = req.params.tenantId;
+
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+        res.status(400);
+        throw new Error('Invalid Tenant ID format');
+    }
+
+    const prices = await Price.find({ tenantId: tenantId });
+    
+    if (!prices) {
+        // Return an empty array if no prices are found, don't throw an error
+        return res.json([]);
+    }
+
+    res.json(prices);
+});
 
 export {
   initiateRegistration,
   finalizeRegistration,
   getPublicDirectory,
-  getBusinessBySlug
+  getBusinessBySlug,
+  getTenantPriceList
 };
