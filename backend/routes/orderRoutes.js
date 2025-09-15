@@ -14,11 +14,12 @@ import {
 } from '../controllers/orderController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 import { checkSubscription } from '../middleware/subscriptionCheckMiddleware.js'; 
+import { canCreateOrder } from '../middleware/usageLimitMiddleware.js';
 import { body, validationResult } from 'express-validator';
 const router = express.Router();
 
 router.route('/')
-    .post(protect,checkSubscription, createOrder)
+    .post(protect,checkSubscription, canCreateOrder, createOrder)
     .get(protect, getOrders);
 
 router.route('/:id')

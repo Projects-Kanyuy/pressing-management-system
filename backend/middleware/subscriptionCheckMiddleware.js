@@ -1,7 +1,7 @@
 // server/middleware/subscriptionCheckMiddleware.js
 
 import asyncHandler from './asyncHandler.js';
-import Tenant from '../models/tenantModel.js';
+import Tenant from '../models/Tenant.js';
 
 const checkSubscription = asyncHandler(async (req, res, next) => {
     // This middleware runs AFTER the 'protect' middleware,

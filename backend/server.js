@@ -53,6 +53,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(helmet());
+app.use('/api/webhooks', webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/public', publicRoutes); 

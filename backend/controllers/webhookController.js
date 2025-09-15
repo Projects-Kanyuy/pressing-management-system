@@ -3,6 +3,9 @@ import asyncHandler from '../middleware/asyncHandler.js';
 import Tenant from '../models/Tenant.js';
 import Customer from '../models/Customer.js';
 import InboundMessage from '../models/InboundMessage.js';
+import PendingUser from '../models/PendingUser.js';
+// We'll need the full finalizeRegistration logic here or imported
+import { finalizeRegistration } from '../controllers/publicController.js';
 // Import your notification service if you want to forward the message to the admin
 // import { sendAdminAlertEmail } from '../services/notificationService.js';
 
@@ -73,5 +76,52 @@ const handleTwilioWhatsapp = asyncHandler(async (req, res) => {
 
     res.type('text/xml').send(twiml.toString());
 });
+// @desc    Handle incoming webhooks from AccountPe
+// @route   POST /api/webhooks/accountpe
+// @access  Public
+const accountPeWebhook = asyncHandler(async (req, res) => {
+    const { transaction_id, status } = req.body;
 
-export { handleTwilioWhatsapp };
+    console.log(`[Webhook] Received for transaction: ${transaction_id}, status: ${status}`);
+
+    if (status === 'success') {
+        if (transaction_id.startsWith('PRESSFLOW-SUB-')) {
+            // This is for a new user registration
+            const pendingUser = await PendingUser.findOne({ 'signupData.transactionId': transaction_id });
+            if (pendingUser) {
+                console.log(`Finalizing registration for ${pendingUser.email}`);
+                // You MUST refactor your finalizeRegistration controller logic into a reusable
+                // function (`finalizeRegistrationLogic`) that can be called from here.
+                // This function will create the Tenant, User, Settings, etc.
+                await finalizeRegistrationLogic(pendingUser);
+            } else {
+                console.error(`[Webhook] No pending user found for SUB transaction: ${transaction_id}`);
+            }
+        } else if (transaction_id.startsWith('PRESSFLOW-UPGRADE-')) {
+            // This is for an existing user upgrade
+            // You would need to find the tenant based on the saved transactionId
+            // For now, we'll extract the tenant ID from the transaction string
+            const tenantId = transaction_id.split('-')[2]; 
+            const tenant = await Tenant.findById(tenantId);
+            const newPlanName = "Pro"; // This should also be stored with the payment intent
+            
+            if (tenant) {
+                console.log(`Upgrading subscription for ${tenant.name}`);
+                const nextBillingDate = new Date();
+                nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+
+                tenant.plan = newPlanName;
+                tenant.subscriptionStatus = 'active';
+                tenant.trialEndsAt = undefined;
+                tenant.nextBillingAt = nextBillingDate;
+                await tenant.save();
+            } else {
+                console.error(`[Webhook] No tenant found for UPGRADE transaction: ${transaction_id}`);
+            }
+        }
+    }
+
+    res.status(200).send('Webhook received.');
+});
+
+export { accountPeWebhook, handleTwilioWhatsapp };

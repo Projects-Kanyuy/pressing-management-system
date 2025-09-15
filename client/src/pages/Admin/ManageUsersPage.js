@@ -1,6 +1,9 @@
 // client/src/pages/Admin/ManageUsersPage.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext'; // To get the logged-in user's plan
+import { usePlans } from '../../hooks/usePlans'; // To get details of all plans
 import { fetchUsersApi, createStaffUserApi, updateUserByIdApi, deleteUserApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -10,9 +13,14 @@ import Select from '../../components/UI/Select';
 import Spinner from '../../components/UI/Spinner';
 import { KeyRound, PlusCircle, Edit, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const ManageUsersPage = () => {
     const { t } = useTranslation();
+    const { user: loggedInUser } = useAuth();
+    const { plans, loading: plansLoading } = usePlans();
+
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -20,7 +28,7 @@ const ManageUsersPage = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null); // User being edited/created
+    const [currentUser, setCurrentUser] = useState(null);
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -28,6 +36,19 @@ const ManageUsersPage = () => {
     const [isActive, setIsActive] = useState(true);
     const [modalError, setModalError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const [planDetails, setPlanDetails] = useState(null);
+
+    // This derived state will automatically update when plans or the user's plan changes
+    const staffLimitReached = planDetails ? users.length >= planDetails.limits.maxStaff : false;
+
+    // Effect to find the current user's plan details from the fetched list of all plans
+    useEffect(() => {
+        if (!plansLoading && loggedInUser?.plan && plans.length > 0) {
+            const currentPlanDetails = plans.find(p => p.name === loggedInUser.plan);
+            setPlanDetails(currentPlanDetails);
+        }
+    }, [plansLoading, loggedInUser, plans]);
 
     const loadUsers = useCallback(async () => {
         setLoading(true);
@@ -40,13 +61,41 @@ const ManageUsersPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         loadUsers();
     }, [loadUsers]);
+    
+    // Timer effect for success/error messages
+     useEffect(() => {
+        let timer;
+        if (success || error) {
+            timer = setTimeout(() => { setSuccess(''); setError(''); }, 4000);
+        }
+        return () => clearTimeout(timer);
+    }, [success, error]);
 
     const openCreateModal = () => {
+        // Enforce the plan limit before opening the modal
+        if (staffLimitReached) {
+            toast.error(
+                (t) => (
+                    <div className="flex flex-col items-center gap-2">
+                        <span>Staff limit reached for your '{loggedInUser.plan}' plan.</span>
+                        <Link 
+                            to="/pricing" 
+                            onClick={() => toast.dismiss(t.id)}
+                            className="font-bold underline text-apple-blue"
+                        >
+                            Upgrade Your Plan
+                        </Link>
+                    </div>
+                ), 
+                { duration: 6000 }
+            );
+            return;
+        }
         setIsEditing(false);
         setCurrentUser(null);
         setUsername('');
@@ -61,7 +110,7 @@ const ManageUsersPage = () => {
         setIsEditing(true);
         setCurrentUser(user);
         setUsername(user.username);
-        setPassword(''); // Don't show existing password
+        setPassword('');
         setRole(user.role);
         setIsActive(user.isActive);
         setModalError('');
@@ -78,11 +127,9 @@ const ManageUsersPage = () => {
             try {
                 await deleteUserApi(userId);
                 setSuccess(t('manageUsers.messages.deleteSuccess', { username }));
-                loadUsers(); // Refresh list
+                loadUsers();
             } catch (err) {
                 setError(err.response?.data?.message || t('manageUsers.messages.deleteFailed'));
-            } finally {
-                setTimeout(() => setSuccess(''), 4000);
             }
         }
     };
@@ -92,11 +139,15 @@ const ManageUsersPage = () => {
         setModalError('');
         setIsSubmitting(true);
         
+        if (!isEditing && staffLimitReached) {
+            setModalError(`Your plan limit of ${planDetails.limits.maxStaff} staff members has been reached.`);
+            setIsSubmitting(false);
+            return;
+        }
+
         const payload = { username, role, isActive };
-        if (!isEditing && password) payload.password = password; // Only send password on create
-        if (isEditing && password) {
-             alert(t('manageUsers.actions.passwordChangeAlert'));
-             // For now, we won't handle password changes here. A separate form would be better.
+        if (!isEditing && password) {
+            payload.password = password;
         }
 
         try {
@@ -108,7 +159,7 @@ const ManageUsersPage = () => {
                 setSuccess(t('manageUsers.messages.createSuccess', { username }));
             }
             closeModal();
-            loadUsers(); // Refresh the list
+            loadUsers();
         } catch (err) {
             const errorMessage = isEditing 
                 ? t('manageUsers.messages.updateFailed')
@@ -116,47 +167,57 @@ const ManageUsersPage = () => {
             setModalError(err.response?.data?.message || errorMessage);
         } finally {
             setIsSubmitting(false);
-             setTimeout(() => setSuccess(''), 4000);
         }
     };
 
-
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center flex-wrap gap-4">
                 <div className="flex items-center space-x-3">
                     <KeyRound size={28} className="text-apple-blue" />
                     <h1 className="text-2xl sm:text-3xl font-semibold">{t('manageUsers.title')}</h1>
                 </div>
-                <Button variant="primary" onClick={openCreateModal} iconLeft={<PlusCircle size={18} />}>
-                    {t('manageUsers.addNewUser')}
-                </Button>
+                {planDetails && (
+                     <div className="text-right">
+                        <Button 
+                            variant="primary" 
+                            onClick={openCreateModal} 
+                            iconLeft={<PlusCircle size={18} />} 
+                            disabled={staffLimitReached}
+                        >
+                            {t('manageUsers.addNewUser')}
+                        </Button>
+                        <p className={`text-sm mt-1 ${staffLimitReached ? 'text-red-500 font-semibold' : 'text-apple-gray-500'}`}>
+                            {users.length} / {planDetails.limits.maxStaff} staff members used
+                        </p>
+                     </div>
+                )}
             </div>
             
             {success && <div className="p-3 bg-green-100 text-apple-green rounded-apple"><CheckCircle2 className="inline mr-2" />{success}</div>}
             {error && <div className="p-3 bg-red-100 text-apple-red rounded-apple"><AlertTriangle className="inline mr-2" />{error}</div>}
 
             <Card>
-                {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
+                {loading || plansLoading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-apple-gray-200">
+                        <table className="min-w-full divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800">
                                 <tr>
-                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.username')}</th>
-                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.role')}</th>
-                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.status')}</th>
-                                    <th className="px-4 py-3 text-left ...">{t('manageUsers.table.createdAt')}</th>
-                                    <th className="px-4 py-3 text-center ...">{t('manageUsers.table.actions')}</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-apple-gray-500 uppercase tracking-wider">{t('manageUsers.table.username')}</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-apple-gray-500 uppercase tracking-wider">{t('manageUsers.table.role')}</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-apple-gray-500 uppercase tracking-wider">{t('manageUsers.table.status')}</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-apple-gray-500 uppercase tracking-wider">{t('manageUsers.table.createdAt')}</th>
+                                    <th className="px-4 py-3 text-center text-xs font-medium text-apple-gray-500 uppercase tracking-wider">{t('manageUsers.table.actions')}</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white dark:bg-apple-gray-900 divide-y divide-apple-gray-200">
+                            <tbody className="bg-white dark:bg-apple-gray-900 divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
                                 {users.map(user => (
                                     <tr key={user._id}>
-                                        <td className="px-4 py-3 ...">{user.username}</td>
-                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>{t(`manageUsers.roles.${user.role}`)}</span></td>
-                                        <td className="px-4 py-3 ..."><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}>{user.isActive ? t('manageUsers.status.active') : t('manageUsers.status.disabled')}</span></td>
-                                        <td className="px-4 py-3 ...">{format(parseISO(user.createdAt), 'MMM d, yyyy')}</td>
-                                        <td className="px-4 py-3 text-center ...">
+                                        <td className="px-4 py-3 whitespace-nowrap">{user.username}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap"><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>{t(`manageUsers.roles.${user.role}`)}</span></td>
+                                        <td className="px-4 py-3 whitespace-nowrap"><span className={`px-2 py-0.5 text-xs font-medium rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}>{user.isActive ? t('manageUsers.status.active') : t('manageUsers.status.disabled')}</span></td>
+                                        <td className="px-4 py-3 whitespace-nowrap">{format(parseISO(user.createdAt), 'MMM d, yyyy')}</td>
+                                        <td className="px-4 py-3 text-center">
                                             <div className="flex justify-center space-x-2">
                                                 <Button variant="ghost" size="sm" onClick={() => openEditModal(user)} className="p-1"><Edit size={16} /></Button>
                                                 <Button variant="ghost" size="sm" onClick={() => handleDelete(user._id, user.username)} className="p-1 text-apple-red"><Trash2 size={16} /></Button>

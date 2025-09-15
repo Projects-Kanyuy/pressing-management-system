@@ -1,47 +1,41 @@
-// server/models/PendingUser.js
+// server/models/pendingUserModel.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const pendingUserSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    otpHash: { type: String, required: true },
+    signupData: {
+        companyInfo: { name: { type: String, required: true } },
+        adminUser: {
+            username: { type: String, required: true },
+            email: { type: String, required: true },
+            password: { type: String, required: true }
+        },
+        currencySymbol: String,
+        itemTypes: [String],
+        serviceTypes: [String],
+        priceList: [Object],
+        plan: { type: String, required: true },
+        transactionId: { type: String } // For linking payment to registration
     },
-    otpHash: { // Store the HASH of the OTP, not the plaintext
-        type: String,
-        required: true,
-    },
-    signupData: { // Store the entire form payload
-        type: Object,
-        required: true,
-    },
-    // This field tells MongoDB to automatically delete the document after this time
     expireAt: {
         type: Date,
-        default: () => new Date(Date.now() + 15 * 60 * 1000), // Default to 15 minutes from now
-        index: { expires: '1m' }, // Create a TTL index that checks every minute
+        default: () => new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+        index: { expires: '1m' },
     },
 }, { timestamps: true });
 
-// Hash the OTP before saving it
 pendingUserSchema.pre('save', async function (next) {
-    if (!this.isModified('otpHash')) {
-        return next();
-    }
-    // The controller passes the plaintext OTP to this field. We hash it here.
+    if (!this.isModified('otpHash')) return next();
     const salt = await bcrypt.genSalt(10);
     this.otpHash = await bcrypt.hash(this.otpHash, salt);
     next();
 });
 
-// Method to compare the user's entered OTP with the stored hash
 pendingUserSchema.methods.matchOtp = async function (enteredOtp) {
     return await bcrypt.compare(enteredOtp, this.otpHash);
 };
 
 const PendingUser = mongoose.model('PendingUser', pendingUserSchema);
-
 export default PendingUser;

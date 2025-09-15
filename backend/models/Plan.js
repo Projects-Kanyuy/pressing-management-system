@@ -35,7 +35,19 @@ const planSchema = mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-    },
+    }, 
+    limits: {
+        maxStaff: {
+            type: Number,
+            required: true,
+            default: 1 // Default limit
+        },
+        maxOrdersPerMonth: {
+            type: Number,
+            required: true,
+            default: 50 // Default limit
+        },
+  },
   },
   {
     timestamps: true,

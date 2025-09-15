@@ -19,6 +19,7 @@ import {
     confirmPasswordChange
 } from '../controllers/authController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
+import { canCreateStaff } from '../middleware/usageLimitMiddleware.js';
 
 const router = express.Router();
 
@@ -50,7 +51,7 @@ router.put(
 );
 
 
-router.post('/register', protect, authorize('admin'), registerUser);
+router.post('/register', protect, canCreateStaff, authorize('admin'), registerUser);
 
 
 router.get('/users', protect, authorize('admin'), getUsers);

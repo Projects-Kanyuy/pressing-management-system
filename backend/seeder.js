@@ -27,6 +27,7 @@ const defaultPlans = [
             { currency: 'USD', amount: 0 },
         ],
         features: ['Up to 50 Orders', '1 Staff Account', 'Basic Features for 14 Days'],
+        limits: { maxStaff: 1, maxOrdersPerMonth: 100 },
         isActive: true,
         isFeatured: false,
     },
@@ -50,6 +51,7 @@ const defaultPlans = [
             { currency: 'ZWL', amount: 0 },   // Zimbabwe (Set to 0 or a high number, as it's volatile)
         ],
         features: [ 'Up to 250 Orders per month', '2 Staff Accounts', 'Customer Management', 'Payment Tracking', 'Email Notifications' ],
+        limits: { maxStaff: 2, maxOrdersPerMonth: 250 },
         isActive: true,
         isFeatured: false,
     },
@@ -73,6 +75,7 @@ const defaultPlans = [
             { currency: 'ZWL', amount: 0 },
         ],
         features: [ 'Unlimited Orders', 'Up to 10 Staff Accounts', 'Everything in Basic', 'SMS Notifications', 'Basic Sales Reports' ],
+        limits: { maxStaff: 10, maxOrdersPerMonth: 1000000 },
         isActive: true,
         isFeatured: true,
     },

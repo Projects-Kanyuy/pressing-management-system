@@ -1,10 +1,9 @@
-// server/routes/subscriptionRoutes.js
 import express from 'express';
-import { changeSubscriptionPlan } from '../controllers/subscriptionController.js';
-import { protect } from '../middleware/authMiddleware.js'; // Use the TENANT protect middleware
+import { initiateSubscription, changeSubscriptionPlan } from '../controllers/subscriptionController.js';
+import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
-// This route must be protected so we know which tenant is making the request
+router.route('/initiate').post(initiateSubscription);
 router.route('/change-plan').post(protect, changeSubscriptionPlan);
 
 export default router;
