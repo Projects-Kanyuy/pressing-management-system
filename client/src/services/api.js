@@ -90,6 +90,7 @@ export const updateExistingOrder = (orderId, orderData) => api.put(`/orders/${or
 export const deleteOrderApi = (orderId) => api.delete(`/orders/${orderId}`);
 export const sendManualNotification = (orderId) => api.post(`/orders/${orderId}/notify`);
 export const changeSubscriptionPlanApi = (planData) => api.post('/subscriptions/change-plan', planData);
+export const initiatePaidSubscriptionApi = (data) => PublicAPI.post('/subscriptions/initiate', data);
 
 // --- Payments ---
 export const markOrderPaidApi = async (orderId) => {

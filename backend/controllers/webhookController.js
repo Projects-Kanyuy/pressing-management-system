@@ -5,7 +5,7 @@ import Customer from '../models/Customer.js';
 import InboundMessage from '../models/InboundMessage.js';
 import PendingUser from '../models/PendingUser.js';
 // We'll need the full finalizeRegistration logic here or imported
-import { finalizeRegistration } from '../controllers/publicController.js';
+import { finalizeRegistrationLogic } from '../services/registrationService.js';
 // Import your notification service if you want to forward the message to the admin
 // import { sendAdminAlertEmail } from '../services/notificationService.js';
 
