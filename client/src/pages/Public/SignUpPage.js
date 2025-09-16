@@ -1,13 +1,15 @@
 // client/src/pages/Public/SignUpPage.js
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { initiateRegistrationApi, finalizeRegistrationApi } from '../../services/api';
+import { initiateRegistrationApi, finalizeRegistrationApi, initiatePaidSubscriptionApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
-import { ArrowLeft, ArrowRight, PartyPopper, AlertTriangle,Plus, Trash2, User, Building, Wrench, CheckCircle2, KeyRound, Eye, EyeOff, ChevronLeft, ChevronsLeft, ChevronsLeftIcon, ChevronLeftCircle } from 'lucide-react';
+import Spinner from '../../components/UI/Spinner';
+import { ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, User, Building, Wrench, KeyRound, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 // --- Step Components (can be moved to separate files) ---
 const Step1AdminAccount = ({ data, setData, onNext }) => {
@@ -303,11 +305,18 @@ const Step5OtpVerification = ({ data, onPrev, onFinalize, isSubmitting }) => {
 // --- Main SignUpPage Component ---
 const SignUpPage = () => {
     const { t } = useTranslation();
-    const auth = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
     const [step, setStep] = useState(1);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const planNameFromUrl = new URLSearchParams(location.search).get('plan') || 'trial';
+    const planCapitalized = planNameFromUrl.charAt(0).toUpperCase() + planNameFromUrl.slice(1);
+
     const [formData, setFormData] = useState({
         adminUser: { username: '', password: '', email: '' },
         companyInfo: { name: '', address: '', phone: '' },
@@ -315,57 +324,78 @@ const SignUpPage = () => {
         itemTypes: [],
         serviceTypes: [],
         priceList: [],
+        plan: planCapitalized,
     });
 
-    // Initialize default items and services when component mounts or language changes
-    React.useEffect(() => {
+    useEffect(() => {
+        // This useEffect is fine.
         if (formData.itemTypes.length === 0 && formData.serviceTypes.length === 0) {
             setFormData(prev => ({
                 ...prev,
-                itemTypes: [
-                    t('signup.defaultItems.shirt'),
-                    t('signup.defaultItems.trousers'),
-                    t('signup.defaultItems.suit'),
-                    t('signup.defaultItems.dress')
-                ],
-                serviceTypes: [
-                    t('signup.defaultServices.wash'),
-                    t('signup.defaultServices.ironOnly'),
-                    t('signup.defaultServices.dryClean')
-                ]
+                itemTypes: [t('signup.defaultItems.shirt'), t('signup.defaultItems.trousers'), t('signup.defaultItems.suit'), t('signup.defaultItems.dress')],
+                serviceTypes: [t('signup.defaultServices.wash'), t('signup.defaultServices.ironOnly'), t('signup.defaultServices.dryClean')]
             }));
         }
     }, [t, formData.itemTypes.length, formData.serviceTypes.length]);
 
     const updateFormData = (section, field, value) => setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
     const setTopLevelFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
-    const nextStep = () => setStep(prev => Math.min(prev + 1, 5)); // Now goes up to step 5
+    const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
-
-    const handleInitiateRegistration = async () => {
-        setIsSubmitting(true); setError('');
+ const handleInitiateRegistration = async () => {
+        setIsSubmitting(true);
+        setError('');
+        setSuccess('');
         try {
-            const { data } = await initiateRegistrationApi(formData);
-            alert(data.message); // Or use a success message state
-            setStep(5); // Move to OTP step
+            // --- THIS IS THE FIX ---
+            // Step 1: Always create the PendingUser first. This API call sends all the data,
+            // including the plan name, to the backend.
+            const { data: initiateData } = await initiateRegistrationApi(formData);
+
+            // Step 2: Check if the plan is 'Trial' or a paid plan.
+            if (formData.plan.toLowerCase() === 'trial') {
+                // If it's a trial, we are done with this step and can move to OTP verification.
+                setSuccess(initiateData.message);
+                setStep(5);
+            } else {
+                // If it's a PAID plan, now that the PendingUser is created,
+                // we can initiate the payment process.
+                setSuccess("Account details saved. Redirecting to payment...");
+                const paymentResponse = await initiatePaidSubscriptionApi({ email: formData.adminUser.email });
+                
+                if (paymentResponse.data?.data?.payment_link) {
+                    // Redirect the user to the payment gateway.
+                    window.location.href = paymentResponse.data.data.payment_link;
+                } else {
+                    setError("Could not generate payment link. Please try again or contact support.");
+                    setStep(4); // Stay on the confirmation step if payment link fails
+                }
+            }
         } catch (err) {
             setError(err.response?.data?.message || t('signup.errors.registrationFailed'));
-            setStep(1); // On major validation error from backend, go back to start
-        } finally { setIsSubmitting(false); }
+            setStep(1); // Go back to the start on a critical error
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleFinalizeRegistration = async (otp) => {
+        // This function is now correctly used only for Trial signups.
         if (!otp || otp.length !== 6) { setError(t('signup.errors.otpInvalid')); return; }
-        setIsSubmitting(true); setError('');
+        setIsSubmitting(true);
+        setError('');
         try {
             const { data } = await finalizeRegistrationApi({ email: formData.adminUser.email, otp });
-            await auth.loginWithToken(data.token); // This needs to be implemented in AuthContext
-            alert(t('signup.succ ess.message'));
+            login(data);
+            toast.success(t('signup.success.message', 'Account created successfully!'));
             navigate('/app/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || t('signup.errors.verificationFailed'));
-        } finally { setIsSubmitting(false); }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+    
 
     const renderStep = () => {
         switch (step) {
