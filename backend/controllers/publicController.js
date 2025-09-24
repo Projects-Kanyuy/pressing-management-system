@@ -259,7 +259,6 @@ const getTenantPriceList = asyncHandler(async (req, res) => {
     const prices = await Price.find({ tenantId: tenantId });
     
     if (!prices) {
-        // Return an empty array if no prices are found, don't throw an error
         return res.json([]);
     }
 

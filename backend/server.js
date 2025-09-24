@@ -1,13 +1,22 @@
 // server/server.js
+
 import express from 'express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
-import connectDB from './config/db.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import publicRoutes from './routes/publicRoutes.js'; 
+import path from 'path'; // Needed for ES Modules to correctly resolve __dirname
 
-// Import routes
+// Load environment variables at the very top
+dotenv.config();
+
+// Import Database Connection
+import connectDB from './config/db.js';
+
+// Import Middleware
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+
+// Import All Route Files
+import publicRoutes from './routes/publicRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -18,73 +27,75 @@ import priceRoutes from './routes/priceRoutes.js';
 import tenantProfileRoutes from './routes/tenantProfileRoutes.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 import inboundMessageRoutes from './routes/inboundMessageRoutes.js';
-import directoryAdminRoutes from './routes/directoryAdminRoutes.js'; // <-- IMPORT
+import directoryAdminRoutes from './routes/directoryAdminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js'; 
 import currencyRoutes from './routes/currencyRoutes.js';
 import planRoutes from './routes/planRoutes.js';
-import subscriptionRoutes from './routes/subscriptionRoutes.js'
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
 
-// Import scheduler
+// Import Schedulers
 import { startOrderChecks } from './schedulers/orderChecker.js'; 
 import checkSubscriptions from './schedulers/subscriptionScheduler.js';
 
-dotenv.config();
-
+// --- Initialize Express App ---
 const app = express();
 
-
+// --- Database Connection ---
 connectDB().then(() => {
-    // Start scheduler only if not disabled and not in a test environment
-    // that might not want schedulers running.
-    if (process.env.NODE_ENV !== 'test' && process.env.DISABLE_SCHEDULER !== 'true') {
+    if (process.env.NODE_ENV !== 'test') {
         startOrderChecks();
         checkSubscriptions();
     }
 }).catch(err => {
-    console.error("CRITICAL: Failed to connect to DB. Application will not start properly.", err);
+    console.error("CRITICAL: Failed to connect to DB. Shutting down.", err);
     process.exit(1); 
 });
 
+// --- Security and CORS Middleware ---
+app.use(helmet()); // Sets various security headers
+
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production'
-        ? (process.env.FRONTEND_URL || '').split(',').map(url => url.trim()).filter(url => url)
-        : ['http://localhost:3000', 'http://localhost:3001'], // Allow local client and Vercel CLI dev
+        ? (process.env.FRONTEND_URL || '').split(',').map(url => url.trim())
+        : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
 };
 app.use(cors(corsOptions));
-app.use(helmet());
+
+// --- Webhook Route (MUST come BEFORE express.json()) ---
+// This is because webhook signature verification needs the raw request body.
 app.use('/api/webhooks', webhookRoutes);
+
+// --- Body Parser Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// --- API Routes Mounting ---
 app.use('/api/public', publicRoutes); 
-
-app.use('/api/directory-admin', directoryAdminRoutes); // <-- MOUNT
-app.use('/api/auth', authRoutes)
-app.use('/api/prices', priceRoutes);
-app.get('/api/test', (req, res) => res.json({ message: "API test route working!" }));
-
-// Mount routers
+app.use('/api/directory-admins', directoryAdminRoutes); // Corrected from directory-admin
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/admin-notifications', adminNotificationRoutes); // MOUNTED
+app.use('/api/admin-notifications', adminNotificationRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/prices', priceRoutes);
 app.use('/api/tenant-profile', tenantProfileRoutes);
-app.use('/api/webhooks', webhookRoutes);
 app.use('/api/inbound-messages', inboundMessageRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/currency', currencyRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 
+// --- Root Route for Health Check ---
+app.get('/api/test', (req, res) => res.json({ message: "API is running!" }));
+// --- TEMPORARY DEBUG ROUTE ---
 
-// Error handling middleware (should be last for API routes)
+
+// --- Error Handling Middleware (must be last) ---
 app.use(notFound);
 app.use(errorHandler);
 
-// For Render Web Service or local development, app.listen is needed.
-// If you were deploying this backend specifically as a Vercel Serverless Function
-// (which you are not, as your backend is on Render), you would export 'app'.
+// --- Start Server ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));

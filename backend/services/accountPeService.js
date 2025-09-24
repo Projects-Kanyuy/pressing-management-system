@@ -1,32 +1,50 @@
+// backend/services/accountPeService.js
+
 import axios from 'axios';
 
 let authToken = null;
 let tokenExpiresAt = null;
 
-const payinApi = axios.create({
-    baseURL: process.env.ACCOUNTPE_PAYIN_BASE_URL,
-    headers: { 'Content-Type': 'application/json' },
+// --- A dedicated instance for the root auth endpoint ---
+const authApi = axios.create({
+    baseURL: 'https://api.accountpe.com',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json', // Explicitly ask for a JSON response
+    },
+    timeout: 10000,
 });
 
+// --- A dedicated instance for the payin API endpoints ---
+const payinApi = axios.create({
+    baseURL: process.env.ACCOUNTPE_PAYIN_BASE_URL, // https://api.accountpe.com/api/payin
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    },
+    timeout: 10000,
+});
+
+/**
+ * Fetches a new authentication token from the AccountPe API.
+ */
 const getAuthToken = async () => {
     try {
-        // --- STEP 1: LOG THE CREDENTIALS BEING USED ---
-        // This will immediately tell us if the .env variables are loading correctly.
-        console.log('[AccountPe Service] Attempting to authenticate with...');
-        console.log(`Email: ${process.env.ACCOUNTPE_EMAIL}`);
-        console.log(`Password: ${process.env.ACCOUNTPE_PASSWORD ? '******' : 'NOT FOUND'}`);
-        
-        if (!process.env.ACCOUNTPE_EMAIL || !process.env.ACCOUNTPE_PASSWORD) {
-            throw new Error('ACCOUNTPE_EMAIL or ACCOUNTPE_PASSWORD is not set in the .env file.');
+        const email = process.env.ACCOUNTPE_EMAIL;
+        const password = process.env.ACCOUNTPE_PASSWORD;
+
+        if (!email || !password) {
+            throw new Error('AccountPe credentials not configured in .env file.');
         }
 
-        const { data } = await axios.post('https://api.accountpe.com/admin/auth', {
-            email: process.env.ACCOUNTPE_EMAIL,
-            password: process.env.ACCOUNTPE_PASSWORD,
-        });
+        console.log(`[AccountPe Service] Authenticating with ${email}...`);
+
+        const { data } = await authApi.post('/admin/auth', { email, password });
         
-        const token = data.token || data.data?.token;
-        if (!token) throw new Error('Token not found in AccountPe auth response.');
+        const token = data.token;
+        if (!token) {
+            throw new Error('Token not found in AccountPe auth response.');
+        }
 
         authToken = token;
         tokenExpiresAt = new Date(new Date().getTime() + 23 * 60 * 60 * 1000);
@@ -34,27 +52,35 @@ const getAuthToken = async () => {
         return authToken;
 
     } catch (error) {
-        // --- STEP 2: LOG THE DETAILED ERROR ---
-        console.error("FATAL: Could not get AccountPe Auth Token.");
+        console.error("--- FATAL ERROR in getAuthToken ---");
         if (error.response) {
-            // The request was made and the server responded with a status code
-            console.error('AccountPe API Response Status:', error.response.status);
-            console.error('AccountPe API Response Data:', error.response.data);
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('AccountPe API Request Error: No response received.', error.request);
+            console.error('AccountPe API responded with an error:', error.response.status, error.response.data);
         } else {
-            // Something happened in setting up the request
-            console.error('Axios Setup Error:', error.message);
+            console.error('Full error object:', error.message);
         }
         throw new Error('Payment provider authentication failed.');
     }
 };
 
+/**
+ * Creates a payment link. This function relies on the interceptor to get a token.
+ */
 export const createPaymentLink = async (paymentData) => {
+    // The interceptor will run before this request is sent
     return payinApi.post('/create_payment_links', paymentData);
 };
 
-export const getPaymentLinkStatus = async (transactionId) => {
-    return payinApi.post('/payment_link_status', { transaction_id: transactionId });
-};
+/**
+ * Axios request interceptor for the payin API.
+ * This runs BEFORE every request made with `payinApi`.
+ */
+payinApi.interceptors.request.use(
+    async (config) => {
+        if (!authToken || new Date() > tokenExpiresAt) {
+            await getAuthToken();
+        }
+        config.headers['Authorization'] = `Bearer ${authToken}`;
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
