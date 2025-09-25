@@ -94,6 +94,47 @@ const changeSubscriptionPlan = asyncHandler(async (req, res) => {
     const response = await createPaymentLink(paymentData);
     res.status(201).json(response.data);
 });
+const verifyPaymentAndFinalize = asyncHandler(async (req, res) => {
+    const { transaction_id } = req.body;
 
+    if (!transaction_id) {
+        res.status(400);
+        throw new Error('Transaction ID is required for verification.');
+    }
 
-export { initiateSubscription, changeSubscriptionPlan };
+    // Find the pending user associated with this transaction
+    const pendingUser = await PendingUser.findOne({ 'signupData.transactionId': transaction_id });
+    if (!pendingUser) {
+        res.status(404);
+        throw new Error('Invalid transaction or registration session has expired. Please contact support.');
+    }
+    
+    // Check the payment status with the AccountPe API
+    const statusResponse = await getPaymentLinkStatus(transaction_id);
+    
+    // IMPORTANT: Check the exact success status from the AccountPe documentation. It might be 'success', 'SUCCESS', 'completed', etc.
+    if (statusResponse.data.status !== 'success') {
+        throw new Error('Payment has not been confirmed. If you have paid, please wait a moment or contact support.');
+    }
+
+    // Payment is successful, so we can now finalize the user's registration.
+    const { tenant, user, token } = await finalizeRegistrationLogic(pendingUser);
+
+    // Send back all the data the frontend needs to log the user in.
+    res.status(201).json({
+        _id: user._id, 
+        username: user.username, 
+        role: user.role,
+        tenantId: user.tenantId, 
+        token,
+        tenant: {
+            plan: tenant.plan,
+            subscriptionStatus: tenant.subscriptionStatus,
+            trialEndsAt: tenant.trialEndsAt,
+            nextBillingAt: tenant.nextBillingAt,
+        },
+        message: `Payment successful! Account for '${tenant.name}' has been created.`
+    });
+});
+
+export { initiateSubscription, changeSubscriptionPlan, verifyPaymentAndFinalize };

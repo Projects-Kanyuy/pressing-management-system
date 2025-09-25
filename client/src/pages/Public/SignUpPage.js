@@ -293,14 +293,17 @@ const Step5OtpVerification = ({ data, onPrev, onFinalize, isSubmitting }) => {
         <div className="space-y-4 animate-fade-in">
             <h3 className="font-semibold text-xl">{t('signup.step5.title')}</h3>
             <p className="text-sm text-apple-gray-500">{t('signup.step5.subtitle', { email: data.adminUser.email })}</p>
-            <Input label={t('signup.step5.verificationCode')} id="otp" value={otp} onChange={e => setOtp(e.target.value)} maxLength={6} placeholder={t('signup.step5.codePlaceholder')} />
+            <Input label={t('signup.step5.verificationCode')} id="otp" value={otp} onChange={e => setOtp(e.target.value)} maxLength={6} placeholder="123456" />
             <div className="flex justify-between pt-4">
                 <Button variant="secondary" onClick={onPrev} disabled={isSubmitting}>{t('signup.step5.backButton')}</Button>
-                <Button onClick={() => onFinalize(otp)} isLoading={isSubmitting}>{t('signup.step5.verifyButton')}</Button>
+                <Button onClick={() => onFinalize(otp)} isLoading={isSubmitting}>
+                    {data.plan.toLowerCase() === 'trial' ? t('signup.step5.verifyTrial', 'Verify & Create Account') : t('signup.step5.verifyPaid', 'Verify & Proceed to Pay')}
+                </Button>
             </div>
         </div>
     );
 };
+
 
 // --- Main SignUpPage Component ---
 const SignUpPage = () => {
@@ -342,60 +345,66 @@ const SignUpPage = () => {
     const setTopLevelFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
     const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
- const handleInitiateRegistration = async () => {
+// Paste this entire block inside your SignUpPage component, replacing the old handler functions.
+
+     const handleInitiateRegistration = async () => {
         setIsSubmitting(true);
         setError('');
         setSuccess('');
         try {
-            // --- THIS IS THE FIX ---
-            // Step 1: Always create the PendingUser first. This API call sends all the data,
-            // including the plan name, to the backend.
-            const { data: initiateData } = await initiateRegistrationApi(formData);
+            // This single API call sends all form data, including the chosen plan.
+            // The backend is now responsible for the logic of what to do next.
+            const { data } = await initiateRegistrationApi(formData);
 
-            // Step 2: Check if the plan is 'Trial' or a paid plan.
-            if (formData.plan.toLowerCase() === 'trial') {
-                // If it's a trial, we are done with this step and can move to OTP verification.
-                setSuccess(initiateData.message);
-                setStep(5);
-            } else {
-                // If it's a PAID plan, now that the PendingUser is created,
-                // we can initiate the payment process.
-                setSuccess("Account details saved. Redirecting to payment...");
-                const paymentResponse = await initiatePaidSubscriptionApi({ email: formData.adminUser.email });
+            if (data.paymentRequired) {
+                // If the backend says payment is required, it will send back a payment link.
+                setSuccess(data.message); // e.g., "OTP sent. Redirecting to payment..."
                 
-                if (paymentResponse.data?.data?.payment_link) {
-                    // Redirect the user to the payment gateway.
-                    window.location.href = paymentResponse.data.data.payment_link;
-                } else {
-                    setError("Could not generate payment link. Please try again or contact support.");
-                    setStep(4); // Stay on the confirmation step if payment link fails
-                }
+                // Redirect the user's browser to the external payment gateway.
+                window.location.href = data.paymentLink;
+            } else {
+                // If the backend says no payment is needed (i.e., it's a Trial plan),
+                // it has sent the OTP. We now move the user to the OTP verification step (Step 5).
+                setSuccess(data.message); // e.g., "A verification code has been sent..."
+                setStep(5);
             }
         } catch (err) {
-            setError(err.response?.data?.message || t('signup.errors.registrationFailed'));
-            setStep(1); // Go back to the start on a critical error
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleFinalizeRegistration = async (otp) => {
-        // This function is now correctly used only for Trial signups.
-        if (!otp || otp.length !== 6) { setError(t('signup.errors.otpInvalid')); return; }
-        setIsSubmitting(true);
-        setError('');
-        try {
-            const { data } = await finalizeRegistrationApi({ email: formData.adminUser.email, otp });
-            login(data);
-            toast.success(t('signup.success.message', 'Account created successfully!'));
-            navigate('/app/dashboard');
-        } catch (err) {
-            setError(err.response?.data?.message || t('signup.errors.verificationFailed'));
+            // This handles errors from the initiateRegistrationApi call,
+            // such as "Email already exists" or other validation failures.
+            setError(err.response?.data?.message || t('signup.errors.registrationFailed', 'Registration failed. Please check your details.'));
+            // On a critical error, it's best to send the user back to the first step.
+            setStep(1);
         } finally {
             setIsSubmitting(false);
         }
     };
     
+    // This function is triggered from Step 5 (OTP Verification)
+    // Its ONLY purpose now is to finalize a FREE TRIAL registration.
+    // Paid registrations are finalized by the payment provider's webhook.
+    const handleFinalizeRegistration = async (otp) => {
+        if (!otp || otp.length !== 6) {
+            setError(t('signup.errors.otpInvalid', 'Please enter a valid 6-digit code.'));
+            return;
+        }
+        setIsSubmitting(true);
+        setError('');
+        try {
+            const { data } = await finalizeRegistrationApi({ email: formData.adminUser.email, otp });
+            
+            // Log the user in with the data received from the successful registration
+            login(data);
+            
+            toast.success(t('signup.success.message', 'Account created successfully! Welcome aboard.'));
+            
+            // Redirect the new user to their dashboard
+            navigate('/app/dashboard');
+        } catch (err) {
+            setError(err.response?.data?.message || t('signup.errors.verificationFailed', 'Verification failed. Please check the code and try again.'));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const renderStep = () => {
         switch (step) {

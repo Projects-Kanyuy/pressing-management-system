@@ -10,173 +10,124 @@ import Price from '../models/Price.js';
 import Plan from '../models/Plan.js';
 import { sendOtpEmail } from '../services/notificationService.js';
 import generateToken from '../utils/generateToken.js';
+import { createPaymentLink } from '../services/accountPeService.js';
+import { finalizeRegistrationLogic } from '../services/registrationService.js';
+import crypto from 'crypto';
 import DirectoryListing from '../models/DirectoryListing.js';
 
 // --- STEP 1: INITIATE REGISTRATION & SEND OTP ---
 const initiateRegistration = asyncHandler(async (req, res) => {
     const registrationData = req.body;
-    const { adminUser, companyInfo } = registrationData;
+    const { adminUser, companyInfo, plan: planName } = registrationData;
 
     // --- Validation ---
     if (!adminUser?.email || !/^\S+@\S+\.\S+$/.test(adminUser.email)) { res.status(400); throw new Error('A valid email address is required.'); }
     if (!companyInfo?.name || !adminUser?.username || !adminUser?.password) { res.status(400); throw new Error('Business name, admin username, and password are required.'); }
-    if (adminUser.password.length < 6) { res.status(400); throw new Error('Password must be at least 6 characters long.'); }
+    
+    const userExists = await User.findOne({ email: adminUser.email.toLowerCase() });
+    if (userExists) { res.status(400); throw new Error('A user with this email already exists.'); }
 
-    const userExists = await User.findOne({ $or: [{ email: adminUser.email.toLowerCase() }, { username: adminUser.username.toLowerCase() }] });
-    if (userExists) { res.status(400); throw new Error('A user with this email or username already exists.'); }
-
-    const businessExists = await Tenant.findOne({ name: companyInfo.name });
-    if (businessExists) { res.status(400); throw new Error('A business with this name already exists.'); }
+    // --- End Validation ---
 
     await PendingUser.deleteOne({ email: adminUser.email.toLowerCase() });
 
     const nanoid = customAlphabet('1234567890', 6);
     const otp = nanoid();
 
-    // The pre-save hook in PendingUser model will hash the OTP
     const pendingUser = new PendingUser({
         email: adminUser.email.toLowerCase(),
-        otpHash: otp, // Pass the plaintext OTP here; the model will hash it
+        otpHash: otp,
         signupData: registrationData,
     });
-    await pendingUser.save();
+    
+    // --- NEW LOGIC: TRIAL vs. PAID ---
+    if (planName && planName.toLowerCase() === 'trial') {
+        // --- TRIAL FLOW ---
+        await pendingUser.save();
+        
+        try {
+            await sendOtpEmail(adminUser.email, otp);
+        } catch (emailError) {
+            console.error(`FAILED to send OTP email:`, emailError);
+            throw new Error("Could not send verification email.");
+        }
 
-    try {
-        await sendOtpEmail(adminUser.email, otp);
-    } catch (emailError) {
-        console.error(`[PublicCtrl] FAILED to send OTP email to ${adminUser.email}:`, emailError);
-        res.status(500); throw new Error("Could not send verification email. Please check the address and try again.");
+        res.status(200).json({ 
+            message: `A verification code has been sent to ${adminUser.email}.`,
+            paymentRequired: false
+        });
+    } else {
+        // --- PAID PLAN FLOW ---
+        const plan = await Plan.findOne({ name: planName });
+        if (!plan) throw new Error('Invalid plan selected.');
+
+        const priceDetails = plan.prices.find(p => p.currency === 'USD');
+        if (!priceDetails || priceDetails.amount <= 0) throw new Error(`Pricing for ${plan.name} not configured.`);
+
+        const transaction_id = `PRESSFLOW-SUB-${pendingUser._id}-${crypto.randomBytes(4).toString('hex')}`;
+        pendingUser.signupData.transactionId = transaction_id;
+        
+        await pendingUser.save();
+
+        try {
+            await sendOtpEmail(adminUser.email, otp);
+        } catch (emailError) { /* Log or handle email failure */ }
+
+        const paymentData = {
+            country_code: "US", // Should be dynamic
+            name: adminUser.username,
+            email: adminUser.email,
+            amount: priceDetails.amount,
+            transaction_id,
+            description: `Subscription to PressFlow ${plan.name} Plan`,
+            pass_digital_charge: true,
+            redirect_url: `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`
+        };
+
+        try {
+            const paymentResponse = await createPaymentLink(paymentData);
+            res.status(200).json({
+                message: "OTP sent. Redirecting to payment.",
+                paymentRequired: true,
+                paymentLink: paymentResponse.data.payment_link
+            });
+        } catch (paymentError) {
+            console.error("Payment Link Creation Failed:", paymentError);
+            throw new Error("Could not create payment link.");
+        }
     }
-
-    res.status(200).json({ message: `A verification code has been sent to ${adminUser.email}.` });
 });
 
-// --- STEP 2: VERIFY OTP & FINALIZE REGISTRATION ---
-
+// --- THIS FUNCTION IS NOW ONLY FOR TRIAL USERS ---
 const finalizeRegistration = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
-    if (!email || !otp) {
-        res.status(400);
-        throw new Error('Email and OTP are required.');
-    }
+    if (!email || !otp) throw new Error('Email and OTP are required.');
 
     const pendingUser = await PendingUser.findOne({ email: email.toLowerCase() });
-
-    if (!pendingUser) {
-        res.status(400);
-        throw new Error('Invalid registration request or it has expired. Please start over.');
-    }
+    if (!pendingUser) throw new Error('Invalid registration request.');
     
-    if (new Date() > pendingUser.expireAt) {
-        await pendingUser.deleteOne();
-        res.status(400);
-        throw new Error('Your OTP has expired. Please start the registration over.');
-    }
-
     const isMatch = await pendingUser.matchOtp(otp);
-    if (!isMatch) {
-        res.status(400);
-        throw new Error('Invalid verification code.');
-    }
+    if (!isMatch) throw new Error('Invalid verification code.');
 
-    const { adminUser, companyInfo, currencySymbol, itemTypes, serviceTypes, priceList, plan: planName } = pendingUser.signupData;
+    // Finalize the registration using the reusable service
+    const { tenant, user, token } = await finalizeRegistrationLogic(pendingUser);
 
-    if (!adminUser || !companyInfo) {
-        throw new Error("Internal Server Error: Pending registration data is incomplete.");
-    }
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        // --- Subscription Logic ---
-        const chosenPlanName = planName ? (planName.charAt(0).toUpperCase() + planName.slice(1)) : 'Trial';
-        const selectedPlan = await Plan.findOne({ name: chosenPlanName }).session(session);
-
-        if (!selectedPlan) {
-            throw new Error('Selected plan could not be found. Cannot create tenant.');
-        }
-
-        let trialEndDate = undefined;
-        let nextBillingDate = undefined;
-        let status = 'active';
-
-        if (selectedPlan.name === 'Trial') {
-            trialEndDate = new Date();
-            trialEndDate.setDate(trialEndDate.getDate() + 30);
-            status = 'trialing';
-        } else {
-            console.log(`Simulating payment for new Tenant ${companyInfo.name} for the ${selectedPlan.name} plan.`);
-            nextBillingDate = new Date();
-            nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
-        }
-        // --- End of Subscription Logic ---
-
-        const tenant = new Tenant({ 
-            name: companyInfo.name, 
-            plan: selectedPlan.name,
-            subscriptionStatus: status,
-            trialEndsAt: trialEndDate,
-            nextBillingAt: nextBillingDate
-        });
-        const savedTenant = await tenant.save({ session });
-        const tenantId = savedTenant._id;
-
-        const user = new User({
-            tenantId,
-            username: adminUser.username.toLowerCase(),
-            password: adminUser.password, // Will be hashed by User model's pre-save hook
-            email: adminUser.email.toLowerCase(),
-            role: 'admin',
-        });
-        const savedUser = await user.save({ session });
-
-        await Settings.findOneAndUpdate(
-            { tenantId: tenantId },
-            {
-                $set: {
-                    companyInfo: companyInfo,
-                    defaultCurrencySymbol: currencySymbol,
-                    itemTypes: itemTypes,
-                    serviceTypes: serviceTypes
-                }
-            },
-            { session, new: true, upsert: true } // Upsert ensures it gets created
-        );
-
-        if (priceList && priceList.length > 0) {
-            await Price.insertMany(priceList.map(p => ({ ...p, tenantId })), { session });
-        }
-
-        await pendingUser.deleteOne({ session });
-        await session.commitTransaction();
-
-        const token = generateToken(savedUser._id, savedUser.username, savedUser.role, savedUser.tenantId);
-        
-        // Send back a comprehensive user object for the frontend context
-        res.status(201).json({
-            _id: savedUser._id, 
-            username: savedUser.username, 
-            role: savedUser.role,
-            tenantId: savedUser.tenantId, 
-            token,
-            tenant: { // Include tenant subscription details in the login response
-                plan: savedTenant.plan,
-                subscriptionStatus: savedTenant.subscriptionStatus,
-                trialEndsAt: savedTenant.trialEndsAt,
-                nextBillingAt: savedTenant.nextBillingAt,
-            },
-            message: `Account for '${tenant.name}' created successfully!`
-        });
-
-    } catch (error) {
-        await session.abortTransaction();
-        console.error("Finalize Registration Transaction Failed:", error);
-        if (error.code === 11000) { throw new Error('A business, user, or email with these details was registered while you were verifying.'); }
-        throw new Error('A server error occurred during final account creation.');
-    } finally {
-        session.endSession();
-    }
+    res.status(201).json({
+        _id: user._id, 
+        username: user.username, 
+        role: user.role,
+        tenantId: user.tenantId, 
+        token,
+        tenant: {
+            plan: tenant.plan,
+            subscriptionStatus: tenant.subscriptionStatus,
+            trialEndsAt: tenant.trialEndsAt,
+            nextBillingAt: tenant.nextBillingAt,
+        },
+        message: `Account for '${tenant.name}' created successfully!`
+    });
 });
+
 // @desc    Get a list of publicly listed businesses for the directory
 // @route   GET /api/public/directory
 // @access  Public
