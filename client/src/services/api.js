@@ -185,7 +185,7 @@ directoryAdminApi.interceptors.response.use(
 
 
 export const loginDirectoryAdminApi = async (credentials) => {
-    return api.post('/directory-admin/login', credentials);
+    return api.post('/directory-admins/login', credentials);
 };
 
 export const getAllDirectoryListingsApi = async () => {

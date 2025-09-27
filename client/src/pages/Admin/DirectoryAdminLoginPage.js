@@ -11,7 +11,6 @@ const DirectoryAdminLoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { dirAdminLogin, isDirAdminAuthenticated, loading: authLoading } = useDirectoryAuth();
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

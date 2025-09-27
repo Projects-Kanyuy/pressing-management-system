@@ -39,7 +39,7 @@ const PricingSettingsPage = lazy(() => import('./pages/Admin/PricingPage.js'));
 const ManageDirectoryPage = lazy(() => import('./pages/Admin/ManageDirectoryPage.js'));
 const DirectoryAdminDashboard = lazy(() => import('./pages/Admin/DirectoryAdminDashboard'));
 const VerifyPaymentPage = lazy(() => import('./pages/Public/VerifyPaymentPage'));
-
+const VerifyUpgradePage = lazy(() => import('./pages/Public/VerifyUpgradePage'));
 // --- ROUTE PROTECTION COMPONENTS ---
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
@@ -77,6 +77,7 @@ function App() {
                             <Route path="/features" element={<FeaturesPage />} />
                             <Route path="/pricing" element={<PricingPage />} />
                             <Route path="/verify-payment" element={<VerifyPaymentPage />} />    
+                            <Route path="/verify-upgrade" element={<VerifyUpgradePage />} /> 
                         </Route>
 
                         {/* --- 2. PUBLIC DIRECTORY ROUTES --- */}

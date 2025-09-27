@@ -1,7 +1,7 @@
 // server/controllers/subscriptionController.js
 
 import asyncHandler from '../middleware/asyncHandler.js';
-import { createPaymentLink } from '../services/accountPeService.js';
+import { createPaymentLink, getPaymentLinkStatus } from '../services/accountPeService.js';
 import Tenant from '../models/Tenant.js';
 import Plan from '../models/Plan.js';
 import PendingUser from '../models/PendingUser.js';
@@ -66,34 +66,50 @@ const initiateSubscription = asyncHandler(async (req, res) => {
 // @route   POST /api/subscriptions/change-plan
 // @access  Private (Tenant)
 const changeSubscriptionPlan = asyncHandler(async (req, res) => {
-    // --- THIS FUNCTION IS UNCHANGED ---
     const { planName } = req.body;
-    const tenantId = req.tenant._id;
+    const loggedInUser = req.user; // Get the full user object from the protect middleware
 
+    if (!loggedInUser || !loggedInUser.tenantId) {
+        res.status(400);
+        throw new Error('User is not associated with a business.');
+    }
+
+    const tenantId = loggedInUser.tenantId;
     const tenant = await Tenant.findById(tenantId);
     const newPlan = await Plan.findOne({ name: planName });
 
     if (!tenant || !newPlan) throw new Error('Tenant or Plan not found');
-    if (tenant.plan === newPlan.name) throw new Error('You are already on this plan.');
+    if (tenant.plan === newPlan.name && tenant.subscriptionStatus === 'active') {
+        return res.status(400).json({ message: 'You are already on this plan.' });
+    }
 
     const priceDetails = newPlan.prices.find(p => p.currency === 'USD');
     if (!priceDetails) throw new Error(`Pricing for ${newPlan.name} is not configured.`);
 
     const transaction_id = `PRESSFLOW-UPGRADE-${tenantId}-${crypto.randomBytes(4).toString('hex')}`;
     
+    // --- THIS IS THE FIX ---
+    // The payment should be associated with the LOGGED-IN USER'S email, not the tenant's (which doesn't exist).
     const paymentData = {
-        country_code: tenant.country || "US",
+        country_code:"CM",
         name: tenant.name,
-        email: tenant.email,
+        email: loggedInUser.email, // <-- Use the user's email
         amount: priceDetails.amount,
         transaction_id,
         description: `Upgrade to PressFlow ${newPlan.name} Plan`,
         pass_digital_charge: true,
+        redirect_url: `${process.env.FRONTEND_URL}/#/verify-upgrade?transaction_id=${transaction_id}`
     };
 
-    const response = await createPaymentLink(paymentData);
-    res.status(201).json(response.data);
+    try {
+        const paymentResponse = await createPaymentLink(paymentData);
+        res.status(201).json(paymentResponse.data);
+    } catch (error) {
+        console.error("Error creating payment link for upgrade:", error);
+        throw new Error("Could not create payment link for the upgrade.");
+    }
 });
+
 const verifyPaymentAndFinalize = asyncHandler(async (req, res) => {
     const { transaction_id } = req.body;
 
