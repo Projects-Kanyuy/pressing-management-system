@@ -74,29 +74,45 @@ const initiateRegistration = asyncHandler(async (req, res) => {
         } catch (emailError) { /* Log or handle email failure */ }
 
         const paymentData = {
-            country_code: "US", // Should be dynamic
-            name: adminUser.username,
-            email: adminUser.email,
+            country_code: "CM", // Should be dynamic
+            name: pendingUser.signupData.adminUser.username,
+            email: pendingUser.email,
             amount: priceDetails.amount,
             transaction_id,
             description: `Subscription to PressFlow ${plan.name} Plan`,
             pass_digital_charge: true,
             redirect_url: `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`
         };
-
-        try {
+  try {
+            // This call is succeeding!
             const paymentResponse = await createPaymentLink(paymentData);
+
+            // --- THIS IS THE DEBUGGING STEP ---
+            // Log the entire successful response data to the terminal.
+            console.log("--- SUCCESSFUL RESPONSE FROM AccountPe ---");
+            console.log(JSON.stringify(paymentResponse.data, null, 2));
+            console.log("-----------------------------------------");
+
+            // Now, let's try to access the link safely
+            const paymentLink = paymentResponse.data?.data?.payment_link;
+
+            if (!paymentLink) {
+                // This error is firing correctly. The log above will tell us why.
+                throw new Error("Payment provider did not return a valid payment link in the expected format.");
+            }
+            
             res.status(200).json({
                 message: "OTP sent. Redirecting to payment.",
                 paymentRequired: true,
-                paymentLink: paymentResponse.data.payment_link
+                paymentLink: paymentLink
             });
         } catch (paymentError) {
-            console.error("Payment Link Creation Failed:", paymentError);
+            console.error("Payment Link Creation Failed Inside Controller:", paymentError);
             throw new Error("Could not create payment link.");
         }
     }
 });
+
 
 // --- THIS FUNCTION IS NOW ONLY FOR TRIAL USERS ---
 const finalizeRegistration = asyncHandler(async (req, res) => {

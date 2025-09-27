@@ -347,76 +347,60 @@ const SignUpPage = () => {
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 // Paste this entire block inside your SignUpPage component, replacing the old handler functions.
 
-     const handleInitiateRegistration = async () => {
+ const handleInitiateRegistration = async () => {
         setIsSubmitting(true);
         setError('');
         setSuccess('');
         try {
-            // This single API call sends all form data, including the chosen plan.
-            // The backend is now responsible for the logic of what to do next.
+            // It makes ONE API call. The backend's logic will decide what to do.
             const { data } = await initiateRegistrationApi(formData);
 
             if (data.paymentRequired) {
-                // If the backend says payment is required, it will send back a payment link.
-                setSuccess(data.message); // e.g., "OTP sent. Redirecting to payment..."
-                
-                // Redirect the user's browser to the external payment gateway.
+                // The backend says payment is needed and has sent us the link.
+                setSuccess(data.message);
                 window.location.href = data.paymentLink;
             } else {
-                // If the backend says no payment is needed (i.e., it's a Trial plan),
-                // it has sent the OTP. We now move the user to the OTP verification step (Step 5).
-                setSuccess(data.message); // e.g., "A verification code has been sent..."
+                // The backend says it's a Trial, so we move to the OTP step.
+                setSuccess(data.message);
                 setStep(5);
             }
         } catch (err) {
-            // This handles errors from the initiateRegistrationApi call,
-            // such as "Email already exists" or other validation failures.
-            setError(err.response?.data?.message || t('signup.errors.registrationFailed', 'Registration failed. Please check your details.'));
-            // On a critical error, it's best to send the user back to the first step.
+            setError(err.response?.data?.message || t('signup.errors.registrationFailed'));
             setStep(1);
         } finally {
             setIsSubmitting(false);
         }
     };
     
-    // This function is triggered from Step 5 (OTP Verification)
-    // Its ONLY purpose now is to finalize a FREE TRIAL registration.
-    // Paid registrations are finalized by the payment provider's webhook.
+    // This function is ONLY for Trial signups. It is called from Step 5.
     const handleFinalizeRegistration = async (otp) => {
-        if (!otp || otp.length !== 6) {
-            setError(t('signup.errors.otpInvalid', 'Please enter a valid 6-digit code.'));
-            return;
-        }
+        if (!otp || otp.length !== 6) { setError(t('signup.errors.otpInvalid')); return; }
         setIsSubmitting(true);
         setError('');
         try {
             const { data } = await finalizeRegistrationApi({ email: formData.adminUser.email, otp });
-            
-            // Log the user in with the data received from the successful registration
             login(data);
-            
-            toast.success(t('signup.success.message', 'Account created successfully! Welcome aboard.'));
-            
-            // Redirect the new user to their dashboard
+            toast.success('Account created successfully!');
             navigate('/app/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || t('signup.errors.verificationFailed', 'Verification failed. Please check the code and try again.'));
+            setError(err.response?.data?.message || t('signup.errors.verificationFailed'));
         } finally {
             setIsSubmitting(false);
         }
     };
-
+    
     const renderStep = () => {
         switch (step) {
             case 1: return <Step1AdminAccount data={formData.adminUser} setData={updateFormData} onNext={nextStep} />;
             case 2: return <Step2CompanyInfo data={{...formData.companyInfo, currencySymbol: formData.currencySymbol}} setData={(section, field, value) => { if (field === 'currencySymbol') setTopLevelFormData('currencySymbol', value); else updateFormData('companyInfo', field, value); }} onNext={nextStep} onPrev={prevStep} />;
             case 3: return <Step3SetupServices formData={formData} setFormData={setFormData} onNext={nextStep} onPrev={prevStep} />;
-            case 4: return <Step4Confirmation data={formData} onPrev={prevStep} onConfirm={handleInitiateRegistration} isSubmitting={isSubmitting} />;
+            // Pass the correct handler to the confirmation step
+            case 4: return <Step4Confirmation data={formData} onPrev={prevStep} onConfirm={handleInitiateRegistration} isSubmitting={isSubmitting} plan={planCapitalized} />;
+            // Pass the correct handler to the OTP step
             case 5: return <Step5OtpVerification data={formData} onPrev={() => setStep(4)} onFinalize={handleFinalizeRegistration} isSubmitting={isSubmitting} />;
             default: return <Step1AdminAccount data={formData.adminUser} setData={updateFormData} onNext={nextStep} />;
         }
     };
-
     return (
         <div className="min-h-screen bg-apple-gray-100 dark:bg-apple-gray-950 flex flex-col items-center justify-center p-4">
             {/* Back to Home Button */}
