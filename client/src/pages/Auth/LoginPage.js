@@ -89,7 +89,7 @@ const LoginPage = () => {
                 </div>
             </Card>
             <p className="mt-8 text-center text-xs text-apple-gray-500 dark:text-apple-gray-400">
-                © {new Date().getFullYear()} PressFlow. {t('login.copyright')}
+                © {new Date().getFullYear()} PressMark. {t('login.copyright')}
             </p>
         </div>
     );

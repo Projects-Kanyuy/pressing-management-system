@@ -91,7 +91,7 @@ export const deleteOrderApi = (orderId) => api.delete(`/orders/${orderId}`);
 export const sendManualNotification = (orderId) => api.post(`/orders/${orderId}/notify`);
 export const changeSubscriptionPlanApi = (planData) => api.post('/subscriptions/change-plan', planData);
 export const initiatePaidSubscriptionApi = (data) => PublicAPI.post('/subscriptions/initiate', data);
-export const verifyPaymentAndFinalizeApi = (data) => PublicAPI.post('/api/subscriptions/verify-payment', data);
+export const verifyPaymentAndFinalizeApi = (data) => PublicAPI.post('/subscriptions/verify-payment', data);
 // --- Payments ---
 export const markOrderPaidApi = async (orderId) => {
     return api.put(`/orders/${orderId}/mark-paid`);
@@ -154,9 +154,8 @@ export const fetchInboundMessagesApi = async (page = 1, pageSize = 25) => {
 export const recordPaymentApi = async (orderId, paymentData) => {
     return api.post(`/orders/${orderId}/payments`, paymentData);
 };
-export const getAllPlansAdminApi = () => api.get('/plans/all');
-export const updatePlanApi = (id, planData) => api.put(`/plans/${id}`, planData);
-
+export const getAllPlansAdminApi = () => directoryAdminApi.get('/plans/all');
+export const updatePlanApi = (id, planData) => directoryAdminApi.put(`/plans/${id}`, planData);
 // --- DIRECTORY ADMIN API ---
 const directoryAdminApi = axios.create({ baseURL: API_URL });
 
@@ -189,23 +188,23 @@ export const loginDirectoryAdminApi = async (credentials) => {
 };
 
 export const getAllDirectoryListingsApi = async () => {
-    return directoryAdminApi.get('/directory-admin/listings');
+    return directoryAdminApi.get('/directory-admins/listings');
 };
 export const createDirectoryListingApi = async (listingData) => {
-    return directoryAdminApi.post('/directory-admin/listings', listingData);
+    return directoryAdminApi.post('/directory-admins/listings', listingData);
 };
 export const updateDirectoryListingApi = async (id, listingData) => {
-    return directoryAdminApi.put(`/directory-admin/listings/${id}`, listingData);
+    return directoryAdminApi.put(`/directory-admins/listings/${id}`, listingData);
 };
 export const deleteDirectoryListingApi = async (id) => {
-    return directoryAdminApi.delete(`/directory-admin/listings/${id}`);
+    return directoryAdminApi.delete(`/directory-admins/listings/${id}`);
 };
 export const getAllTenantsApi = async () => {
-    return api.get('/directory-admin/tenants');
+    return api.get('/directory-admins/tenants');
 };
 
 export const updateTenantApi = async (id, tenantData) => {
-    return api.put(`/directory-admin/tenants/${id}`, tenantData);
+    return api.put(`/directory-admins/tenants/${id}`, tenantData);
 };
 export const uploadTenantLogoApi = async (formData) => {
     return api.post('/uploads/tenant-logo', formData, {

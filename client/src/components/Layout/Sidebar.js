@@ -108,7 +108,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
                 <div className="p-4 border-t border-apple-gray-200 dark:border-apple-gray-800">
                     <p className="text-xs text-apple-gray-500 dark:text-apple-gray-400 text-center">
-                        © {new Date().getFullYear()} PressFlow
+                        © {new Date().getFullYear()} PressMark
                     </p>
                 </div>
             </aside>

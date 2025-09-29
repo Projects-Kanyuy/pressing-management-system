@@ -773,7 +773,7 @@
     }
   },
   "signup": {
-    "title": "Créer Votre Compte PressFlow",
+    "title": "Créer Votre Compte PressMark",
     "stepProgress": "Étape {{current}} sur {{total}}",
     "finalStep": "Étape Finale",
     "step1": {

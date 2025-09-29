@@ -10,6 +10,18 @@ import Input from '../../components/UI/Input';
 import Spinner from '../../components/UI/Spinner';
 import { ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, User, Building, Wrench, KeyRound, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PhoneInput from '../../components/UI/PhoneInput'; 
+const countryCurrencyMap = {
+    CM: 'FCFA', // Cameroon
+    NG: 'NGN',  // Nigeria
+    GH: 'GHS',  // Ghana
+    KE: 'KES',  // Kenya
+    ZA: 'ZAR',  // South Africa
+    US: 'USD',  // United States
+    GB: 'GBP',  // United Kingdom
+    FR: 'EUR',  // France (Euro)
+    // Add any other countries and currencies you want to support
+};
 
 // --- Step Components (can be moved to separate files) ---
 const Step1AdminAccount = ({ data, setData, onNext }) => {
@@ -74,14 +86,22 @@ const Step2CompanyInfo = ({ data, setData, onNext, onPrev }) => {
         if (!data.currencySymbol) { setError(t('signup.step2.errors.currencyRequired')); return; }
         onNext();
     };
+    const handleCountryChange = (countryCode) => {
+        // Find the currency for the selected country
+        const newCurrency = countryCurrencyMap[countryCode];
+        if (newCurrency) {
+            // Update the currency symbol in the main form data
+            setData('setTopLevel', 'currencySymbol', newCurrency);
+        }
+    };
     return (
         <div className="space-y-4 animate-fade-in">
             <div className="flex items-center space-x-3 mb-4"><div className="bg-apple-blue text-white rounded-full p-2"><Building size={20} /></div><h3 className="font-semibold text-xl dark:text-white">{t('signup.step2.title')}</h3></div>
             {error && <p className="text-sm text-red-500 p-2 bg-red-100 dark:bg-red-900/30 rounded-md">{error}</p>}
             <Input label={t('signup.step2.businessName')} name="name" value={data.name} onChange={e => setData('companyInfo', 'name', e.target.value)} />
             <Input label={t('signup.step2.businessAddress')} name="address" value={data.address} onChange={e => setData('companyInfo', 'address', e.target.value)} />
-            <Input label={t('signup.step2.businessPhone')} name="phone" value={data.phone} onChange={e => setData('companyInfo', 'phone', e.target.value)} />
-            <Input label={t('signup.step2.currencySymbol')} name="currencySymbol" value={data.currencySymbol} onChange={e => setData('currencySymbol', e.target.value)} />
+            <PhoneInput label={t('signup.step2.businessPhone')} value={data.phone} onChange={(value) => setData('companyInfo', 'phone', value)} onCountryChange={handleCountryChange}/>
+            <Input label={t('signup.step2.currencySymbol')} name="currencySymbol" value={data.currencySymbol} onChange={e => setData('setTopLevel', 'currencySymbol', e.target.value)} />
             <div className="flex justify-between pt-4"><Button variant="secondary" onClick={onPrev} iconLeft={<ArrowLeft size={16} />}>{t('signup.step2.backButton')}</Button><Button onClick={handleNext} iconRight={<ArrowRight size={16} />}>{t('signup.step2.nextButton')}</Button></div>
         </div>
     );
@@ -340,8 +360,40 @@ const SignUpPage = () => {
             }));
         }
     }, [t, formData.itemTypes.length, formData.serviceTypes.length]);
+    const updateFormData = (section, field, value) => {
+        if (section === 'topLevel') {
+            // For top-level properties like 'currencySymbol'
+            setFormData(prev => ({ ...prev, [field]: value }));
+        } else {
+            // For nested properties like 'adminUser.username'
+            setFormData(prev => ({
+                ...prev,
+                [section]: {
+                    ...prev[section],
+                    [field]: value
+                }
+            }));
+        }
+    };
+    const handleSetData = (section, field, value) => {
+        if (section === 'setTopLevel') {
+            updateFormData(field, value);
+        } else {
+            updateFormData(section, value, field); // Note: order might be different
+        }
+    };
+    // Then you pass `handleSetData` to the step components. This requires refactoring
+    // how you call setData. Let's simplify the Step2 call for now.
+    
+    // A simpler way to update the main component's state from the child
+    const handleSetDataForStep2 = (section, field, value) => {
+        if (section === 'setTopLevel') {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        } else {
+            setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+        }
+    };
 
-    const updateFormData = (section, field, value) => setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
     const setTopLevelFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
     const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
@@ -392,7 +444,7 @@ const SignUpPage = () => {
     const renderStep = () => {
         switch (step) {
             case 1: return <Step1AdminAccount data={formData.adminUser} setData={updateFormData} onNext={nextStep} />;
-            case 2: return <Step2CompanyInfo data={{...formData.companyInfo, currencySymbol: formData.currencySymbol}} setData={(section, field, value) => { if (field === 'currencySymbol') setTopLevelFormData('currencySymbol', value); else updateFormData('companyInfo', field, value); }} onNext={nextStep} onPrev={prevStep} />;
+            case 2: return <Step2CompanyInfo data={{...formData.companyInfo, currencySymbol: formData.currencySymbol}} setData={handleSetDataForStep2} onNext={nextStep} onPrev={prevStep} />;
             case 3: return <Step3SetupServices formData={formData} setFormData={setFormData} onNext={nextStep} onPrev={prevStep} />;
             // Pass the correct handler to the confirmation step
             case 4: return <Step4Confirmation data={formData} onPrev={prevStep} onConfirm={handleInitiateRegistration} isSubmitting={isSubmitting} plan={planCapitalized} />;
@@ -414,7 +466,7 @@ const SignUpPage = () => {
             </div>
 
              <Link to="/" className="flex items-center space-x-2 mb-8"><svg className="h-10 w-10 text-apple-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                <span className="text-3xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressFlow</span></Link>
+                <span className="text-3xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressMark</span></Link>
             <Card className="w-full max-w-3xl shadow-apple-lg">
                 <div className="flex items-center p-4 border-b dark:border-apple-gray-700">
                     <h2 className="text-xl font-bold text-center flex-grow dark:text-white">{t('signup.title')}</h2>

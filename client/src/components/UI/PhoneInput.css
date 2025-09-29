@@ -1,0 +1,61 @@
+/* client/src/components/UI/PhoneInput.css */
+
+/* This is the main container that gets the border and background */
+.phone-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: #f9fafb; /* Light mode background */
+    border: 1px solid #d1d5db; /* Light mode border */
+    border-radius: 0.5rem; /* rounded-lg */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Dark mode styles for the wrapper */
+.dark .phone-input-wrapper {
+    background-color: #1f2937; /* dark:bg-apple-gray-800 */
+    border-color: #4b5563; /* dark:border-apple-gray-600 */
+}
+
+/* Focus styles for the wrapper */
+.phone-input-wrapper:focus-within {
+    border-color: #3b82f6; /* focus:border-apple-blue */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+/* --- Core Styles for the library's components --- */
+
+/* Target the library's main container and remove its default border/padding */
+.phone-input-wrapper .PhoneInput {
+    border: none;
+    padding: 0;
+    width: 100%;
+}
+
+/* Target the actual phone number input field */
+.phone-input-wrapper .PhoneInputInput {
+    flex-grow: 1; /* Allows it to take up the remaining space */
+    border: none !important; /* Use !important to override library styles */
+    outline: none !important;
+    background-color: transparent !important;
+    color: #111827; /* Light mode text */
+    padding-left: 0.75rem; /* Add some space after the country code */
+    font-size: 1rem;
+    height: 100%;
+}
+
+.dark .phone-input-wrapper .PhoneInputInput {
+    color: #f9fafb; /* Dark mode text */
+}
+
+/* Target the country selector part */
+.phone-input-wrapper .PhoneInputCountry {
+    margin-right: 0.5rem;
+}
+
+/* Target the country flag icon */
+.phone-input-wrapper .PhoneInputCountryIcon {
+    box-shadow: none; /* Remove any default shadow */
+    border: 1px solid #9ca3af; /* Add a subtle border */
+}

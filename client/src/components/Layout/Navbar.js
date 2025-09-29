@@ -52,7 +52,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                     <Button variant="ghost" size="sm" onClick={toggleSidebar} className="p-1.5 mr-2 lg:hidden" aria-label={t('navbar.toggleSidebar')}>
                         <Menu size={22} />
                     </Button>
-                    <Link to="/" className="text-xl font-semibold text-apple-blue dark:text-apple-blue-light hidden sm:block">PressFlow</Link>
+                    <Link to="/" className="text-xl font-semibold text-apple-blue dark:text-apple-blue-light hidden sm:block">PressMark</Link>
                 </div>
 
                 <div className="flex items-center space-x-2 sm:space-x-3">

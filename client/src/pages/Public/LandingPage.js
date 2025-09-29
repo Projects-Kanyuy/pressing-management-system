@@ -24,7 +24,7 @@ const LandingPage = () => {
                 <div className="container mx-auto px-6">
                     <div className="max-w-3xl mx-auto">
                         <h1 className="text-4xl md:text-6xl font-bold text-apple-gray-900 dark:text-white mb-4 leading-tight">
-                            {t('public.landing.hero.title')} <span className="text-apple-blue">PressFlow</span>
+                            {t('public.landing.hero.title')} <span className="text-apple-blue">PressMark</span>
                         </h1>
                         <p className="text-lg text-apple-gray-600 dark:text-apple-gray-300 mb-8">
                             {t('public.landing.hero.subtitle')}

@@ -1,17 +1,24 @@
 // backend/services/accountPeService.js
 
 import axios from 'axios';
+import https from 'https'; // <-- 1. IMPORT the 'https' module
 
 // --- STATE MANAGEMENT for the AccountPe Auth Token ---
 let authToken = null;
 let tokenExpiresAt = null;
 
 // --- A SINGLE, UNIFIED API INSTANCE ---
-// The baseURL is now CORRECTLY set to the payin base URL.
 const payinApi = axios.create({
     baseURL: 'https://api.accountpe.com/api/payin',
     headers: { 'Content-Type': 'application/json' },
 });
+
+// --- 2. CREATE the custom HTTPS agent ---
+// This agent will be used to bypass local SSL/TLS issues.
+const httpsAgent = new https.Agent({  
+  rejectUnauthorized: false,
+});
+
 
 /**
  * Fetches a new authentication token from the correct AccountPe endpoint.
@@ -25,10 +32,13 @@ const getAuthToken = async () => {
             throw new Error('AccountPe credentials are not configured.');
         }
 
-        // --- THIS IS THE FIX ---
-        // We use the payinApi instance and call the correct '/admin/auth' path.
         // The final URL will be: https://api.accountpe.com/api/payin/admin/auth
-        const { data } = await payinApi.post('/admin/auth', { email, password });
+        // --- 3. APPLY the fix to the API call ---
+        const { data } = await payinApi.post(
+            '/admin/auth', 
+            { email, password },
+            { httpsAgent } // Tell axios to use our custom agent for this request
+        );
         
         const token = data.token;
         if (!token) {
@@ -54,9 +64,9 @@ const getAuthToken = async () => {
  * Creates a payment link. This function relies on the interceptor to get a token.
  */
 export const createPaymentLink = async (paymentData) => {
-    // The path is now relative to the baseURL.
     const url = '/create_payment_links';
-    return payinApi.post(url, paymentData);
+    // --- 4. APPLY the fix here as well for consistency ---
+    return payinApi.post(url, paymentData, { httpsAgent });
 };
 
 /**
@@ -64,7 +74,8 @@ export const createPaymentLink = async (paymentData) => {
  */
 export const getPaymentLinkStatus = async (transactionId) => {
     const url = '/payment_link_status';
-    return payinApi.post(url, { transaction_id: transactionId });
+    // --- 4. APPLY the fix here as well ---
+    return payinApi.post(url, { transaction_id: transactionId }, { httpsAgent });
 };
 
 /**
@@ -72,15 +83,12 @@ export const getPaymentLinkStatus = async (transactionId) => {
  */
 payinApi.interceptors.request.use(
     async (config) => {
-        // DO NOT try to get a token for the auth route itself!
         if (config.url === '/admin/auth') {
             return config;
         }
-
         if (!authToken || new Date() > tokenExpiresAt) {
             await getAuthToken();
         }
-        
         config.headers['Authorization'] = `Bearer ${authToken}`;
         return config;
     },

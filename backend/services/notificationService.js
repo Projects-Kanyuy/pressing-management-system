@@ -111,9 +111,9 @@ const sendNotification = async (customer, templateType, order, customPlaceholder
             let messageBodyTemplate;
             // Select message body template based on type
             if (templateType === 'readyForPickup') {
-                messageBodyTemplate = templates.readyForPickupBody || `Dear {{customerName}}, your PressFlow order #{{receiptNumber}} is ready for pickup! From {{companyName}}.`;
+                messageBodyTemplate = templates.readyForPickupBody || `Dear {{customerName}}, your PressMark order #{{receiptNumber}} is ready for pickup! From {{companyName}}.`;
             } else if (templateType === 'manualReminder') {
-                messageBodyTemplate = templates.manualReminderBody || `Dear {{customerName}}, a reminder about your PressFlow order #{{receiptNumber}}. It's ready for pickup. From {{companyName}}.`;
+                messageBodyTemplate = templates.manualReminderBody || `Dear {{customerName}}, a reminder about your PressMark order #{{receiptNumber}}. It's ready for pickup. From {{companyName}}.`;
             } else { // Generic fallback
                 messageBodyTemplate = `Update for order #{{receiptNumber}}: Status is {{orderStatus}}. From {{companyName}}.`;
             }
@@ -206,7 +206,7 @@ export const sendOtpEmail = async (email, otp) => {
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
-        subject: 'Your PressFlow Verification Code',
+        subject: 'Your PressMark Verification Code',
         text: `Your verification code is: ${otp}\n\nThis code will expire in 15 minutes.`,
         html: `<p>Your verification code is: <strong>${otp}</strong></p><p>This code will expire in 15 minutes.</p>`,
     };
