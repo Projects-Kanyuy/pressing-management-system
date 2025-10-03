@@ -678,9 +678,12 @@
           "features": [
             "Up to 250 Orders per month",
             "2 Staff Accounts",
-            "Customer Management",
+             "Basic Reporting Dashboard",
+             "Customer Management",
+            "Printable Receipts",
             "Payment Tracking",
-            "Email Notifications"
+            "Email Notifications",
+            "Boosted Buisness Traffic"
           ]
         },
         "pro": {
@@ -693,7 +696,9 @@
             "Everything in Basic",
             "SMS Notifications (Twilio)",
             "Basic Sales Reports",
-            "Admin Bell Notifications"
+            "Admin Bell Notifications",
+            "Advanced Customer Insights",
+            "Priority Email Support"
           ]
         },
         "enterprise": {

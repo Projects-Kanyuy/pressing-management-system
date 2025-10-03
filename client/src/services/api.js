@@ -1,7 +1,7 @@
 // client/src/services/api.js
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api' || process.env.AMAZON_ACCESS_KEY_ID ;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
 
 const api = axios.create({
@@ -63,6 +63,7 @@ export const confirmPasswordChangeApi = async (data) => {
 export const initiateRegistrationApi = async (setupData) => {
     return api.post('/public/initiate-registration', setupData);
 };
+export const sendContactFormApi = (data) => PublicAPI.post('/api/public/contact-form', data);
 
 export const finalizeRegistrationApi = async (verificationData) => {
     // verificationData = { email, otp }

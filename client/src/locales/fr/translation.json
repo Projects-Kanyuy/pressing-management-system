@@ -533,6 +533,24 @@
       "saveError": "Échec de la sauvegarde des paramètres."
     }
   },
+  "contact": {
+      "title": "Get In Touch",
+      "subtitle": "We'd love to hear from you. Please fill out the form below or use the details provided.",
+      "form": {
+        "name": "Your Name",
+        "email": "Your Email",
+        "message": "Message",
+        "submit": "Send Message"
+      },
+      "details": {
+        "email": "Email Us",
+        "whatsapp": "Chat on WhatsApp",
+        "address": "Our Location"
+      },
+      "messages": {
+        "success": "Thank you! Your message has been sent."
+      }
+    },
   "login": {
     "title": "Connexion Employé",
     "usernameLabel": "Nom d'utilisateur",

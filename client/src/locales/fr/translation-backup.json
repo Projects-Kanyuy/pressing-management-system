@@ -168,7 +168,10 @@
             "2 comptes employés",
             "Gestion des clients",
             "Suivi des paiements",
-            "Notifications par e-mail"
+            "Notifications par e-mail",
+            "Tableau de bord de base",
+            "Reçus imprimables",
+            "Traffic Commercial Stimule"
           ]
         },
         "pro": {
@@ -181,7 +184,9 @@
             "Tout ce qui est dans Basique",
             "Notifications SMS (Twilio)",
             "Rapports de vente de base",
-            "Notifications admin en temps réel"
+            "Notifications admin en temps réel",
+             "Aperçus clients avancés",
+            "Support par e-mail prioritaire"
           ]
         },
         "enterprise": {
@@ -253,6 +258,25 @@
       }
     }
   },
+   "contact": {
+      "title": "Contactez-Nous",
+      "subtitle": "Nous serions ravis de vous entendre. Veuillez remplir le formulaire ci-dessous ou utiliser les coordonnées fournies.",
+      "form": {
+        "name": "Votre Nom",
+        "email": "Votre E-mail",
+        "message": "Message",
+        "submit": "Envoyer le Message"
+      },
+      "details": {
+        "email": "Envoyez-nous un e-mail",
+        "whatsapp": "Discutez sur WhatsApp",
+        "address": "Notre Emplacement"
+      },
+      "messages": {
+        "success": "Merci ! Votre message a été envoyé."
+      }
+    },
+    
   "signup": {
     "title": "Configurez Votre Entreprise",
     "stepProgress": "Étape {{current}} sur {{total}}",

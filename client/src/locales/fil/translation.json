@@ -544,6 +544,24 @@
       "saveError": "Nabigo sa pag-save ng mga setting."
     }
   },
+    "contact": {
+      "title": "Makipag-ugnayan sa Amin",
+      "subtitle": "Gusto naming marinig mula sa iyo. Punan ang form sa ibaba o gamitin ang mga detalye na nakalaan.",
+      "form": {
+        "name": "Ang Iyong Pangalan",
+        "email": "Ang Iyong Email",
+        "message": "Mensahe",
+        "submit": "Ipadala ang Mensahe"
+      },
+      "details": {
+        "email": "Mag-email sa Amin",
+        "whatsapp": "Makipag-chat sa WhatsApp",
+        "address": "Ang Aming Lokasyon"
+      },
+      "messages": {
+        "success": "Salamat! Ang iyong mensahe ay naipadala na."
+      }
+    },
   "landing": {
     "headline": "Palakasin ang Inyong Pressing Business.",
     "subheadline": "Mula sa pag-log ng order at pagsubaybay sa bayad hanggang sa mga notification ng customer, ang PressFlow ay ang all-in-one system para pamahalaan ang inyong laundry at dry cleaning operations nang walang kahirap-hirap."

@@ -52,7 +52,10 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                     <Button variant="ghost" size="sm" onClick={toggleSidebar} className="p-1.5 mr-2 lg:hidden" aria-label={t('navbar.toggleSidebar')}>
                         <Menu size={22} />
                     </Button>
-                    <Link to="/" className="text-xl font-semibold text-apple-blue dark:text-apple-blue-light hidden sm:block">PressMark</Link>
+                    <Link to="/" className="flex items-center space-x-2">
+                    <img src="/logo.png" alt="PressFlow Logo" className="h-8 w-auto" />
+                    <span className="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressFlow</span>
+                </Link>
                 </div>
 
                 <div className="flex items-center space-x-2 sm:space-x-3">

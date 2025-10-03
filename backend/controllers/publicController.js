@@ -14,6 +14,7 @@ import { createPaymentLink } from '../services/accountPeService.js';
 import { finalizeRegistrationLogic } from '../services/registrationService.js';
 import crypto from 'crypto';
 import DirectoryListing from '../models/DirectoryListing.js';
+import { sendContactFormEmail } from '../services/notificationService.js';
 
 // --- STEP 1: INITIATE REGISTRATION & SEND OTP ---
 const initiateRegistration = asyncHandler(async (req, res) => {
@@ -231,11 +232,27 @@ const getTenantPriceList = asyncHandler(async (req, res) => {
 
     res.json(prices);
 });
+const handleContactForm = asyncHandler(async (req, res) => {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+        res.status(400);
+        throw new Error('Name, email, and message are required.');
+    }
+
+    try {
+        await sendContactFormEmail({ name, from: email, message });
+        res.status(200).json({ message: 'Message sent successfully.' });
+    } catch (error) {
+        console.error("Failed to send contact form email:", error);
+        throw new Error('Could not send message at this time.');
+    }
+});
 
 export {
   initiateRegistration,
   finalizeRegistration,
   getPublicDirectory,
   getBusinessBySlug,
-  getTenantPriceList
+  getTenantPriceList,
+  handleContactForm
 };

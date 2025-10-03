@@ -213,5 +213,25 @@ export const sendOtpEmail = async (email, otp) => {
     await transporter.sendMail(mailOptions);
     console.log(`[NotificationService] OTP email sent to ${email}`);
 };
-
+export const sendContactFormEmail = async ({ name, from, message }) => {
+    const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        // --- THIS SENDS THE EMAIL TO YOU/YOUR DAD ---
+        to: 'ojongagbor87@gmail.com', 
+        subject: `New Contact Message from ${name} via PressFlow`,
+        text: `You have received a new message from your website's contact form.\n\n` +
+              `From: ${name}\n` +
+              `Email: ${from}\n\n` +
+              `Message:\n${message}`,
+        html: `<p>You have received a new message from your website's contact form.</p>` +
+              `<h3>Details:</h3>` +
+              `<ul>` +
+              `<li><strong>From:</strong> ${name}</li>` +
+              `<li><strong>Email:</strong> ${from}</li>` +
+              `</ul>` +
+              `<h3>Message:</h3>` +
+              `<p>${message}</p>`,
+    };
+    await transporter.sendMail(mailOptions);
+};
 export { sendNotification };

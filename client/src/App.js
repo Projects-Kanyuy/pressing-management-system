@@ -40,6 +40,7 @@ const ManageDirectoryPage = lazy(() => import('./pages/Admin/ManageDirectoryPage
 const DirectoryAdminDashboard = lazy(() => import('./pages/Admin/DirectoryAdminDashboard'));
 const VerifyPaymentPage = lazy(() => import('./pages/Public/VerifyPaymentPage'));
 const VerifyUpgradePage = lazy(() => import('./pages/Public/VerifyUpgradePage'));
+const ContactPage = lazy(() => import('./pages/Public/ContactPage')); 
 // --- ROUTE PROTECTION COMPONENTS ---
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
@@ -89,6 +90,7 @@ function App() {
                         {/* --- 3. STANDALONE PUBLIC ROUTES (No standard layout) --- */}
                         <Route path="/signup" element={<SignUpPage />} />
                         <Route path="/login" element={<LoginPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
                         <Route path="/directory-admin/login" element={<DirectoryAdminLoginPage />} />
 
                         {/* --- 4. PROTECTED MAIN APPLICATION --- */}

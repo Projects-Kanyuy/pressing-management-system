@@ -101,11 +101,12 @@ const PricingPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
               {/* --- Basic Plan --- */}
               {basicPlan && (
-                <div className="border dark:border-apple-gray-700 rounded-apple-xl p-8 flex flex-col bg-white dark:bg-apple-gray-800/50">
-                  <h3 className="text-2xl font-semibold">
+                <div className="border dark:border-apple-gray-700 
+                rounded-apple-xl p-8 flex flex-col bg-white dark:bg-apple-gray-800/50">
+                   <h3 className="text-2xl font-semibold text-apple-gray-800 dark:text-white">
                     {t('public.pricing.plans.basic.name')}
                   </h3>
-                  <p className="mt-4 text-5xl font-bold tracking-tight">
+                   <p className="mt-4 text-5xl font-bold tracking-tight text-apple-gray-900 dark:text-white">
                     {findPriceString(basicPlan)}
                     <span className="ml-1 text-xl font-medium text-apple-gray-500 dark:text-apple-gray-400">
                       /{t('public.pricing.plans.basic.frequency')}
@@ -131,16 +132,16 @@ const PricingPage = () => {
 
               {/* --- Pro Plan (Most Popular) --- */}
               {proPlan && (
-                <div className="relative p-8 rounded-apple-xl border-2 border-apple-blue shadow-apple-xl flex flex-col bg-white dark:bg-apple-gray-800/50">
+                <div className="relative p-8 rounded-apple-xl border-2 border-apple-blue shadow-apple-xl flex flex-col bg-white dark:bg-apple-gray-800/50 ">
                   <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
                     <span className="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold text-white bg-apple-blue">
                       {t('public.pricing.mostPopular')}
                     </span>
                   </div>
-                  <h3 className="text-2xl font-semibold">
+                   <h3 className="text-2xl font-semibold text-apple-gray-800 dark:text-white">
                     {t('public.pricing.plans.pro.name')}
                   </h3>
-                  <p className="mt-4 text-5xl font-bold tracking-tight">
+                   <p className="mt-4 text-5xl font-bold tracking-tight text-apple-gray-900 dark:text-white">
                     {findPriceString(proPlan)}
                     <span className="ml-1 text-xl font-medium text-apple-gray-500 dark:text-apple-gray-400">
                       /{t('public.pricing.plans.pro.frequency')}
@@ -165,57 +166,22 @@ const PricingPage = () => {
               )}
 
               {/* --- Enterprise Plan --- */}
-              {enterprisePlan && (
+             {enterprisePlan && (
                 <div className="border dark:border-apple-gray-700 rounded-apple-xl p-8 flex flex-col bg-white dark:bg-apple-gray-800/50">
-                  <h3 className="text-2xl font-semibold">
-                    {t('public.pricing.plans.enterprise.name')}
-                  </h3>
-                  <p className="mt-4 text-4xl font-bold">
-                    {t('public.pricing.plans.enterprise.price')}
-                    <span className="ml-1 text-lg font-medium text-apple-gray-500 dark:text-apple-gray-400">
-                      /{t('public.pricing.plans.enterprise.frequency')}
-                    </span>
-                  </p>
+                  <h3 className="text-2xl font-semibold dark:text-white">{t('public.pricing.plans.enterprise.name')}</h3>
+                  <p className="mt-4 text-4xl font-bold dark:text-white">{t('public.pricing.plans.enterprise.price')}<span className="ml-1 text-lg font-medium text-apple-gray-500 dark:text-apple-gray-400">/{t('public.pricing.plans.enterprise.frequency')}</span></p>
                   <ul className="mt-6 space-y-3 mb-8">
-                    {t('public.pricing.plans.enterprise.features', {
-                      returnObjects: true,
-                    }).map((feature, i) => (
-                      <CheckListItem key={i}>{feature}</CheckListItem>
-                    ))}
+                    {t('public.pricing.plans.enterprise.features', { returnObjects: true, defaultValue: [] }).map((feature, i) => (<CheckListItem key={i}>{feature}</CheckListItem>))}
                   </ul>
                   <div className="flex-grow"></div>
                   <Link to="/contact" className="w-full mt-auto">
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      className="w-full"
-                    >
-                      {t('public.pricing.contactSales')}
+                    <Button variant="secondary" size="lg" className="w-full">
+                      {/* --- FIX #1: Use the t() function for the button text --- */}
+                      {t('public.pricing.contactSales', 'Contact Sales')}
                     </Button>
                   </Link>
                 </div>
               )}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-white dark:bg-apple-gray-900">
-          <div className="container mx-auto px-6 max-w-3xl">
-            <h2 className="text-3xl font-bold text-center mb-8">
-              {t('public.pricing.faq.title')}
-            </h2>
-            <div className="space-y-6">
-              {t('public.pricing.faq.items', {
-                returnObjects: true,
-                defaultValue: [],
-              }).map((faq, i) => (
-                <div key={i}>
-                  <h4 className="font-semibold mb-1">{faq.question}</h4>
-                  <p className="text-sm text-apple-gray-600 dark:text-apple-gray-400">
-                    {faq.answer}
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
