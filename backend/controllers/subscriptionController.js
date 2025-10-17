@@ -67,15 +67,14 @@ const initiateSubscription = asyncHandler(async (req, res) => {
 // @access  Private (Tenant)
 const changeSubscriptionPlan = asyncHandler(async (req, res) => {
     const { planName } = req.body;
-    const loggedInUser = req.user; // Get the full user object from the protect middleware
+    const loggedInUser = req.user;
 
     if (!loggedInUser || !loggedInUser.tenantId) {
         res.status(400);
         throw new Error('User is not associated with a business.');
     }
 
-    const tenantId = loggedInUser.tenantId;
-    const tenant = await Tenant.findById(tenantId);
+    const tenant = await Tenant.findById(loggedInUser.tenantId);
     const newPlan = await Plan.findOne({ name: planName });
 
     if (!tenant || !newPlan) throw new Error('Tenant or Plan not found');
@@ -83,18 +82,30 @@ const changeSubscriptionPlan = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'You are already on this plan.' });
     }
 
-    const priceDetails = newPlan.prices.find(p => p.currency === 'USD');
-    if (!priceDetails) throw new Error(`Pricing for ${newPlan.name} is not configured.`);
-
-    const transaction_id = `PRESSFLOW-UPGRADE-${tenantId}-${crypto.randomBytes(4).toString('hex')}`;
-    
     // --- THIS IS THE FIX ---
-    // The payment should be associated with the LOGGED-IN USER'S email, not the tenant's (which doesn't exist).
+    // 1. Determine the target currency for the payment. Let's use XAF for Cameroon.
+    // In a more advanced app, this could be based on tenant.country.
+    const paymentCurrency = 'XAF';
+
+    // 2. Find the price for that specific currency from the plan's prices array.
+    const priceDetails = newPlan.prices.find(p => p.currency === paymentCurrency);
+    
+    // 3. Add a fallback to USD if the specific currency isn't found.
+    const fallbackPriceDetails = newPlan.prices.find(p => p.currency === 'USD');
+
+    const finalPriceDetails = priceDetails || fallbackPriceDetails;
+
+    if (!finalPriceDetails || finalPriceDetails.amount <= 0) {
+        throw new Error(`Pricing for the ${newPlan.name} plan is not configured for ${paymentCurrency} or USD.`);
+    }
+
+    const transaction_id = `PRESSFLOW-UPGRADE-${loggedInUser.tenantId}-${crypto.randomBytes(4).toString('hex')}`;
+    
     const paymentData = {
-        country_code:"CM",
+        country_code: "CM", // Sending the correct country code
         name: tenant.name,
-        email: loggedInUser.email, // <-- Use the user's email
-        amount: priceDetails.amount,
+        email: loggedInUser.email,
+        amount: finalPriceDetails.amount, // <-- Now sends the correct amount (e.g., 5000)
         transaction_id,
         description: `Upgrade to PressFlow ${newPlan.name} Plan`,
         pass_digital_charge: true,

@@ -1,7 +1,7 @@
 // backend/services/accountPeService.js
 
 import axios from 'axios';
-import https from 'https'; // <-- 1. IMPORT the 'https' module
+import https from 'https'; 
 
 // --- STATE MANAGEMENT for the AccountPe Auth Token ---
 let authToken = null;
@@ -33,11 +33,10 @@ const getAuthToken = async () => {
         }
 
         // The final URL will be: https://api.accountpe.com/api/payin/admin/auth
-        // --- 3. APPLY the fix to the API call ---
         const { data } = await payinApi.post(
             '/admin/auth', 
             { email, password },
-            { httpsAgent } // Tell axios to use our custom agent for this request
+            { httpsAgent } 
         );
         
         const token = data.token;
@@ -65,7 +64,6 @@ const getAuthToken = async () => {
  */
 export const createPaymentLink = async (paymentData) => {
     const url = '/create_payment_links';
-    // --- 4. APPLY the fix here as well for consistency ---
     return payinApi.post(url, paymentData, { httpsAgent });
 };
 
@@ -74,7 +72,6 @@ export const createPaymentLink = async (paymentData) => {
  */
 export const getPaymentLinkStatus = async (transactionId) => {
     const url = '/payment_link_status';
-    // --- 4. APPLY the fix here as well ---
     return payinApi.post(url, { transaction_id: transactionId }, { httpsAgent });
 };
 

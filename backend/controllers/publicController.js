@@ -62,53 +62,42 @@ const initiateRegistration = asyncHandler(async (req, res) => {
         const plan = await Plan.findOne({ name: planName });
         if (!plan) throw new Error('Invalid plan selected.');
 
-        const priceDetails = plan.prices.find(p => p.currency === 'USD');
-        if (!priceDetails || priceDetails.amount <= 0) throw new Error(`Pricing for ${plan.name} not configured.`);
+        // --- THIS IS THE FIX ---
+        const paymentCurrency = 'XAF'; // Target currency for payment
+        const priceDetails = plan.prices.find(p => p.currency === paymentCurrency);
+        const fallbackPriceDetails = plan.prices.find(p => p.currency === 'USD');
+        const finalPriceDetails = priceDetails || fallbackPriceDetails;
 
+        if (!finalPriceDetails || finalPriceDetails.amount <= 0) {
+            throw new Error(`Pricing for ${plan.name} not configured for ${paymentCurrency} or USD.`);
+        }
+        
         const transaction_id = `PRESSFLOW-SUB-${pendingUser._id}-${crypto.randomBytes(4).toString('hex')}`;
         pendingUser.signupData.transactionId = transaction_id;
         
         await pendingUser.save();
-
-        try {
-            await sendOtpEmail(adminUser.email, otp);
-        } catch (emailError) { /* Log or handle email failure */ }
+        await sendOtpEmail(adminUser.email, otp);
 
         const paymentData = {
-            country_code: "CM", // Should be dynamic
+            country_code: "CM",
             name: pendingUser.signupData.adminUser.username,
             email: pendingUser.email,
-            amount: priceDetails.amount,
+            amount: finalPriceDetails.amount, // <-- Now sends the correct amount (e.g., 36000)
             transaction_id,
             description: `Subscription to PressFlow ${plan.name} Plan`,
             pass_digital_charge: true,
             redirect_url: `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`
         };
-  try {
-            // This call is succeeding!
+
+        try {
             const paymentResponse = await createPaymentLink(paymentData);
-
-            // --- THIS IS THE DEBUGGING STEP ---
-            // Log the entire successful response data to the terminal.
-            console.log("--- SUCCESSFUL RESPONSE FROM AccountPe ---");
-            console.log(JSON.stringify(paymentResponse.data, null, 2));
-            console.log("-----------------------------------------");
-
-            // Now, let's try to access the link safely
-            const paymentLink = paymentResponse.data?.data?.payment_link;
-
-            if (!paymentLink) {
-                // This error is firing correctly. The log above will tell us why.
-                throw new Error("Payment provider did not return a valid payment link in the expected format.");
-            }
-            
             res.status(200).json({
                 message: "OTP sent. Redirecting to payment.",
                 paymentRequired: true,
-                paymentLink: paymentLink
+                paymentLink: paymentResponse.data.data.payment_link
             });
         } catch (paymentError) {
-            console.error("Payment Link Creation Failed Inside Controller:", paymentError);
+            console.error("Payment Link Creation Failed:", paymentError);
             throw new Error("Could not create payment link.");
         }
     }
