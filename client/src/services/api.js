@@ -36,7 +36,7 @@ api.interceptors.response.use(
 // --- THIS IS THE FIX #1 ---
 // Changed the bitwise OR '|' to a logical OR '||'.
 // Also, the baseURL for public routes should match the main API_URL.
-const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000' });
+const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api' });
 
 export const registerTenantWithSetup = async (setupData) => {
     return api.post('/public/register-with-setup', setupData);
