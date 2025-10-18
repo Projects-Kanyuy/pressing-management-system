@@ -4,6 +4,7 @@
 # Environment Variables - VERY IMPORTANT
 .env
 .env.*
+/env
 
 !/.env.example # If you have an example .env file, don't ignore it
 
