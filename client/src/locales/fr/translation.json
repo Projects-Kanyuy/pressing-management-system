@@ -568,7 +568,7 @@
   },
   "landing": {
       "headline": "Optimisez Votre Entreprise de Pressing.",
-      "subheadline": "De la saisie des commandes au suivi des paiements et aux notifications clients, PressFlow est le système tout-en-un pour gérer vos opérations de blanchisserie et de nettoyage à sec sans effort."
+      "subheadline": "De la saisie des commandes au suivi des paiements et aux notifications clients, PressMark est le système tout-en-un pour gérer vos opérations de blanchisserie et de nettoyage à sec sans effort."
   },
   "notifications": {
     "newOrder": "Nouvelle Commande Reçue",
@@ -871,7 +871,7 @@
       "verificationFailed": "La vérification a échoué. Veuillez réessayer."
     },
     "success": {
-      "message": "Compte créé avec succès ! Bienvenue sur PressFlow !"
+      "message": "Compte créé avec succès ! Bienvenue sur PressMark !"
     },
     "defaultItems": {
       "shirt": "Chemise",

@@ -111,7 +111,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
                 <Card>
                     <AlertTriangle size={48} className="mx-auto text-apple-red mb-4" />
                     <p className="text-xl text-apple-red">{error}</p>
-                    <Link to="/customers">
+                    <Link to="/app/customers">
                         <Button variant="secondary" className="mt-6">{t('customerForm.backToCustomers')}</Button>
                     </Link>
                 </Card>
@@ -123,7 +123,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
     return (
         <div className="space-y-6 max-w-2xl mx-auto">
             <div className="flex items-center space-x-3 mb-6">
-                <Link to="/customers" className="p-1.5 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-800">
+                <Link to="/app/customers" className="p-1.5 rounded-full hover:bg-apple-gray-100 dark:hover:bg-apple-gray-800">
                     <ArrowLeft size={22} className="text-apple-gray-600 dark:text-apple-gray-400" />
                 </Link>
                 {isEditMode ? <Edit3 size={28} className="text-apple-blue" /> : <UserPlus size={28} className="text-apple-blue" />}
@@ -182,7 +182,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
                         placeholder={t('customerForm.form.addressPlaceholder')}
                     />
                     <div className="flex justify-end space-x-3 pt-4">
-                        <Button type="button" variant="secondary" onClick={() => navigate('/customers')} disabled={saving}>
+                        <Button type="button" variant="secondary" onClick={() => navigate('/app/customers')} disabled={saving}>
                             {t('customerForm.actions.cancel')}
                         </Button>
                         <Button type="submit" variant="primary" isLoading={saving} iconLeft={<Save size={16} />}>

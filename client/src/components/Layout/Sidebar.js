@@ -71,7 +71,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     <Link to="/" className="flex items-center space-x-2" onClick={() => isOpen && setIsOpen(false)}>
                         <Package size={24} className="text-apple-blue" />
                         <span className="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100">
-                            Press<span className="text-apple-blue">Flow</span>
+                            Press<span className="text-apple-blue">Mark</span>
                         </span>
                     </Link>
                     <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="p-1 lg:hidden" aria-label={t('sidebar.closeSidebar')}>

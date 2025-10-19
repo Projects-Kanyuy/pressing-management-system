@@ -1,31 +1,25 @@
 // client/src/pages/Public/FeaturesPage.js
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Button from '../../components/UI/Button'; // Assuming your Button component is here
-import {  CreditCard, Bell, Users, SlidersHorizontal, PackagePlus, Clock, Printer } from 'lucide-react';
+import Button from '../../components/UI/Button';
+import { CreditCard, Bell, Users, SlidersHorizontal, PackagePlus, Clock, Printer } from 'lucide-react';
+import { motion } from 'framer-motion'; // <-- Import motion for animations
 
-// --- Reusable Header/Navbar for Public Pages ---
-// For consistency, you might want to move this into its own component later
-
-
-// --- Reusable Footer for Public Pages ---
-
-
-
-// --- Reusable Detailed Feature Component ---
-// This component alternates the position of the image and text
-const DetailedFeature = ({ icon, title, description, imagePlaceholderColor, imageSide = 'left' }) => {
-    const imageContent = (
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-            <div className={`w-full h-72 rounded-apple-xl shadow-apple-lg flex items-center justify-center ${imagePlaceholderColor}`}>
-                <p className="text-apple-gray-500 font-medium">[ Image of {title} Feature ]</p>
-            </div>
-        </div>
-    );
-
+// --- UPDATED Detailed Feature Component ---
+// It now accepts an `imageUrl` prop and renders an actual image.
+const DetailedFeature = ({ icon, title, description, imageUrl, imageAlt, imageSide = 'left' }) => {
+    
+    // The text content remains the same
     const textContent = (
-        <div className="w-full lg:w-1/2 lg:p-12">
+        <motion.div 
+            className="w-full lg:w-1/2 lg:p-12"
+            initial={{ opacity: 0, x: imageSide === 'right' ? -50 : 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7 }}
+        >
             <div className="flex items-center mb-4">
                 <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-apple-blue/10 flex items-center justify-center mr-4">
                     {icon}
@@ -35,11 +29,28 @@ const DetailedFeature = ({ icon, title, description, imagePlaceholderColor, imag
             <p className="text-lg text-apple-gray-600 dark:text-apple-gray-400 leading-relaxed">
                 {description}
             </p>
-        </div>
+        </motion.div>
+    );
+
+    // The image content now renders a real image
+    const imageContent = (
+        <motion.div 
+            className="w-full lg:w-1/2 flex items-center justify-center p-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7 }}
+        >
+            <img 
+                src={imageUrl} 
+                alt={imageAlt} 
+                className="rounded-apple-xl shadow-apple-lg w-full h-auto object-cover"
+            />
+        </motion.div>
     );
 
     return (
-        <div className={`flex flex-col lg:flex-row items-center ${imageSide === 'right' ? 'lg:flex-row-reverse' : ''}`}>
+        <div className={`flex flex-col lg:flex-row items-center gap-8 ${imageSide === 'right' ? 'lg:flex-row-reverse' : ''}`}>
             {imageContent}
             {textContent}
         </div>
@@ -52,8 +63,6 @@ const FeaturesPage = () => {
     
     return (
         <div className="bg-apple-gray-50 dark:bg-apple-gray-950">
-          
-
             <main>
                 {/* --- Page Header Section --- */}
                 <section className="py-20 text-center bg-white dark:bg-apple-gray-900">
@@ -73,7 +82,8 @@ const FeaturesPage = () => {
                         icon={<PackagePlus size={24} className="text-apple-blue" />}
                         title={t('public.features.orderManagement.title')}
                         description={t('public.features.orderManagement.description')}
-                        imagePlaceholderColor="bg-sky-200 dark:bg-sky-900"
+                        imageUrl="/images/feature-order-management.png"
+                        imageAlt="Order Management Screenshot"
                         imageSide="right"
                     />
 
@@ -81,7 +91,8 @@ const FeaturesPage = () => {
                         icon={<Users size={24} className="text-apple-blue" />}
                         title={t('public.features.customerDatabase.title')}
                         description={t('public.features.customerDatabase.description')}
-                        imagePlaceholderColor="bg-teal-200 dark:bg-teal-900"
+                        imageUrl="/images/feature-customer-database.png"
+                        imageAlt="Customer Database Screenshot"
                         imageSide="left"
                     />
 
@@ -89,38 +100,42 @@ const FeaturesPage = () => {
                         icon={<CreditCard size={24} className="text-apple-blue" />}
                         title={t('public.features.paymentTracking.title')}
                         description={t('public.features.paymentTracking.description')}
-                        imagePlaceholderColor="bg-indigo-200 dark:bg-indigo-900"
+                        imageUrl="/images/feature-payment-tracking.png"
+                        imageAlt="Payment Tracking Screenshot"
                         imageSide="right"
                     />
 
+                    {/* These features will still show placeholders until you create images for them */}
                     <DetailedFeature
                         icon={<Bell size={24} className="text-apple-blue" />}
                         title={t('public.features.notifications.title')}
                         description={t('public.features.notifications.description')}
-                        imagePlaceholderColor="bg-emerald-200 dark:bg-emerald-900"
+                        imageUrl="/images/placeholder-notifications.png" // Placeholder
+                        imageAlt="Automated Customer Notifications"
                         imageSide="left"
                     />
-
                     <DetailedFeature
                         icon={<Clock size={24} className="text-apple-blue" />}
                         title={t('public.features.dateTracking.title')}
                         description={t('public.features.dateTracking.description')}
-                        imagePlaceholderColor="bg-rose-200 dark:bg-rose-900"
+                        imageUrl="/images/placeholder-date-tracking.png" // Placeholder
+                        imageAlt="Date and Overdue Tracking"
                         imageSide="right"
                     />
-
                     <DetailedFeature
                         icon={<SlidersHorizontal size={24} className="text-apple-blue" />}
                         title={t('public.features.adminSettings.title')}
                         description={t('public.features.adminSettings.description')}
-                        imagePlaceholderColor="bg-slate-200 dark:bg-slate-800"
+                       imageUrl="/images/admin-settings.png" 
+                       imageAlt="Admin Settings Screenshot"
                         imageSide="left"
                     />
                      <DetailedFeature
                         icon={<Printer size={24} className="text-apple-blue" />}
                         title={t('public.features.receipts.title')}
                         description={t('public.features.receipts.description')}
-                        imagePlaceholderColor="bg-cyan-200 dark:bg-cyan-900"
+                        imageUrl="/images/feature-receipts-invoices.png"
+                        imageAlt="Receipts and Invoices Screenshot"
                         imageSide="right"
                     />
                 </div>
@@ -138,8 +153,6 @@ const FeaturesPage = () => {
                     </div>
                 </section>
             </main>
-
-           
         </div>
     );
 };

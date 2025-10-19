@@ -107,8 +107,8 @@ const createOrder = asyncHandler(async (req, res) => {
         discountValue: parseFloat(discountValue) || 0,
         amountPaid: parseFloat(amountPaid) || 0,
         expectedPickupDate, notes, createdBy: req.user.id,
-        tenantId: tenantId, 
-        createdBy: user.id
+        tenantId: tenantId,      
+        createdBy: user._id, 
     });
 
     const createdOrder = await order.save();

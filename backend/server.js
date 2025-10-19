@@ -13,7 +13,7 @@ dotenv.config();
 import connectDB from './config/db.js';
 
 // Import Middleware
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import errorMiddleware from './middleware/errorMiddleware.js';
 
 // Import All Route Files
 import publicRoutes from './routes/publicRoutes.js';
@@ -93,8 +93,9 @@ app.get('/api/test', (req, res) => res.json({ message: "API is running!" }));
 
 
 // --- Error Handling Middleware (must be last) ---
-app.use(notFound);
-app.use(errorHandler);
+app.use(errorMiddleware.notFound);
+app.use(errorMiddleware.errorHandler);
+
 
 // --- Start Server ---
 const PORT = process.env.PORT || 5000;

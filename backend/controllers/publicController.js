@@ -74,7 +74,10 @@ const initiateRegistration = asyncHandler(async (req, res) => {
         
         const transaction_id = `PRESSFLOW-SUB-${pendingUser._id}-${crypto.randomBytes(4).toString('hex')}`;
         pendingUser.signupData.transactionId = transaction_id;
-        
+        const redirectUrl = `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`;
+
+// --- ADD THIS LOG for definitive proof ---
+        console.log(`[Payment Flow] Sending this redirect_url to AccountPe: ${redirectUrl}`);
         await pendingUser.save();
         await sendOtpEmail(adminUser.email, otp);
 
@@ -86,7 +89,7 @@ const initiateRegistration = asyncHandler(async (req, res) => {
             transaction_id,
             description: `Subscription to PressFlow ${plan.name} Plan`,
             pass_digital_charge: true,
-            redirect_url: `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`
+            redirect_url: redirectUrl 
         };
 
         try {

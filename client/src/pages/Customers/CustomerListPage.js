@@ -1,25 +1,25 @@
-// client/src/pages/Customers/CustomerListPage.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchCustomers, deleteCustomerApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import Spinner from '../../components/UI/Spinner';
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth for role checks
+import { useAuth } from '../../contexts/AuthContext';
 import { Users, PlusCircle, Search, Edit3, Trash2, Eye, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const CustomerListPage = () => {
     const { t } = useTranslation();
-    const { user } = useAuth(); // Get user for role-based actions
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionError, setActionError] = useState('');
     const [actionSuccess, setActionSuccess] = useState('');
-
-    // State for search and pagination
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [pagination, setPagination] = useState({
@@ -28,8 +28,9 @@ const CustomerListPage = () => {
         totalCustomers: 0,
     });
 
-    // Data Fetching
-    const loadCustomers = useCallback(async (search, page) => {
+    // This is now a regular async function, not wrapped in useCallback.
+    // This simplifies the logic and avoids stale closure issues.
+    const loadCustomers = async (search, page) => {
         setLoading(true);
         setError('');
         try {
@@ -55,23 +56,22 @@ const CustomerListPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     // Debouncing effect for search input
     useEffect(() => {
         const timerId = setTimeout(() => {
             setDebouncedSearchTerm(searchTerm);
-        }, 500); // 500ms delay
+        }, 500); // 500ms delay before triggering a search
         return () => clearTimeout(timerId);
     }, [searchTerm]);
 
-    // Effect to fetch data when search term or page changes
+    // Effect to fetch data when debounced search term or page changes
     useEffect(() => {
         loadCustomers(debouncedSearchTerm, pagination.currentPage);
-    }, [debouncedSearchTerm, pagination.currentPage, loadCustomers]);
+    }, [debouncedSearchTerm, pagination.currentPage]); // The dependencies are simple and correct now
 
-
-    // Action Handlers
+    // Timer for action messages
     useEffect(() => {
         let timer;
         if (actionError || actionSuccess) {
@@ -85,15 +85,15 @@ const CustomerListPage = () => {
 
     const handleDeleteCustomer = async (customerId, customerName) => {
         if (window.confirm(t('customers.messages.deleteConfirm', { customerName }))) {
-            setActionError(''); setActionSuccess('');
+            setActionError(''); 
+            setActionSuccess('');
             try {
                 await deleteCustomerApi(customerId);
                 setActionSuccess(t('customers.messages.deleteSuccess', { customerName }));
-                // If on the last page with only one item, go back a page
                 if (customers.length === 1 && pagination.currentPage > 1) {
                     handlePageChange(pagination.currentPage - 1);
                 } else {
-                    loadCustomers(debouncedSearchTerm, pagination.currentPage); // Refresh current page
+                    loadCustomers(debouncedSearchTerm, pagination.currentPage);
                 }
             } catch (err) {
                 setActionError(err.response?.data?.message || t('customers.messages.deleteFailed', { customerName }));
@@ -103,7 +103,7 @@ const CustomerListPage = () => {
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        setPagination(prev => ({ ...prev, currentPage: 1 })); // Reset to first page on new search
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
 
     const handlePageChange = (newPage) => {

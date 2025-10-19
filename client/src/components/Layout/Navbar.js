@@ -54,7 +54,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                     </Button>
                     <Link to="/" className="flex items-center space-x-2">
                     <img src="/logo.png" alt="PressFlow Logo" className="h-8 w-auto" />
-                    <span className="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressFlow</span>
+                    <span className="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressMark</span>
                 </Link>
                 </div>
 

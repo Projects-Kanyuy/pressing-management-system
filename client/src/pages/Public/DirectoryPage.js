@@ -18,7 +18,7 @@ const BusinessCard = ({ business }) => {
         if (!business.publicPhone) return;
         
         const phoneNumber = business.publicPhone.replace(/\s/g, '').replace('+', '');
-        const message = `Hello ${business.name}, I found you on PressFlow and would like to inquire about your services.`;
+        const message = `Hello ${business.name}, I found you on PressMark and would like to inquire about your services.`;
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };

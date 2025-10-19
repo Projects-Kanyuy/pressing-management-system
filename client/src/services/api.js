@@ -25,7 +25,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401 && !window.location.pathname.endsWith('/login')) {
             console.warn('[api.js] Unauthorized (401). Token may be invalid. Redirecting to login.');
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            window.location.hash = '/login';
         }
         return Promise.reject(error);
     }

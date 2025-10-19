@@ -7,7 +7,7 @@ import Order from '../models/Order.js';
 
 // Middleware to check if a tenant can create a new staff member
 export const canCreateStaff = asyncHandler(async (req, res, next) => {
-    const tenantId = req.tenant._id;
+    const tenantId = req.tenantId; 
     const tenant = await Tenant.findById(tenantId).populate('plan'); // Populate is not needed if plan name is stored
 
     if (!tenant) throw new Error('Tenant not found.');
@@ -27,7 +27,7 @@ export const canCreateStaff = asyncHandler(async (req, res, next) => {
 
 // Middleware to check if a tenant can create a new order
 export const canCreateOrder = asyncHandler(async (req, res, next) => {
-    const tenantId = req.tenant._id;
+    const tenantId = req.tenantId; 
     const tenant = await Tenant.findById(tenantId);
     
     if (!tenant) throw new Error('Tenant not found.');

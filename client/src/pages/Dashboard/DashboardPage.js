@@ -100,30 +100,30 @@ const DashboardPage = () => {
             overdue: orders.filter(o => o.expectedPickupDate && isPast(parseISO(o.expectedPickupDate)) && !['Completed', 'Cancelled'].includes(o.status)).length,
         });
     }, [orders, pagination.totalOrders]);
-    const loadDailyPayments = useCallback(async () => {
+     const loadDailyPayments = useCallback(async () => {
+        // Only admins can see sales data
         if (user?.role !== 'admin') {
-            setDailyPaymentsError('');
+            setLoadingDailyPayments(false);
             return;
         }
         setLoadingDailyPayments(true);
         setDailyPaymentsError('');
         try {
             const todayStr = format(new Date(), 'yyyy-MM-dd');
-            // This API call now only runs for admins
             const { data } = await fetchDailyPaymentsReport(todayStr);
-            setDailyTotalPayments(data.totalAmountFromOrdersWithActivity || 0);
+            setDailyTotalPayments(data.totalAmountCollected || 0);
         } catch (err) {
             setDailyPaymentsError(t('dashboard.dailyPaymentsError'));
-            console.error("Fetch Daily Payments Error for Dashboard:", err.response?.data?.message || err.message || err);
         } finally {
             setLoadingDailyPayments(false);
         }
-    }, [user]);
-    useEffect(() => {
-        loadOrders();
-        loadDailyPayments();
-    }, [loadOrders, loadDailyPayments]);
+    }, [t, user?.role]);
 
+    // --- MAIN useEffect TO LOAD ALL DASHBOARD DATA ---
+    useEffect(() => {
+        loadOrders(filters);
+        loadDailyPayments();
+    }, [filters, loadOrders, loadDailyPayments]);
 
     const handleFilterChange = (newFilters) => setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
     const handleResetFilters = () => setFilters({ paid: '', overdue: '', customerName: '', status: '', receiptNumber: '', customerPhone: '', page: 1, pageSize: 10 });
