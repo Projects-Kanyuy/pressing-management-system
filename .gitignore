@@ -13,3 +13,12 @@ Thumbs.db
 /PressFlowMobile
 /uml diagrams
 /node_modules
+# Root .gitignore
+/client/node_modules/
+/server/node_modules/
+/client/build/
+
+# Environment Variables
+.env
+client/.env
+backend/.env # Or server/.env
