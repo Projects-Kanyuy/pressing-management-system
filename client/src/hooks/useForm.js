@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-// This is a very basic form hook. You might want something more robust like react-hook-form for complex forms.
+// This is a very basic form hook. You might want something more robust like react-hook-form for complex forms..
 export const useForm = (initialValues = {}, onSubmit, validate) => {
     const [values, setValues] = useState(initialValues);
     const [errors, setErrors] = useState({});
