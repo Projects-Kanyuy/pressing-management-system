@@ -45,7 +45,7 @@ jobs:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
           cf_template_file='./cd/artifact-account/cloudformation-template.yaml'
-          stack_name='artifact-account-setup'
+          stack_name="artifact-account-setup-${PROJECT_ID}"
           ECR_REPOSITORY_NAME=$(echo "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
           environment_account_ids=$(yq e -o csv '.environment_account_ids' cd/artifact-account/config.yaml)
           

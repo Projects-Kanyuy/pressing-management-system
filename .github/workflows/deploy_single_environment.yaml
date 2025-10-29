@@ -104,7 +104,7 @@ jobs:
           projectId="${{ inputs.projectId }}"
           envId="${{ inputs.envId }}"
           envKey="${envId}-${projectId}"
-          stack_name="deploy-${envKey}"
+          stack_name="deploy-${envKey}-${projectId}"
 
           cf_template_file=$(mktemp)
           s3_url="s3://${{ steps.get_release_config.outputs.infra_bucket_name }}/cloudformation/${{ steps.get_release_config.outputs.release_infra_hash }}/deploy_env.yaml"

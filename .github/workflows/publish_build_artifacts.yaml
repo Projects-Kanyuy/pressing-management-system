@@ -40,25 +40,40 @@ jobs:
         with:
           cmd: yq -V
 
+      # Read Artifact Account ID
       - name: Read the account id of the Artifact account
         id: read_artifact_account_id
         run: |
           ARTIFACT_ACCOUNT_ID=$(yq eval '.aws_account_id' cd/artifact-account/config.yaml)
           echo "artifact_account_id=$ARTIFACT_ACCOUNT_ID" >> $GITHUB_OUTPUT
 
-      - name: Assume the OIDC Role to get temporary credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      # Assume the OIDC Role to get temporary credentials
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.read_artifact_account_id.outputs.artifact_account_id }}:role/deploy
 
+      # Read project-specific Artifact Stack configuration
       - name: Read Configuration from Artifact Account Stack
         id: read_artifact_stack_config
         run: |
-          artifacts_stack_name='artifact-account-setup'
-          infra_bucket_name=$(aws cloudformation describe-stacks --stack-name "$artifacts_stack_name" --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" --output text)
-          client_ecr_repo_arn=$(aws cloudformation describe-stacks --stack-name "$artifacts_stack_name" --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryClientArn'].OutputValue" --output text)
-          server_ecr_repo_arn=$(aws cloudformation describe-stacks --stack-name "$artifacts_stack_name" --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryServerArn'].OutputValue" --output text)
+          PROJECT_ID=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
+          artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
+
+          infra_bucket_name=$(aws cloudformation describe-stacks \
+            --stack-name "$artifacts_stack_name" \
+            --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
+            --output text)
+          
+          client_ecr_repo_arn=$(aws cloudformation describe-stacks \
+            --stack-name "$artifacts_stack_name" \
+            --query "Stacks[0].Outputs[?OutputKey=='ClientEcrRepositoryArn'].OutputValue" \
+            --output text)
+
+          server_ecr_repo_arn=$(aws cloudformation describe-stacks \
+            --stack-name "$artifacts_stack_name" \
+            --query "Stacks[0].Outputs[?OutputKey=='ServerEcrRepositoryArn'].OutputValue" \
+            --output text)
 
           echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
           echo "client_ecr_repo_arn=$client_ecr_repo_arn" >> $GITHUB_OUTPUT
@@ -68,7 +83,6 @@ jobs:
     name: Build and Publish Client Docker Image
     needs: [config]
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -86,18 +100,15 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          # Derive unique environment key from branch/tag
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           project_id=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
           env_key="${project_id}-${ref_name}"
 
-          # Compute hash for caching
           commit_hash=$(find ./client/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           client_ecr_repo_arn="${{ needs.config.outputs.client_ecr_repo_arn }}"
           client_ecr_repo_name=$(echo "$client_ecr_repo_arn" | cut -d'/' -f2)
           full_image_tag="$ECR_REGISTRY/$client_ecr_repo_name:$commit_hash"
 
-          # Skip build if tag already exists
           if [ -z "$(docker manifest inspect "$full_image_tag" 2>/dev/null)" ]; then
             cd client
             make build full_image_tag="$full_image_tag"
@@ -106,7 +117,6 @@ jobs:
             echo "✅ Client image already exists, skipping build."
           fi
 
-          # Store image tag under combined key
           aws ssm put-parameter \
             --name "/build-artifact/client/${env_key}" \
             --value "$full_image_tag" \
@@ -117,7 +127,6 @@ jobs:
     name: Build and Publish Server Docker Image
     needs: [config]
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -162,7 +171,6 @@ jobs:
     name: Publish Infra Artifacts
     needs: [config]
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
