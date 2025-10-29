@@ -53,35 +53,32 @@ connectDB()
     process.exit(1);
   });
 
+// Simple health check endpoint for uptime and monitoring tools
+app.get("/", (_req, res) => res.status(200).json({ status: "OK" }));
 
-// --- 2️⃣ Security Middleware ---
-// app.use(helmet());
+// --- Security and CORS Middleware ---
+app.use(helmet()); // Sets various security headers
 
-// // --- 3️⃣ CORS Middleware for all other routes ---
-// const corsOptions = {
-//   origin:
-//     process.env.NODE_ENV === "production"
-//       ? (process.env.FRONTEND_URL || "").split(",").map((url) => url.trim())
-//       : ["http://localhost:3000", "http://localhost:3001"],
-//   credentials: true,
-// };
-// app.use(cors(corsOptions));
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? (process.env.FRONTEND_URL || "").split(",").map((url) => url.trim())
+      : ["http://localhost:3000", "http://localhost:3001"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
-// --- 4️⃣ Body Parser Middleware ---
+// --- Webhook Route (MUST come BEFORE express.json()) ---
+// This is because webhook signature verification needs the raw request body.
+app.use("/api/webhooks", webhookRoutes);
+
+// --- Body Parser Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- 5️⃣ Webhook Route (needs raw body) ---
-import bodyParser from "body-parser";
-app.use(
-  "/api/webhooks",
-  bodyParser.raw({ type: "*/*" }), // ensures raw body for signature verification
-  webhookRoutes
-);
-
-// --- 6️⃣ API Routes ---
+// --- API Routes Mounting ---
 app.use("/api/public", publicRoutes);
-app.use("/api/directory-admins", directoryAdminRoutes);
+app.use("/api/directory-admins", directoryAdminRoutes); // Corrected from directory-admin
 app.use("/api/auth", authRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/orders", orderRoutes);
@@ -96,10 +93,11 @@ app.use("/api/currency", currencyRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 
-// --- 7️⃣ Test Route (optional) ---
-app.get("/api/test", (_req, res) => res.json({ message: "API is running!" }));
+// --- Root Route for Health Check ---
+app.get("/api/test", (req, res) => res.json({ message: "API is running!" }));
+// --- TEMPORARY DEBUG ROUTE ---
 
-// --- 8️⃣ Error Handling ---
+// --- Error Handling Middleware (must be last) ---
 app.use(errorMiddleware.notFound);
 app.use(errorMiddleware.errorHandler);
 
