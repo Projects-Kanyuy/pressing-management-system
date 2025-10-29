@@ -4,6 +4,8 @@ Parameters:
   EnvId: 
     Type: String
     Description: Environment ID
+    AllowedPattern: "^[a-z][a-z0-9-]{2,49}$"
+    ConstraintDescription: Must be lower case letters, digits, or hyphens (3-50 characters).
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: "VPC ID"
