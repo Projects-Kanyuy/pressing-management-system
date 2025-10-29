@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Metadata:
   License: Apache-2.0
-Description: "Deploys the environment stack for the Royal Site application."
+Description: "Deploys the environment stack for the Pressing managment Site application."
 Parameters:
   EnvId:
     Type: String
