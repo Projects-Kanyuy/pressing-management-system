@@ -44,13 +44,14 @@ jobs:
         env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
+          # Derive ProjectId from the GitHub repo name (lowercased)
+          PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
+          
           cf_template_file='./cd/artifact-account/cloudformation-template.yaml'
           stack_name="artifact-account-setup-${PROJECT_ID}"
           ECR_REPOSITORY_NAME=$(echo "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
           environment_account_ids=$(yq e -o csv '.environment_account_ids' cd/artifact-account/config.yaml)
           
-          # Derive ProjectId from the GitHub repo name (lowercased)
-          PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
           
           echo "Deploying Artifact Stack for project: $PROJECT_ID"
           aws sts get-caller-identity
