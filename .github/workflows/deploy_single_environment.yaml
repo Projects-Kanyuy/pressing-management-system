@@ -9,9 +9,9 @@ on:
         default: "dev"
         type: string
       projectId:
-        description: "The project id (e.g., pressing-management)"
+        description: "The project id (e.g., pressing-management-system)"
         required: true
-        default: "pressing-management"
+        default: "pressing-management-system"
         type: string
 
 # Necessary permissions for workflow
