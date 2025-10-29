@@ -6,8 +6,8 @@ Parameters:
   EnvId:
     Type: String
     Description: Environment Id (used to namespace resources)
-    AllowedPattern: "[a-z][a-z0-9]{2,19}"
-    ConstraintDescription: Must be lower case letters between 3 and 20 characters.
+    AllowedPattern: "^[a-z][a-z0-9-]{2,49}$"
+    ConstraintDescription: Must be lower case letters, digits, or hyphens (3–50 characters).
   ProjectId:
     Type: String
     Description: Project Id (used to determine the specific project)
