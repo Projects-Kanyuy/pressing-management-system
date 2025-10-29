@@ -56,8 +56,10 @@ jobs:
       # Read project-specific Artifact Stack configuration
       - name: Read Configuration from Artifact Account Stack
         id: read_artifact_stack_config
+        env: 
+          GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
-          PROJECT_ID=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
+          PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
 
           infra_bucket_name=$(aws cloudformation describe-stacks \
@@ -183,9 +185,10 @@ jobs:
       - name: Upload CloudFormation Templates to S3
         env:
           CF_DIR: "cloudformation"
+          GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
+          project_id=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
           env_key="${project_id}-${ref_name}"
 
           commit_hash=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
