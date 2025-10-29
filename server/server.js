@@ -55,17 +55,17 @@ connectDB()
 
 
 // --- 2️⃣ Security Middleware ---
-app.use(helmet());
+// app.use(helmet());
 
-// --- 3️⃣ CORS Middleware for all other routes ---
-const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? (process.env.FRONTEND_URL || "").split(",").map((url) => url.trim())
-      : ["http://localhost:3000", "http://localhost:3001"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// // --- 3️⃣ CORS Middleware for all other routes ---
+// const corsOptions = {
+//   origin:
+//     process.env.NODE_ENV === "production"
+//       ? (process.env.FRONTEND_URL || "").split(",").map((url) => url.trim())
+//       : ["http://localhost:3000", "http://localhost:3001"],
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
 
 // --- 4️⃣ Body Parser Middleware ---
 app.use(express.json());

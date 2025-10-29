@@ -38,7 +38,7 @@ Resources:
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Ref EnvId
+      LogGroupName: !Sub "${ProjectId}-${EnvId}"
 
   # VpcStack set up VPC with 2 AZs.
   VpcStack:
