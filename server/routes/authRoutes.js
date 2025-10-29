@@ -32,10 +32,6 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-// health check route
-router.get("/", (_req, res) => {
-  res.json("OK");
-});
 
 // --- PUBLIC ROUTES ---
 router.post("/login", loginLimiter, loginUser);

@@ -234,11 +234,11 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: "/"
-      HealthCheckTimeoutSeconds: 5
-      UnhealthyThresholdCount: 2
-      HealthyThresholdCount: 2
+      # HealthCheckIntervalSeconds: 10
+      # HealthCheckPath: "/"
+      # HealthCheckTimeoutSeconds: 5
+      # UnhealthyThresholdCount: 2
+      # HealthyThresholdCount: 2
       Name: !Sub "${EnvId}-${AppName}-TargetGroup"
       Protocol: HTTP
       Port: !Ref ContainerPort
