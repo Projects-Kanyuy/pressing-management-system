@@ -59,6 +59,7 @@ jobs:
         env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
+          #Reading project id from environments.yaml
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
 
