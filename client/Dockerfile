@@ -5,7 +5,7 @@ FROM node:20.9.0-alpine3.18 AS builder
 WORKDIR /app
 
 # Copy package files for dependency installation
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json patch.js ./
 
 # Install dependencies
 RUN npm install --frozen-lockfile
@@ -27,7 +27,7 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/patch.js ./patch.js
+COPY --from=builder /app/server.js ./server.js
 
 # Expose port 3000 for the app
 EXPOSE 3000
