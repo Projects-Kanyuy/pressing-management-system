@@ -57,8 +57,8 @@ jobs:
         run: |
           envId="${{ inputs.envId }}"
           # Extract the repo name from full repo path and lowercase it
-          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
-          echo "project_id=$project_id" >> $GITHUB_OUTPUT
+          projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          echo "projectId=$projectId" >> $GITHUB_OUTPUT
           envKey="${envId}-${projectId}" # Combined key (e.g., dev-pressing-management)
           ARTIFACTS_STACK_NAME="artifact-account-setup-${projectId}"
 
@@ -98,7 +98,7 @@ jobs:
       #########################################################
       - name: Apply CloudFormation Template
         run: |
-          projectId="${{ inputs.projectId }}"
+          projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
           envId="${{ inputs.envId }}"
           envKey="${envId}-${projectId}"
           stack_name="deploy-${envKey}-${projectId}"
