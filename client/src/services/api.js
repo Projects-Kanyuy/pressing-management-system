@@ -1,8 +1,8 @@
 // client/src/services/api.js
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-// const API_URL = 'https://api.pressmark.site'
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = 'https://api.pressmark.site'
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
 
 const api = axios.create({
@@ -37,7 +37,8 @@ api.interceptors.response.use(
 // --- THIS IS THE FIX #1 ---
 // Changed the bitwise OR '|' to a logical OR '||'.
 // Also, the baseURL for public routes should match the main API_URL.
-const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api' });
+// const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api' });
+const PublicAPI = axios.create({ baseURL: API_URL });
 
 export const registerTenantWithSetup = async (setupData) => {
     return api.post('/public/register-with-setup', setupData);
