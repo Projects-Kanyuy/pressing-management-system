@@ -22,7 +22,7 @@ jobs:
       # Install awscli
       - uses: unfor19/install-aws-cli-action@v1
 
-      # Install yq for YAML parsing
+      # Install yq for YAML parsing.
       - uses: mikefarah/yq@v4.44.3
         with:
           cmd: yq -V
@@ -46,7 +46,7 @@ jobs:
         run: |
           # Derive ProjectId from the GitHub repo name (lowercased)
           PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
-          
+
           cf_template_file='./cd/artifact-account/cloudformation-template.yaml'
           stack_name="artifact-account-setup-${PROJECT_ID}"
           ECR_REPOSITORY_NAME=$(echo "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
