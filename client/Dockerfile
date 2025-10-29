@@ -4,17 +4,17 @@ FROM node:20.9.0-alpine3.18 AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package manager files to install dependencies
-COPY package.json yarn.lock ./ 
+# Copy package files for dependency installation
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN npm install --frozen-lockfile
 
 # Copy all source files
 COPY . .
 
 # Build the client app
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Prepare the production image
 FROM node:20.9.0-alpine3.18 AS runner
@@ -34,4 +34,4 @@ EXPOSE 3000
 ENV PORT=3000
 
 # Start the app in production mode
-CMD ["yarn", "serve"]
+CMD ["npm", "serve"]
