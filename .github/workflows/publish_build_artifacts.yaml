@@ -59,7 +59,7 @@ jobs:
         env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
-          PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
 
           infra_bucket_name=$(aws cloudformation describe-stacks \
@@ -103,7 +103,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
           commit_hash=$(find ./client/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           client_ecr_repo_arn="${{ needs.config.outputs.client_ecr_repo_arn }}"
@@ -146,7 +146,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
           commit_hash=$(find ./server/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           server_ecr_repo_arn="${{ needs.config.outputs.server_ecr_repo_arn }}"
@@ -186,7 +186,7 @@ jobs:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
+          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
           commit_hash=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           bucket_name="${{ needs.config.outputs.infra_bucket_name }}"

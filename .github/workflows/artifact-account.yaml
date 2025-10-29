@@ -44,8 +44,7 @@ jobs:
         env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
-          # Derive ProjectId from the GitHub repo name (lowercased)
-          PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
           cf_template_file='./cd/artifact-account/cloudformation-template.yaml'
           stack_name="artifact-account-setup-${PROJECT_ID}"

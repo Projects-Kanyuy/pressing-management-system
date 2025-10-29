@@ -43,7 +43,7 @@ jobs:
         id: get_release_config
         run: |
           envId="${{ inputs.envId }}"
-          projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          projectId=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           echo "projectId=$projectId" >> $GITHUB_OUTPUT
 
           target_ref=$(yq e '.[] | select(.envId == "'$envId'") | .gitRefName' ./cd/environments.yaml)
@@ -75,7 +75,7 @@ jobs:
 
       - name: Apply CloudFormation Template
         run: |
-          projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          projectId=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           envId="${{ inputs.envId }}"
           envKey="${envId}-${projectId}"
           stack_name="deploy-${envKey}"
