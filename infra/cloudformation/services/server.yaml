@@ -1,0 +1,230 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: The Jsonproxy API service
+Parameters:
+  EnvId:
+    Type: String
+    Description: Environment Id (used to namespace resources)
+    AllowedPattern: "[a-z][a-z0-9]{2,19}"
+    ConstraintDescription: Must be lower case letters between 3 and 20 characters.
+
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+  LogGroupName:
+    Type: String
+    Description: LogGroup name that should be use for the service
+
+  ClusterArn:
+    Type: String
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+
+  Image:
+    Type: String
+
+  DesiredCount:
+    Type: Number
+    Default: 1
+
+  DomainName:
+    Type: String
+    Description: The domain name for the environment where the service register a DNS record.
+
+  LoadBalancerDNSName:
+    Type: String
+    Description: The DNS name of the load balancer that the service is registered with. A DNS record will created that points to this value.
+
+  LoadBalancerCanonicalHostedZoneID:
+    Type: String
+    Description: The canonical hosted zone ID of the load balancer that the service is registered with.
+
+  HttpsListener:
+    Type: String
+    Description: The ARN of the HTTPS listener that the service is registered with.
+
+  MongoDBSecretArn:
+    Type: String
+
+  CloudinarySecretArn:
+    Type: String
+
+  FapshiSecretArn:
+    Type: String
+
+  JWTSecretArn:
+    Type: String
+
+  AdminSecretArn:
+    Type: String
+
+  # The following are optional parameters and are treated more like constants and input values.
+  ContainerPort:
+    Type: Number
+    Default: 8000
+
+  AppName:
+    Type: String
+    Default: "server"
+
+Resources:
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
+      Family: !Sub "${EnvId}-${AppName}"
+      NetworkMode: bridge
+      RequiresCompatibilities:
+        - EC2
+      Memory: 84 # 84 MB = 20 for golang service container + 64MB for Service Connect proxy
+      ExecutionRoleArn: !Ref ExecutionRole
+      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinitions:
+        - Name: !Ref AppName
+          Image: !Ref Image
+          PortMappings:
+            - ContainerPort: !Ref ContainerPort
+              Name: !Ref AppName
+          # Send logs to CloudWatch Logs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroupName
+              awslogs-stream-prefix: !Ref AppName
+          Environment:
+            - Name: PORT
+              Value: !Ref ContainerPort
+            - Name: FRONTEND_URL
+              Value: !Sub "https://${DomainName}"
+            - Name: BACKEND_URL
+              Value: !Sub "https://api.${DomainName}"
+          Secrets:
+            - Name: MONGO_URI
+              ValueFrom: !Sub "${MongoDBSecretArn}:mongo_uri::"
+            - Name: CLOUDINARY_CLOUD_NAME
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_cloud_name::"
+            - Name: CLOUDINARY_API_KEY
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_key::"
+            - Name: CLOUDINARY_API_SECRET
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_secret::"
+            - Name: FAPSHI_API_USER
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_api_user::"
+            - Name: FAPSHI_API_KEY
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_api_key::"
+            - Name: FAPSHI_BASE_URL
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_base_url::"
+            - Name: JWT_SECRET
+              ValueFrom: !Sub "${JWTSecretArn}:jwt_secret::"
+            - Name: ADMIN_EMAIL
+              ValueFrom: !Sub "${AdminSecretArn}:admin_email::"
+            - Name: ADMIN_PASSWORD
+              ValueFrom: !Sub "${AdminSecretArn}:admin_password::"
+            - Name: ADMIN_JWT_SECRET
+              ValueFrom: !Sub "${AdminSecretArn}:admin_jwt_secret::"
+
+
+    # A role needed by ECS to Start the Ecs Service
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AppName}-EcsExecutionRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetResourcePolicy"
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                  - "secretsmanager:ListSecretVersionIds"
+                  - "secretsmanager:ListSecrets"
+                Resource:
+                  - !Ref MongoDBSecretArn
+                  - !Ref CloudinarySecretArn
+                  - !Ref FapshiSecretArn
+                  - !Ref JWTSecretArn
+                  - !Ref AdminSecretArn
+
+  # A role for the containers
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-${AppName}-TaskRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+
+  EcsService:
+    Type: AWS::ECS::Service
+    DependsOn: [TargetGroup, ListenerRule]
+    Properties:
+      ServiceName: !Sub "${EnvId}-${AppName}"
+      Cluster: !Ref ClusterArn
+      TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: !Ref DesiredCount
+      LaunchType: EC2
+      LoadBalancers:
+        - ContainerName: !Ref AppName
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref TargetGroup
+
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: "/"
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 2
+      HealthyThresholdCount: 2
+      Name: !Sub "${EnvId}-${AppName}-TargetGroup"
+      Protocol: HTTP
+      Port: !Ref ContainerPort
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60 # default is 300
+      TargetType: instance
+      VpcId: !Ref VPC
+
+  ListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      Conditions:
+        - Field: host-header
+          HostHeaderConfig:
+            Values:
+              - !Sub "api.${DomainName}"
+      ListenerArn: !Ref HttpsListener
+      Priority: 1
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub "${DomainName}."
+      Name: !Sub "api.${DomainName}"
+      Type: A
+      AliasTarget:
+        DNSName: !Ref LoadBalancerDNSName
+        HostedZoneId: !Ref LoadBalancerCanonicalHostedZoneID
