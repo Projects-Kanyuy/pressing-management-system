@@ -9,7 +9,6 @@ on:
         default: "dev"
         type: string
 
-# Necessary permissions for workflow
 permissions:
   id-token: write
   contents: read
@@ -20,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Always deploy from main branch (source of truth)
       - name: Check out code
         uses: actions/checkout@v2
         with:
@@ -30,48 +28,33 @@ jobs:
         with:
           cmd: yq -V
 
-      #########################################################
-      # Step 1: Read Artifact Account ID
-      #########################################################
       - name: Read the account id of the Artifact account
         id: read_artifact_account_id
         run: |
           ARTIFACT_ACCOUNT_ID=$(yq eval '.aws_account_id' cd/artifact-account/config.yaml)
           echo "artifact_account_id=$ARTIFACT_ACCOUNT_ID" >> $GITHUB_OUTPUT
 
-      #########################################################
-      # Step 2: Assume Role into Artifact Account
-      #########################################################
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.read_artifact_account_id.outputs.artifact_account_id }}:role/deploy
 
-      #########################################################
-      # Step 3: Read Release Configuration
-      #########################################################
       - name: Get Release configuration
         id: get_release_config
-        env:
-          CF_DIR: "cloudformation"
         run: |
           envId="${{ inputs.envId }}"
-          # Extract the repo name from full repo path and lowercase it
           projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
           echo "projectId=$projectId" >> $GITHUB_OUTPUT
-          envKey="${envId}-${projectId}" # Combined key (e.g., dev-pressing-management)
-          ARTIFACTS_STACK_NAME="artifact-account-setup-${projectId}"
-
-          echo "Fetching release configuration for ${envKey}"
 
           target_ref=$(yq e '.[] | select(.envId == "'$envId'") | .gitRefName' ./cd/environments.yaml)
           domain_name=$(yq e '.[] | select(.envId == "'$envId'") | .domainName' ./cd/environments.yaml)
           environment_aws_account_id=$(yq e '.[] | select(.envId == "'$envId'") | .awsAccountId' ./cd/environments.yaml)
 
-          release_infra_hash=$(aws ssm get-parameter --name "/build-artifact/infra/$target_ref" --query "Parameter.Value" --output text)
-          client_image_tag=$(aws ssm get-parameter --name "/build-artifact/client/$target_ref" --query "Parameter.Value" --output text)
-          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/server/$target_ref" --query "Parameter.Value" --output text)
+          release_infra_hash=$(aws ssm get-parameter --name "/build-artifact/${projectId}/infra/$target_ref" --query "Parameter.Value" --output text)
+          client_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/client/$target_ref" --query "Parameter.Value" --output text)
+          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/server/$target_ref" --query "Parameter.Value" --output text)
 
+          ARTIFACTS_STACK_NAME="artifact-account-setup-${projectId}"
           infra_bucket_name=$(aws cloudformation describe-stacks \
             --stack-name "$ARTIFACTS_STACK_NAME" \
             --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
@@ -85,17 +68,11 @@ jobs:
           echo "server_image_tag=$server_image_tag" >> $GITHUB_OUTPUT
           echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
 
-      #########################################################
-      # Step 4: Assume Role into Target Environment Account
-      #########################################################
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.get_release_config.outputs.environment_aws_account_id }}:role/deploy
 
-      #########################################################
-      # Step 5: Deploy CloudFormation Stack
-      #########################################################
       - name: Apply CloudFormation Template
         run: |
           projectId=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')

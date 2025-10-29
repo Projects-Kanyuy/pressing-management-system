@@ -56,7 +56,7 @@ jobs:
       # Read project-specific Artifact Stack configuration
       - name: Read Configuration from Artifact Account Stack
         id: read_artifact_stack_config
-        env: 
+        env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
           PROJECT_ID=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
@@ -103,8 +103,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
-          env_key="${project_id}-${ref_name}"
+          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
 
           commit_hash=$(find ./client/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           client_ecr_repo_arn="${{ needs.config.outputs.client_ecr_repo_arn }}"
@@ -120,7 +119,7 @@ jobs:
           fi
 
           aws ssm put-parameter \
-            --name "/build-artifact/client/${env_key}" \
+            --name "/build-artifact/${project_id}/client/${ref_name}" \
             --value "$full_image_tag" \
             --type "String" \
             --overwrite
@@ -147,8 +146,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq eval '.project_id // "default-project"' cd/config.yaml 2>/dev/null || echo "default")
-          env_key="${project_id}-${ref_name}"
+          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
 
           commit_hash=$(find ./server/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           server_ecr_repo_arn="${{ needs.config.outputs.server_ecr_repo_arn }}"
@@ -164,7 +162,7 @@ jobs:
           fi
 
           aws ssm put-parameter \
-            --name "/build-artifact/server/${env_key}" \
+            --name "/build-artifact/${project_id}/server/${ref_name}" \
             --value "$full_image_tag" \
             --type "String" \
             --overwrite
@@ -189,7 +187,6 @@ jobs:
         run: |
           ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           project_id=$(basename "$GIT_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')
-          env_key="${project_id}-${ref_name}"
 
           commit_hash=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
           bucket_name="${{ needs.config.outputs.infra_bucket_name }}"
@@ -198,7 +195,7 @@ jobs:
           make publish bucket_name="$bucket_name" artifact_hash="$commit_hash" CF_DIR="$CF_DIR"
 
           aws ssm put-parameter \
-            --name "/build-artifact/infra/${env_key}" \
+            --name "/build-artifact/${project_id}/infra/${ref_name}" \
             --value "$commit_hash" \
             --type "String" \
             --overwrite
