@@ -30,5 +30,4 @@ jobs:
     uses: ./.github/workflows/deploy_single_environment.yaml
     with:
       envId: 'dev'
-      projectId: ${{ toLower(replace(github.repository, '^[^/]+/', '')) }}
 

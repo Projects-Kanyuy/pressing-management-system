@@ -8,11 +8,6 @@ on:
         required: true
         default: "dev"
         type: string
-      projectId:
-        description: "The project id (e.g., pressing-management-system)"
-        required: true
-        default: "pressing-management-system"
-        type: string
 
 # Necessary permissions for workflow
 permissions:
@@ -61,7 +56,9 @@ jobs:
           CF_DIR: "cloudformation"
         run: |
           envId="${{ inputs.envId }}"
-          projectId="${{ inputs.projectId }}"
+          # Extract the repo name from full repo path and lowercase it
+          project_id=$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          echo "project_id=$project_id" >> $GITHUB_OUTPUT
           envKey="${envId}-${projectId}" # Combined key (e.g., dev-pressing-management)
           ARTIFACTS_STACK_NAME="artifact-account-setup-${projectId}"
 
