@@ -30,8 +30,6 @@ jobs:
     outputs:
       artifact_account_id: ${{ steps.read_artifact_account_id.outputs.artifact_account_id }}
       infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
-      client_ecr_repo_arn: ${{ steps.read_artifact_stack_config.outputs.client_ecr_repo_arn }}
-      server_ecr_repo_arn: ${{ steps.read_artifact_stack_config.outputs.server_ecr_repo_arn }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -59,7 +57,6 @@ jobs:
         env:
           GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
-          #Reading project id from environments.yaml
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
 
@@ -67,106 +64,60 @@ jobs:
             --stack-name "$artifacts_stack_name" \
             --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
             --output text)
-          
-          client_ecr_repo_arn=$(aws cloudformation describe-stacks \
-            --stack-name "$artifacts_stack_name" \
-            --query "Stacks[0].Outputs[?OutputKey=='ClientEcrRepositoryArn'].OutputValue" \
-            --output text)
-
-          server_ecr_repo_arn=$(aws cloudformation describe-stacks \
-            --stack-name "$artifacts_stack_name" \
-            --query "Stacks[0].Outputs[?OutputKey=='ServerEcrRepositoryArn'].OutputValue" \
-            --output text)
 
           echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
-          echo "client_ecr_repo_arn=$client_ecr_repo_arn" >> $GITHUB_OUTPUT
-          echo "server_ecr_repo_arn=$server_ecr_repo_arn" >> $GITHUB_OUTPUT
 
   client:
-    name: Build and Publish Client Docker Image
+    name: Build and Publish Client Artifact
     needs: [config]
     runs-on: ubuntu-latest
+    outputs:
+      client_s3_key: ${{ steps.upload.outputs.client_s3_key }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build Docker Image and Push to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Install dependencies & build
         run: |
-          ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          cd client
+          npm install --frozen-lockfile
+          npm run build
 
-          commit_hash=$(find ./client/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
-          client_ecr_repo_arn="${{ needs.config.outputs.client_ecr_repo_arn }}"
-          client_ecr_repo_name=$(echo "$client_ecr_repo_arn" | cut -d'/' -f2)
-          full_image_tag="$ECR_REGISTRY/$client_ecr_repo_name:$commit_hash"
-
-          if [ -z "$(docker manifest inspect "$full_image_tag" 2>/dev/null)" ]; then
-            cd client
-            make build full_image_tag="$full_image_tag"
-            make publish full_image_tag="$full_image_tag"
-          else
-            echo "✅ Client image already exists, skipping build."
-          fi
-
-          aws ssm put-parameter \
-            --name "/build-artifact/${project_id}/client/${ref_name}" \
-            --value "$full_image_tag" \
-            --type "String" \
-            --overwrite
+      - name: Upload static build to S3
+        id: upload
+        run: |
+          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          ARTIFACT_KEY="client/${REF_NAME}/build.zip"
+          cd client
+          zip -r ../client-build.zip build
+          aws s3 cp ../client-build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+          echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   server:
-    name: Build and Publish Server Docker Image
+    name: Build and Publish Server Lambda Artifact
     needs: [config]
     runs-on: ubuntu-latest
+    outputs:
+      server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build Docker Image and Push to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Install dependencies & package
         run: |
-          ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          cd server
+          npm install --frozen-lockfile
+          zip -r ../server-lambda.zip * -x 'node_modules/.cache/*'
 
-          commit_hash=$(find ./server/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
-          server_ecr_repo_arn="${{ needs.config.outputs.server_ecr_repo_arn }}"
-          server_ecr_repo_name=$(echo "$server_ecr_repo_arn" | cut -d'/' -f2)
-          full_image_tag="$ECR_REGISTRY/$server_ecr_repo_name:$commit_hash"
-
-          if [ -z "$(docker manifest inspect "$full_image_tag" 2>/dev/null)" ]; then
-            cd server
-            make build full_image_tag="$full_image_tag"
-            make publish full_image_tag="$full_image_tag"
-          else
-            echo "✅ Server image already exists, skipping build."
-          fi
-
-          aws ssm put-parameter \
-            --name "/build-artifact/${project_id}/server/${ref_name}" \
-            --value "$full_image_tag" \
-            --type "String" \
-            --overwrite
+      - name: Upload Lambda zip to S3
+        id: upload
+        run: |
+          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          ARTIFACT_KEY="server/${REF_NAME}/server-lambda.zip"
+          aws s3 cp ../server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+          echo "server_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   infra:
     name: Publish Infra Artifacts
@@ -184,19 +135,11 @@ jobs:
       - name: Upload CloudFormation Templates to S3
         env:
           CF_DIR: "cloudformation"
-          GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
-          ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-
-          commit_hash=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
-          bucket_name="${{ needs.config.outputs.infra_bucket_name }}"
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          COMMIT_HASH=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
+          BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
 
           cd infra
-          make publish bucket_name="$bucket_name" artifact_hash="$commit_hash" CF_DIR="$CF_DIR"
-
-          aws ssm put-parameter \
-            --name "/build-artifact/${project_id}/infra/${ref_name}" \
-            --value "$commit_hash" \
-            --type "String" \
-            --overwrite
+          make publish bucket_name="$BUCKET_NAME" artifact_hash="$COMMIT_HASH" CF_DIR="$CF_DIR"

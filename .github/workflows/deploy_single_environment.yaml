@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: main
 
@@ -28,76 +28,81 @@ jobs:
         with:
           cmd: yq -V
 
+      # Read Artifact Account ID
       - name: Read the account id of the Artifact account
         id: read_artifact_account_id
         run: |
           ARTIFACT_ACCOUNT_ID=$(yq eval '.aws_account_id' cd/artifact-account/config.yaml)
           echo "artifact_account_id=$ARTIFACT_ACCOUNT_ID" >> $GITHUB_OUTPUT
 
+      # Assume Artifact Account role to read S3 paths
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.read_artifact_account_id.outputs.artifact_account_id }}:role/deploy
 
-      - name: Get Release configuration
+      - name: Get Release Configuration
         id: get_release_config
         run: |
-          envId="${{ inputs.envId }}"
-          projectId=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-          echo "projectId=$projectId" >> $GITHUB_OUTPUT
+          ENV_ID="${{ inputs.envId }}"
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          TARGET_REF=$(yq e ".[] | select(.envId == \"$ENV_ID\") | .gitRefName" ./cd/environments.yaml)
 
-          target_ref=$(yq e '.[] | select(.envId == "'$envId'") | .gitRefName' ./cd/environments.yaml)
-          domain_name=$(yq e '.[] | select(.envId == "'$envId'") | .domainName' ./cd/environments.yaml)
-          environment_aws_account_id=$(yq e '.[] | select(.envId == "'$envId'") | .awsAccountId' ./cd/environments.yaml)
+          DOMAIN_NAME=$(yq e ".[] | select(.envId == \"$ENV_ID\") | .domainName" ./cd/environments.yaml)
+          ENV_AWS_ACCOUNT_ID=$(yq e ".[] | select(.envId == \"$ENV_ID\") | .awsAccountId" ./cd/environments.yaml)
 
-          release_infra_hash=$(aws ssm get-parameter --name "/build-artifact/${projectId}/infra/$target_ref" --query "Parameter.Value" --output text)
-          client_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/client/$target_ref" --query "Parameter.Value" --output text)
-          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/server/$target_ref" --query "Parameter.Value" --output text)
-
-          ARTIFACTS_STACK_NAME="artifact-account-setup-${projectId}"
-          infra_bucket_name=$(aws cloudformation describe-stacks \
-            --stack-name "$ARTIFACTS_STACK_NAME" \
+          INFRA_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name "artifact-account-setup-${PROJECT_ID}" \
             --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
             --output text)
 
-          echo "target_ref=$target_ref" >> $GITHUB_OUTPUT
-          echo "domain_name=$domain_name" >> $GITHUB_OUTPUT
-          echo "environment_aws_account_id=$environment_aws_account_id" >> $GITHUB_OUTPUT
-          echo "release_infra_hash=$release_infra_hash" >> $GITHUB_OUTPUT
-          echo "client_image_tag=$client_image_tag" >> $GITHUB_OUTPUT
-          echo "server_image_tag=$server_image_tag" >> $GITHUB_OUTPUT
-          echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
+          # Read client/server S3 artifact paths from SSM
+          CLIENT_S3_KEY=$(aws ssm get-parameter \
+            --name "/build-artifact/${PROJECT_ID}/client/${TARGET_REF}" \
+            --query "Parameter.Value" --output text)
+          SERVER_S3_KEY=$(aws ssm get-parameter \
+            --name "/build-artifact/${PROJECT_ID}/server/${TARGET_REF}" \
+            --query "Parameter.Value" --output text)
 
+          echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
+          echo "target_ref=$TARGET_REF" >> $GITHUB_OUTPUT
+          echo "domain_name=$DOMAIN_NAME" >> $GITHUB_OUTPUT
+          echo "environment_aws_account_id=$ENV_AWS_ACCOUNT_ID" >> $GITHUB_OUTPUT
+          echo "infra_bucket_name=$INFRA_BUCKET" >> $GITHUB_OUTPUT
+          echo "client_s3_key=$CLIENT_S3_KEY" >> $GITHUB_OUTPUT
+          echo "server_s3_key=$SERVER_S3_KEY" >> $GITHUB_OUTPUT
+
+      # Assume target environment role for deployment
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.get_release_config.outputs.environment_aws_account_id }}:role/deploy
 
-      - name: Apply CloudFormation Template
+      - name: Deploy Environment via CloudFormation
         run: |
-          projectId=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-          envId="${{ inputs.envId }}"
-          envKey="${envId}-${projectId}"
-          stack_name="deploy-${envKey}"
+          ENV_ID="${{ inputs.envId }}"
+          PROJECT_ID="${{ steps.get_release_config.outputs.project_id }}"
+          STACK_NAME="deploy-${ENV_ID}-${PROJECT_ID}"
+          INFRA_BUCKET="${{ steps.get_release_config.outputs.infra_bucket_name }}"
+          RELEASE_HASH=$(aws ssm get-parameter --name "/build-artifact/${PROJECT_ID}/infra/${{ steps.get_release_config.outputs.target_ref }}" --query "Parameter.Value" --output text)
 
-          cf_template_file=$(mktemp)
-          s3_url="s3://${{ steps.get_release_config.outputs.infra_bucket_name }}/cloudformation/${{ steps.get_release_config.outputs.release_infra_hash }}/deploy_env.yaml"
+          CF_TEMPLATE_FILE=$(mktemp)
+          S3_TEMPLATE_URL="s3://${INFRA_BUCKET}/cloudformation/${RELEASE_HASH}/deploy_env.yaml"
+          echo "Downloading CloudFormation template from $S3_TEMPLATE_URL"
+          aws s3 cp "$S3_TEMPLATE_URL" "$CF_TEMPLATE_FILE"
 
-          echo "Downloading CloudFormation template from $s3_url"
-          aws s3 cp "$s3_url" "$cf_template_file"
+          echo "Deploying environment: $ENV_ID in account ${{ steps.get_release_config.outputs.environment_aws_account_id }}"
 
-          echo "Deploying to environment: $envKey in account ${{ steps.get_release_config.outputs.environment_aws_account_id }}"
           aws cloudformation deploy \
-            --template-file "$cf_template_file" \
+            --template-file "$CF_TEMPLATE_FILE" \
+            --stack-name "$STACK_NAME" \
             --parameter-overrides \
-              EnvId="${envId}" \
-              ProjectId="${projectId}" \
-              InfraArtifactsBucket="${{ steps.get_release_config.outputs.infra_bucket_name }}" \
-              InfraReleaseHash="${{ steps.get_release_config.outputs.release_infra_hash }}" \
-              ClientImageTag="${{ steps.get_release_config.outputs.client_image_tag }}" \
-              ServerImageTag="${{ steps.get_release_config.outputs.server_image_tag }}" \
+              EnvId="$ENV_ID" \
+              ProjectId="$PROJECT_ID" \
+              InfraArtifactsBucket="$INFRA_BUCKET" \
               ReleaseTarget="${{ steps.get_release_config.outputs.target_ref }}" \
               DomainName="${{ steps.get_release_config.outputs.domain_name }}" \
-            --stack-name "$stack_name" \
+              ClientArtifactS3Key="${{ steps.get_release_config.outputs.client_s3_key }}" \
+              ServerArtifactS3Key="${{ steps.get_release_config.outputs.server_s3_key }}" \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_NAMED_IAM

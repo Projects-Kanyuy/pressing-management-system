@@ -1,194 +1,68 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: The Jsonproxy API service
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the Node.js server as a Lambda function behind API Gateway"
+
 Parameters:
   EnvId:
     Type: String
-    Description: Environment Id (used to namespace resources)
-    AllowedPattern: "^[a-z][a-z0-9-]{2,49}$"
-    ConstraintDescription: Must be lower case letters, digits, or hyphens (3-50 characters).
-
-  VPC:
-    Type: AWS::EC2::VPC::Id
-
-  LogGroupName:
-    Type: String
-    Description: LogGroup name that should be use for the service
-
-  ClusterArn:
-    Type: String
-
-  SubnetIds:
-    Type: List<AWS::EC2::Subnet::Id>
-
-  Image:
-    Type: String
-
-  DesiredCount:
-    Type: Number
-    Default: 1
+    Description: Environment Id for namespacing resources.
 
   DomainName:
     Type: String
-    Description: The domain name for the environment where the service register a DNS record.
+    Description: Base domain (e.g., example.com).
 
-  LoadBalancerDNSName:
+  InfraArtifactsBucket:
     Type: String
-    Description: The DNS name of the load balancer that the service is registered with. A DNS record will created that points to this value.
+    Description: The S3 bucket where the built server artifact zip is stored.
 
-  LoadBalancerCanonicalHostedZoneID:
+  ServerArtifactS3Key:
     Type: String
-    Description: The canonical hosted zone ID of the load balancer that the service is registered with.
+    Description: The S3 key (path) for the zipped server artifact.
 
-  HttpsListener:
+  WebCertArn:
     Type: String
-    Description: The ARN of the HTTPS listener that the service is registered with.
+    Description: The ARN of the ACM certificate for HTTPS.
 
   MongoDBSecretArn:
     Type: String
-
   CloudinarySecretArn:
     Type: String
-
   JWTSecretArn:
     Type: String
-
   AdminSecretArn:
     Type: String
-
   SmtpSecretArn:
     Type: String
-
   TwilioSecretArn:
     Type: String
-
   DirectoryAdminSecretArn:
     Type: String
-
   ExchangeRateSecretArn:
     Type: String
-
   AccountpeSecretArn:
     Type: String
 
-  # The following are optional parameters and are treated more like constants and input values.
-  ContainerPort:
-    Type: Number
-    Default: 8000
-
-  AppName:
-    Type: String
-    Default: "server"
-
 Resources:
-  TaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
-      Family: !Sub "${EnvId}-${AppName}"
-      NetworkMode: bridge
-      RequiresCompatibilities:
-        - EC2
-      Memory: 84 # 84 MB = 20 for golang service container + 64MB for Service Connect proxy
-      ExecutionRoleArn: !Ref ExecutionRole
-      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
-      TaskRoleArn: !Ref TaskRole
-      ContainerDefinitions:
-        - Name: !Ref AppName
-          Image: !Ref Image
-          PortMappings:
-            - ContainerPort: !Ref ContainerPort
-              Name: !Ref AppName
-          # Send logs to CloudWatch Logs
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: !Ref AWS::Region
-              awslogs-group: !Ref LogGroupName
-              awslogs-stream-prefix: !Ref AppName
-          Environment:
-            - Name: PORT
-              Value: !Ref ContainerPort
-            - Name: FRONTEND_URL
-              Value: !Sub "https://${DomainName}"
-            - Name: BACKEND_URL
-              Value: !Sub "https://api.${DomainName}"
-            - Name: NODE_ENV
-              Value: "production"
-          Secrets:
-            - Name: MONGO_URI
-              ValueFrom: !Sub "${MongoDBSecretArn}:mongo_uri::"
-            - Name: CLOUDINARY_CLOUD_NAME
-              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_cloud_name::"
-            - Name: CLOUDINARY_API_KEY
-              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_key::"
-            - Name: CLOUDINARY_API_SECRET
-              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_secret::"
-            - Name: JWT_SECRET
-              ValueFrom: !Sub "${JWTSecretArn}:jwt_secret::"
-            - Name: ADMIN_EMAIL
-              ValueFrom: !Sub "${AdminSecretArn}:admin_email::"
-            - Name: ADMIN_PASSWORD
-              ValueFrom: !Sub "${AdminSecretArn}:admin_password::"
-            - Name: EMAIL_HOST
-              ValueFrom: !Sub "${SmtpSecretArn}:host::"
-            - Name: EMAIL_PORT
-              ValueFrom: !Sub "${SmtpSecretArn}:port::"
-            - Name: EMAIL_USER
-              ValueFrom: !Sub "${SmtpSecretArn}:user::"
-            - Name: EMAIL_PASS
-              ValueFrom: !Sub "${SmtpSecretArn}:password::"
-            - Name: EMAIL_FROM
-              ValueFrom: !Sub "${SmtpSecretArn}:from::"
-            - Name: EMAIL_SECURE
-              ValueFrom: !Sub "${SmtpSecretArn}:secure::"
-            - Name: TWILIO_ACCOUNT_SID
-              ValueFrom: !Sub "${TwilioSecretArn}:account_sid::"
-            - Name: TWILIO_AUTH_TOKEN
-              ValueFrom: !Sub "${TwilioSecretArn}:auth_token::"
-            - Name: TWILIO_WHATSAPP_FROM_NUMBER
-              ValueFrom: !Sub "${TwilioSecretArn}:whatsapp_from_number::"
-            - Name: DIRECTORY_ADMIN_USER
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:user::"
-            - Name: DIRECTORY_ADMIN_PASS_HASH
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:pass_hash::"
-            - Name: DIRECTORY_ADMIN_JWT_SECRET
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:jwt_secret::"
-            - Name: EXCHANGE_RATE_API_KEY
-              ValueFrom: !Sub "${ExchangeRateSecretArn}:api_key::"
-            - Name: ACCOUNTPE_EMAIL
-              ValueFrom: !Sub "${AccountpeSecretArn}:email::"
-            - Name: ACCOUNTPE_PASSWORD
-              ValueFrom: !Sub "${AccountpeSecretArn}:password::"
-            - Name: ACCOUNTPE_PAYIN_BASE_URL
-              ValueFrom: !Sub "${AccountpeSecretArn}:payin_base_url::"
-            
-
-
-    # A role needed by ECS to Start the Ecs Service
-  ExecutionRole:
+  # --- Lambda Execution Role ---
+  ServerLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AppName}-EcsExecutionRole"
+      RoleName: !Sub "${EnvId}-server-lambda-role"
       AssumeRolePolicyDocument:
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: "sts:AssumeRole"
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: root
+        - PolicyName: AllowSecretsAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action:
-                  - "secretsmanager:GetResourcePolicy"
-                  - "secretsmanager:GetSecretValue"
-                  - "secretsmanager:DescribeSecret"
-                  - "secretsmanager:ListSecretVersionIds"
-                  - "secretsmanager:ListSecrets"
+                Action: secretsmanager:GetSecretValue
                 Resource:
                   - !Ref MongoDBSecretArn
                   - !Ref CloudinarySecretArn
@@ -200,74 +74,112 @@ Resources:
                   - !Ref ExchangeRateSecretArn
                   - !Ref AccountpeSecretArn
 
-  # A role for the containers
-  TaskRole:
-    Type: AWS::IAM::Role
+  # --- Lambda Function ---
+  ServerLambda:
+    Type: AWS::Lambda::Function
     Properties:
-      RoleName: !Sub "${EnvId}-${AppName}-TaskRole"
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
+      FunctionName: !Sub "${EnvId}-server-lambda"
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt ServerLambdaRole.Arn
+      Timeout: 30
+      MemorySize: 512
+      Environment:
+        Variables:
+          NODE_ENV: production
+          MONGODB_SECRET_ARN: !Ref MongoDBSecretArn
+          CLOUDINARY_SECRET_ARN: !Ref CloudinarySecretArn
+          JWT_SECRET_ARN: !Ref JWTSecretArn
+          ADMIN_SECRET_ARN: !Ref AdminSecretArn
+          SMTP_SECRET_ARN: !Ref SmtpSecretArn
+          TWILIO_SECRET_ARN: !Ref TwilioSecretArn
+          DIRECTORY_ADMIN_SECRET_ARN: !Ref DirectoryAdminSecretArn
+          EXCHANGE_RATE_SECRET_ARN: !Ref ExchangeRateSecretArn
+          ACCOUNTPAY_SECRET_ARN: !Ref AccountpeSecretArn
+      Code:
+        S3Bucket: !Ref InfraArtifactsBucket
+        S3Key: !Ref ServerArtifactS3Key
 
-  EcsService:
-    Type: AWS::ECS::Service
-    DependsOn: [TargetGroup, ListenerRule]
+  # --- API Gateway ---
+  ServerApi:
+    Type: AWS::ApiGateway::RestApi
     Properties:
-      ServiceName: !Sub "${EnvId}-${AppName}"
-      Cluster: !Ref ClusterArn
-      TaskDefinition: !Ref TaskDefinition
-      DeploymentConfiguration:
-        MinimumHealthyPercent: 100
-        MaximumPercent: 200
-      DesiredCount: !Ref DesiredCount
-      LaunchType: EC2
-      LoadBalancers:
-        - ContainerName: !Ref AppName
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref TargetGroup
+      Name: !Sub "${EnvId}-server-api"
+      Description: "API Gateway for ${EnvId} Node.js Lambda backend"
 
-
-  TargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  # Root resource ("/")
+  RootResource:
+    Type: AWS::ApiGateway::Resource
     Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: "/"
-      HealthCheckTimeoutSeconds: 5
-      UnhealthyThresholdCount: 2
-      HealthyThresholdCount: 2
-      Name: !Sub "${EnvId}-${AppName}-TargetGroup"
-      Protocol: HTTP
-      Port: !Ref ContainerPort
-      TargetGroupAttributes:
-        - Key: deregistration_delay.timeout_seconds
-          Value: 60 # default is 300
-      TargetType: instance
-      VpcId: !Ref VPC
+      ParentId: !GetAtt ServerApi.RootResourceId
+      PathPart: "{proxy+}"
+      RestApiId: !Ref ServerApi
 
-  ListenerRule:
-    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+  # Method - ANY
+  ServerApiMethod:
+    Type: AWS::ApiGateway::Method
     Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref TargetGroup
-      Conditions:
-        - Field: host-header
-          HostHeaderConfig:
-            Values:
-              - !Sub "api.${DomainName}"
-      ListenerArn: !Ref HttpsListener
-      Priority: 1
+      RestApiId: !Ref ServerApi
+      ResourceId: !Ref RootResource
+      HttpMethod: ANY
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - { LambdaArn: !GetAtt ServerLambda.Arn }
 
-  DNSRecord:
+  # Deployment
+  ServerApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ServerApiMethod
+    Properties:
+      RestApiId: !Ref ServerApi
+      StageName: prod
+
+  # Permission for API Gateway to invoke Lambda
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ServerLambda
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerApi}/*"
+
+  # --- Custom Domain for API ---
+  ApiGatewayDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Sub "api.${DomainName}"
+      RegionalCertificateArn: !Ref WebCertArn
+      EndpointConfiguration:
+        Types: ["REGIONAL"]
+
+  # Base path mapping for custom domain
+  ApiBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref ApiGatewayDomain
+      RestApiId: !Ref ServerApi
+      Stage: prod
+
+  # --- Route53 Record for API ---
+  ApiDNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneName: !Sub "${DomainName}."
       Name: !Sub "api.${DomainName}"
       Type: A
       AliasTarget:
-        DNSName: !Ref LoadBalancerDNSName
-        HostedZoneId: !Ref LoadBalancerCanonicalHostedZoneID
+        DNSName: !GetAtt ApiGatewayDomain.RegionalDomainName
+        HostedZoneId: !GetAtt ApiGatewayDomain.RegionalHostedZoneId
+
+Outputs:
+  ApiUrl:
+    Description: The custom domain URL for the API
+    Value: !Sub "https://api.${DomainName}"
+
+  LambdaFunctionName:
+    Description: Lambda function name
+    Value: !Ref ServerLambda
