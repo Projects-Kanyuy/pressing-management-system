@@ -148,13 +148,13 @@ Resources:
         InfraArtifactsBucket: !Ref InfraArtifactsBucket
         ImageTag: !Ref ServerImageTag
         WebCertArn: !Ref WebCert
-        VpcId: !GetAtt VpcStack.VPC
+        VpcId: !GetAtt VpcStack.Ouputs.VPC
         PublicSubnetIds:
-          - !GetAtt VpcStack.SubnetAPublic
-          - !GetAtt VpcStack.SubnetBPublic
+          - !GetAtt VpcStack.Ouputs.SubnetAPublic
+          - !GetAtt VpcStack.Ouputs.SubnetBPublic
         PrivateSubnetIds:
-          - !GetAtt VpcStack.SubnetAPrivate
-          - !GetAtt VpcStack.SubnetBPrivate
+          - !GetAtt VpcStack.Ouputs.SubnetAPrivate
+          - !GetAtt VpcStack.Ouputs.SubnetBPrivate
         MongoDBSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.MongoDBSecretArn
         CloudinarySecretArn: !GetAtt ThirdPartySecretsStack.Outputs.CloudinarySecretArn
         JWTSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.JWTSecretArn
