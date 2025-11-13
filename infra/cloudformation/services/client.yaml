@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the client (React app) via S3 + CloudFront"
+Description: "Deploys the client (React app) via S3 + CloudFront + Route53 + automatic cache invalidation"
 
 Parameters:
   EnvId:
@@ -8,7 +8,11 @@ Parameters:
 
   DomainName:
     Type: String
-    Description: The main domain name (e.g., example.com).
+    Description: Root domain name (e.g., example.com).
+
+  HostedZoneId:
+    Type: String
+    Description: The Route53 Hosted Zone ID that manages the domain.
 
   InfraArtifactsBucket:
     Type: String
@@ -20,7 +24,7 @@ Parameters:
 
   WebCertArn:
     Type: String
-    Description: ARN of the ACM certificate for HTTPS.
+    Description: ARN of the ACM certificate for HTTPS (must be in us-east-1 for CloudFront).
 
 Resources:
   # --- Static Website Bucket ---
@@ -87,7 +91,7 @@ Resources:
             ResponseCode: 200
             ErrorCachingMinTTL: 0
 
-  # --- S3 Bucket Policy to Allow CloudFront OAC ---
+  # --- Bucket Policy to allow CloudFront via OAC ---
   ClientBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -105,7 +109,7 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
 
-  # --- Deployment Lambda (copies artifact to bucket) ---
+  # --- Lambda that copies build.zip to bucket ---
   DeployClientLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -119,12 +123,10 @@ Resources:
           TARGET_BUCKET: !Ref ClientBucket
           ARTIFACT_BUCKET: !Ref InfraArtifactsBucket
           ARTIFACT_KEY: !Ref ClientArtifactS3Key
-          DISTRIBUTION_ID: !Ref ClientDistribution
       Code:
         ZipFile: |
           import boto3, zipfile, io, os, json, urllib3
           s3 = boto3.client('s3')
-          cf = boto3.client('cloudfront')
           http = urllib3.PoolManager()
 
           def send_response(event, context, status, reason=None):
@@ -140,9 +142,7 @@ Resources:
 
           def handler(event, context):
               print("Received event:", json.dumps(event))
-              req_type = event.get("RequestType")
-
-              if req_type == "Delete":
+              if event.get("RequestType") == "Delete":
                   send_response(event, context, "SUCCESS", "No-op on delete")
                   return
 
@@ -150,7 +150,6 @@ Resources:
                   target_bucket = os.environ['TARGET_BUCKET']
                   artifact_bucket = os.environ['ARTIFACT_BUCKET']
                   artifact_key = os.environ['ARTIFACT_KEY']
-                  distribution_id = os.environ['DISTRIBUTION_ID']
 
                   print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
                   obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
@@ -159,31 +158,28 @@ Resources:
                       for name in z.namelist():
                           if name.endswith('/'):
                               continue
+                          # remove any top-level folder
                           parts = name.split('/', 1)
                           key = parts[1] if len(parts) == 2 else parts[0]
                           content = z.read(name)
-                          put_kwargs = {
-                              "Bucket": target_bucket,
-                              "Key": key,
-                              "Body": content
-                          }
-                          if key.endswith('.html'):
-                              put_kwargs["ContentType"] = "text/html"
-                          s3.put_object(**put_kwargs)
-
-                  print("Deployment complete, invalidating CloudFront cache...")
-                  cf.create_invalidation(
-                      DistributionId=distribution_id,
-                      InvalidationBatch={
-                          'Paths': {'Quantity': 1, 'Items': ['/*']},
-                          'CallerReference': context.log_stream_name
-                      }
-                  )
+                          kwargs = {"Bucket": target_bucket, "Key": key, "Body": content}
+                          if key.endswith(".html"):
+                              kwargs["ContentType"] = "text/html"
+                          elif key.endswith(".css"):
+                              kwargs["ContentType"] = "text/css"
+                          elif key.endswith(".js"):
+                              kwargs["ContentType"] = "application/javascript"
+                          elif key.endswith(".json"):
+                              kwargs["ContentType"] = "application/json"
+                          elif key.endswith(".png"):
+                              kwargs["ContentType"] = "image/png"
+                          elif key.endswith(".jpg") or key.endswith(".jpeg"):
+                              kwargs["ContentType"] = "image/jpeg"
+                          s3.put_object(**kwargs)
 
                   send_response(event, context, "SUCCESS")
-
               except Exception as e:
-                  print("Error during deployment:", str(e))
+                  print("Error:", str(e))
                   send_response(event, context, "FAILED", str(e))
 
   DeployClientLambdaRole:
@@ -215,23 +211,119 @@ Resources:
                 Resource:
                   - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
                   - !Sub "arn:aws:s3:::${ClientBucket}/*"
-              - Effect: Allow
-                Action:
-                  - cloudfront:CreateInvalidation
-                Resource: "*"
 
-  # --- Custom Resource to Trigger Deployment (re-runs on new hash) ---
+  # --- Custom Resource: Deploy Client Files ---
   ClientDeploymentTrigger:
     Type: Custom::DeployClient
     Properties:
       ServiceToken: !GetAtt DeployClientLambda.Arn
       DeploymentHash: !Ref ClientArtifactS3Key
 
+  # --- CloudFront Cache Invalidation ---
+  CloudFrontInvalidationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${EnvId}-invalidate-client-cache"
+      Role: !GetAtt CloudFrontInvalidationRole.Arn
+      Runtime: python3.11
+      Handler: index.handler
+      Timeout: 60
+      Code:
+        ZipFile: |
+          import boto3, json, os, urllib3
+          cf = boto3.client("cloudfront")
+          http = urllib3.PoolManager()
+
+          def send_response(event, context, status, reason=None):
+              body = json.dumps({
+                  "Status": status,
+                  "Reason": reason or "See CloudWatch logs",
+                  "PhysicalResourceId": context.log_stream_name,
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+              })
+              http.request("PUT", event["ResponseURL"], body=body)
+
+          def handler(event, context):
+              print("Received event:", json.dumps(event))
+              try:
+                  if event["RequestType"] == "Delete":
+                      send_response(event, context, "SUCCESS", "No invalidation on delete")
+                      return
+                  dist_id = event["ResourceProperties"]["DistributionId"]
+                  cf.create_invalidation(
+                      DistributionId=dist_id,
+                      InvalidationBatch={
+                          "Paths": {"Quantity": 1, "Items": ["/*"]},
+                          "CallerReference": context.log_stream_name,
+                      },
+                  )
+                  send_response(event, context, "SUCCESS")
+              except Exception as e:
+                  print("Error:", str(e))
+                  send_response(event, context, "FAILED", str(e))
+
+  CloudFrontInvalidationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-invalidate-client-cache-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFrontInvalidationPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: "*"
+
+  ClientCacheInvalidation:
+    Type: Custom::InvalidateCloudFrontCache
+    Properties:
+      ServiceToken: !GetAtt CloudFrontInvalidationLambda.Arn
+      DistributionId: !Ref ClientDistribution
+      DeploymentHash: !Ref ClientArtifactS3Key
+
+  # --- Route53 DNS Records ---
+  ClientARecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (global)
+        DNSName: !GetAtt ClientDistribution.DomainName
+
+  ClientAAAARecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt ClientDistribution.DomainName
+
 Outputs:
   ClientBucketName:
-    Description: Name of the S3 bucket where static files are hosted
+    Description: Name of the S3 bucket hosting the client
     Value: !Ref ClientBucket
 
   CloudFrontDomain:
-    Description: The CloudFront distribution domain name
+    Description: CloudFront distribution domain name
     Value: !GetAtt ClientDistribution.DomainName
