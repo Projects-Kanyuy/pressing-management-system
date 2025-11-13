@@ -93,13 +93,14 @@ jobs:
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           RELEASE_HASH=${{ steps.release_hash.outputs.release_hash }}
           ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
           # Push S3 path to SSM
           aws ssm put-parameter \
-            --name "/build-artifact/${PROJECT_ID}/client/${GITHUB_REF_NAME}" \
+            --name "/build-artifact/${PROJECT_ID}/client/${REF_NAME}" \
             --value "$ARTIFACT_KEY" \
             --type String \
             --overwrite
@@ -108,7 +109,7 @@ jobs:
 
   server:
     name: Build and Publish Server Lambda Artifact
-    needs: [config, client]
+    needs: [config]
     runs-on: ubuntu-latest
     outputs:
       server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
@@ -131,6 +132,7 @@ jobs:
         id: upload
         working-directory: server
         run: |
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           RELEASE_HASH=${{ steps.client.outputs.release_hash }}
           ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
@@ -139,7 +141,7 @@ jobs:
 
           # Push S3 path to SSM
           aws ssm put-parameter \
-            --name "/build-artifact/${PROJECT_ID}/server/${GITHUB_REF_NAME}" \
+            --name "/build-artifact/${PROJECT_ID}/server/${REF_NAME}" \
             --value "$ARTIFACT_KEY" \
             --type String \
             --overwrite
@@ -148,7 +150,7 @@ jobs:
 
   infra:
     name: Publish Infra Artifacts
-    needs: [config, client, server]
+    needs: [config]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -172,7 +174,7 @@ jobs:
 
           # Push infra release hash to SSM
           aws ssm put-parameter \
-            --name "/build-artifact/${PROJECT_ID}/infra/${GITHUB_REF_NAME}" \
+            --name "/build-artifact/${PROJECT_ID}/infra/${REF_NAME}" \
             --value "$RELEASE_HASH" \
             --type String \
             --overwrite
