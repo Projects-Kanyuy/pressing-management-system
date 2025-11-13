@@ -107,7 +107,7 @@ Resources:
       Name: !Sub "${EnvId}-server-api"
       Description: "API Gateway for ${EnvId} Node.js Lambda backend"
 
-  # Root resource ("/")
+  # Root resource ("/{proxy+}")
   RootResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -130,13 +130,26 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
           - { LambdaArn: !GetAtt ServerLambda.Arn }
 
-  # Deployment
+  # --- Deployment ---
   ServerApiDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn: ServerApiMethod
     Properties:
       RestApiId: !Ref ServerApi
+
+  # --- Explicit Stage ---
+  ServerApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
       StageName: prod
+      DeploymentId: !Ref ServerApiDeployment
+      RestApiId: !Ref ServerApi
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          DataTraceEnabled: true
 
   # Permission for API Gateway to invoke Lambda
   LambdaInvokePermission:
@@ -159,10 +172,11 @@ Resources:
   # Base path mapping for custom domain
   ApiBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
+    DependsOn: ServerApiStage
     Properties:
       DomainName: !Ref ApiGatewayDomain
       RestApiId: !Ref ServerApi
-      Stage: prod
+      Stage: !Ref ServerApiStage
 
   # --- Route53 Record for API ---
   ApiDNSRecord:
