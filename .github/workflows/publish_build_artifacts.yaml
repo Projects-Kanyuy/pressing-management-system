@@ -60,8 +60,8 @@ jobs:
       - name: Compute Global Release Hash
         id: compute_release_hash
         run: |
-          # Compute based on infra files to ensure consistency across builds
           RELEASE_HASH=$(find ./infra -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
+          echo "Computed release_hash=$RELEASE_HASH"
           echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
 
   client:
@@ -94,6 +94,15 @@ jobs:
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
+
+          echo "==== CLIENT DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
+          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/client/${REF_NAME}"
+          echo "PARAM_VALUE=$ARTIFACT_KEY"
+          echo "============================"
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
@@ -137,6 +146,15 @@ jobs:
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
 
+          echo "==== SERVER DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
+          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/server/${REF_NAME}"
+          echo "PARAM_VALUE=$ARTIFACT_KEY"
+          echo "============================"
+
           aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
           aws ssm put-parameter \
@@ -167,6 +185,15 @@ jobs:
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           RELEASE_HASH=${{ needs.config.outputs.release_hash }}
           BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
+
+          echo "==== INFRA DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "BUCKET_NAME=$BUCKET_NAME"
+          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/infra/${REF_NAME}"
+          echo "PARAM_VALUE=$RELEASE_HASH"
+          echo "=========================="
 
           cd infra
           make publish bucket_name="$BUCKET_NAME" artifact_hash="$RELEASE_HASH" CF_DIR="$CF_DIR"
