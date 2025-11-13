@@ -94,6 +94,7 @@ jobs:
           RELEASE_HASH=${{ steps.release_hash.outputs.release_hash }}
           ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
@@ -133,6 +134,7 @@ jobs:
         working-directory: server
         run: |
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           RELEASE_HASH=${{ steps.client.outputs.release_hash }}
           ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
