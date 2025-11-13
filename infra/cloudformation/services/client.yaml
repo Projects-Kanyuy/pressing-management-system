@@ -138,19 +138,16 @@ Resources:
                       for name in z.namelist():
                           if name.endswith('/'):
                               continue
-
-                          # ✅ Remove build/ prefix if present
-                          fixed_name = name.split("build/", 1)[-1] if name.startswith("build/") else name
-                          if not fixed_name:
-                              continue
-
+                          # Strip top-level folder if exists
+                          parts = name.split('/', 1)
+                          key = parts[1] if len(parts) == 2 else parts[0]
                           content = z.read(name)
                           put_kwargs = {
                               "Bucket": target_bucket,
-                              "Key": fixed_name,
+                              "Key": key,
                               "Body": content
                           }
-                          if fixed_name.endswith('.html'):
+                          if key.endswith('.html'):
                               put_kwargs["ContentType"] = "text/html"
                           s3.put_object(**put_kwargs)
 

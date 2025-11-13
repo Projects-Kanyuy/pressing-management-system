@@ -1,203 +1,210 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the client (React app) via S3 + CloudFront"
+name: Publish Build Artifacts
 
-Parameters:
-  EnvId:
-    Type: String
-    Description: Environment Id for namespacing resources.
+on:
+  workflow_call: {}
+  push:
+    branches:
+      - main
+      - "release/*"
+    tags:
+      - "*"
+    paths:
+      - ".github/workflows/publish_build_artifacts.yaml"
+      - "infra/**"
+      - "client/**"
+      - "server/**"
+  workflow_run:
+    workflows:
+      - Artifact Account Setup
+    types:
+      - completed
 
-  DomainName:
-    Type: String
-    Description: The main domain name (e.g., example.com).
+permissions:
+  id-token: write
+  contents: read
 
-  InfraArtifactsBucket:
-    Type: String
-    Description: The S3 bucket where the build artifact (zip) is stored.
+jobs:
+  config:
+    name: Read workflow configuration
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_account_id: ${{ steps.read_artifact_account_id.outputs.artifact_account_id }}
+      infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
+      release_hash: ${{ steps.compute_release_hash.outputs.release_hash }}
+      project_id: ${{ steps.read_project_id.outputs.project_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mikefarah/yq@v4.44.3
 
-  ClientArtifactS3Key:
-    Type: String
-    Description: The S3 key path to the built client zip file.
+      - name: Read Artifact Account ID
+        id: read_artifact_account_id
+        run: |
+          ARTIFACT_ACCOUNT_ID=$(yq eval '.aws_account_id' cd/artifact-account/config.yaml)
+          echo "artifact_account_id=$ARTIFACT_ACCOUNT_ID" >> $GITHUB_OUTPUT
 
-  WebCertArn:
-    Type: String
-    Description: ARN of the ACM certificate for HTTPS.
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ steps.read_artifact_account_id.outputs.artifact_account_id }}:role/deploy
 
-Resources:
-  # --- Static Website Bucket ---
-  ClientBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "${EnvId}-client-${AWS::Region}-${AWS::AccountId}"
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-      Tags:
-        - Key: EnvId
-          Value: !Ref EnvId
+      - name: Read Configuration from Artifact Account Stack
+        id: read_artifact_stack_config
+        run: |
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
+          infra_bucket_name=$(aws cloudformation describe-stacks \
+            --stack-name "$artifacts_stack_name" \
+            --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
+            --output text)
+          echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
 
-  # --- CloudFront Origin Access Control ---
-  ClientOriginAccessControl:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties:
-      OriginAccessControlConfig:
-        Name: !Sub "${EnvId}-client-oac"
-        Description: "Access control for CloudFront to access S3 bucket"
-        SigningProtocol: sigv4
-        SigningBehavior: always
-        OriginAccessControlOriginType: s3
+      - name: Read Project ID
+        id: read_project_id
+        run: |
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
 
-  # --- CloudFront Distribution ---
-  ClientDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Enabled: true
-        Comment: !Sub "Client distribution for ${EnvId}"
-        DefaultRootObject: index.html
-        Aliases:
-          - !Ref DomainName
-          - !Sub "www.${DomainName}"
-        ViewerCertificate:
-          AcmCertificateArn: !Ref WebCertArn
-          SslSupportMethod: sni-only
-          MinimumProtocolVersion: TLSv1.2_2021
-        Origins:
-          - Id: ClientS3Origin
-            DomainName: !GetAtt ClientBucket.RegionalDomainName
-            S3OriginConfig: {}
-            OriginAccessControlId: !Ref ClientOriginAccessControl
-        DefaultCacheBehavior:
-          TargetOriginId: ClientS3Origin
-          ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods: ["GET", "HEAD", "OPTIONS"]
-          CachedMethods: ["GET", "HEAD"]
-          Compress: true
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-        PriceClass: PriceClass_100
-        HttpVersion: http2
-        IPV6Enabled: true
-        CustomErrorResponses:
-          - ErrorCode: 404
-            ResponsePagePath: /index.html
-            ResponseCode: 200
-            ErrorCachingMinTTL: 0
+      - name: Compute Global Release Hash
+        id: compute_release_hash
+        run: |
+          RELEASE_HASH=$(find ./infra -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
+          echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
 
-  # --- Deployment Lambda (copies artifact to bucket) ---
-  DeployClientLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Sub "${EnvId}-deploy-client"
-      Role: !GetAtt DeployClientLambdaRole.Arn
-      Runtime: python3.11
-      Handler: index.handler
-      Timeout: 300
-      Environment:
-        Variables:
-          TARGET_BUCKET: !Ref ClientBucket
-          ARTIFACT_BUCKET: !Ref InfraArtifactsBucket
-          ARTIFACT_KEY: !Ref ClientArtifactS3Key
-      Code:
-        ZipFile: |
-          import boto3, zipfile, io, os, json, urllib3
-          s3 = boto3.client('s3')
-          http = urllib3.PoolManager()
+  client:
+    name: Build and Publish Client Artifact
+    needs: [config]
+    runs-on: ubuntu-latest
+    outputs:
+      client_s3_key: ${{ steps.upload.outputs.client_s3_key }}
+    steps:
+      - uses: actions/checkout@v4
 
-          def send_response(event, context, status, reason=None):
-              response_body = json.dumps({
-                  "Status": status,
-                  "Reason": reason or "See CloudWatch logs for details",
-                  "PhysicalResourceId": context.log_stream_name,
-                  "StackId": event["StackId"],
-                  "RequestId": event["RequestId"],
-                  "LogicalResourceId": event["LogicalResourceId"],
-              })
-              http.request("PUT", event["ResponseURL"], body=response_body)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
 
-          def handler(event, context):
-              print("Received event:", json.dumps(event))
-              req_type = event.get("RequestType")
+      - name: Install dependencies & build
+        working-directory: client
+        run: |
+          npm install --frozen-lockfile
+          DISABLE_ESLINT_PLUGIN=true npm run build
 
-              if req_type == "Delete":
-                  send_response(event, context, "SUCCESS", "No-op on delete")
-                  return
+      - name: Upload static build to S3 and push to SSM
+        id: upload
+        working-directory: client
+        run: |
+          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
 
-              try:
-                  target_bucket = os.environ['TARGET_BUCKET']
-                  artifact_bucket = os.environ['ARTIFACT_BUCKET']
-                  artifact_key = os.environ['ARTIFACT_KEY']
+          echo "==== CLIENT DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
+          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/client/${REF_NAME}"
+          echo "PARAM_VALUE=$ARTIFACT_KEY"
+          echo "==========================="
 
-                  print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
-                  obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
+          zip -r build.zip build
+          aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
-                  with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
-                      for name in z.namelist():
-                          if name.endswith('/'):
-                              continue
-                          # Strip top-level folder if exists
-                          parts = name.split('/', 1)
-                          key = parts[1] if len(parts) == 2 else parts[0]
-                          content = z.read(name)
-                          put_kwargs = {
-                              "Bucket": target_bucket,
-                              "Key": key,
-                              "Body": content
-                          }
-                          if key.endswith('.html'):
-                              put_kwargs["ContentType"] = "text/html"
-                          s3.put_object(**put_kwargs)
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/client/${REF_NAME}" \
+            --value "$ARTIFACT_KEY" \
+            --type String \
+            --overwrite
 
-                  send_response(event, context, "SUCCESS")
+          echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
-              except Exception as e:
-                  print("Error during deployment:", str(e))
-                  send_response(event, context, "FAILED", str(e))
+  server:
+    name: Build and Publish Server Lambda Artifact
+    needs: [config]
+    runs-on: ubuntu-latest
+    outputs:
+      server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
+    steps:
+      - uses: actions/checkout@v4
 
-  DeployClientLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "${EnvId}-deploy-client-role"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: DeployClientAccess
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource:
-                  - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
-                  - !Sub "arn:aws:s3:::${ClientBucket}/*"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
 
-  # --- Custom Resource to Trigger Deployment ---
-  ClientDeploymentTrigger:
-    Type: Custom::DeployClient
-    Properties:
-      ServiceToken: !GetAtt DeployClientLambda.Arn
+      - name: Install dependencies & package
+        working-directory: server
+        run: |
+          npm install --frozen-lockfile
+          zip -r server-lambda.zip * -x 'node_modules/.cache/*'
 
-Outputs:
-  ClientBucketName:
-    Description: Name of the S3 bucket where static files are hosted
-    Value: !Ref ClientBucket
+      - name: Upload Lambda zip to S3 and push to SSM
+        id: upload
+        working-directory: server
+        run: |
+          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
 
-  CloudFrontDomain:
-    Description: The CloudFront distribution domain name
-    Value: !GetAtt ClientDistribution.DomainName
+          echo "==== SERVER DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
+          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/server/${REF_NAME}"
+          echo "PARAM_VALUE=$ARTIFACT_KEY"
+          echo "==========================="
+
+          aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/server/${REF_NAME}" \
+            --value "$ARTIFACT_KEY" \
+            --type String \
+            --overwrite
+
+          echo "server_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
+
+  infra:
+    name: Publish Infra Artifacts
+    needs: [config]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
+
+      - name: Upload CloudFormation Templates to S3
+        env:
+          CF_DIR: "cloudformation"
+        run: |
+          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
+          BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
+
+          echo "==== INFRA DEBUG INFO ===="
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "REF_NAME=$REF_NAME"
+          echo "RELEASE_HASH=$RELEASE_HASH"
+          echo "BUCKET_NAME=$BUCKET_NAME"
+          echo "==========================="
+
+          cd infra
+          make publish bucket_name="$BUCKET_NAME" artifact_hash="$RELEASE_HASH" CF_DIR="$CF_DIR"
+
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/infra/${REF_NAME}" \
+            --value "$RELEASE_HASH" \
+            --type String \
+            --overwrite
