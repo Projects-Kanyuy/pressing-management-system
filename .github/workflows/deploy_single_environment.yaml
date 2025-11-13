@@ -100,6 +100,7 @@ jobs:
               EnvId="$ENV_ID" \
               ProjectId="$PROJECT_ID" \
               InfraArtifactsBucket="$INFRA_BUCKET" \
+              InfraReleaseHash="$RELEASE_HASH"\
               ReleaseTarget="${{ steps.get_release_config.outputs.target_ref }}" \
               DomainName="${{ steps.get_release_config.outputs.domain_name }}" \
               ClientArtifactS3Key="${{ steps.get_release_config.outputs.client_s3_key }}" \
