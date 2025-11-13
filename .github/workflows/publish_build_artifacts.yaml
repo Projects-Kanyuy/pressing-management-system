@@ -31,6 +31,7 @@ jobs:
       artifact_account_id: ${{ steps.read_artifact_account_id.outputs.artifact_account_id }}
       infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
       release_hash: ${{ steps.compute_release_hash.outputs.release_hash }}
+      project_id: ${{ steps.read_project_id.outputs.project_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: mikefarah/yq@v4.44.3
@@ -57,11 +58,17 @@ jobs:
             --output text)
           echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
 
+      - name: Read Project ID
+        id: read_project_id
+        run: |
+          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          echo "PROJECT_ID=$PROJECT_ID"
+          echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
+
       - name: Compute Global Release Hash
         id: compute_release_hash
         run: |
           RELEASE_HASH=$(find ./infra -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
-          echo "Computed release_hash=$RELEASE_HASH"
           echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
 
   client:
@@ -91,8 +98,8 @@ jobs:
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           RELEASE_HASH=${{ needs.config.outputs.release_hash }}
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
 
           echo "==== CLIENT DEBUG INFO ===="
@@ -102,7 +109,7 @@ jobs:
           echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
           echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/client/${REF_NAME}"
           echo "PARAM_VALUE=$ARTIFACT_KEY"
-          echo "============================"
+          echo "==========================="
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
@@ -142,8 +149,8 @@ jobs:
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           RELEASE_HASH=${{ needs.config.outputs.release_hash }}
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
 
           echo "==== SERVER DEBUG INFO ===="
@@ -153,7 +160,7 @@ jobs:
           echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
           echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/server/${REF_NAME}"
           echo "PARAM_VALUE=$ARTIFACT_KEY"
-          echo "============================"
+          echo "==========================="
 
           aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
@@ -182,7 +189,7 @@ jobs:
           CF_DIR: "cloudformation"
         run: |
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          PROJECT_ID=${{ needs.config.outputs.project_id }}
           RELEASE_HASH=${{ needs.config.outputs.release_hash }}
           BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
 
@@ -191,9 +198,7 @@ jobs:
           echo "REF_NAME=$REF_NAME"
           echo "RELEASE_HASH=$RELEASE_HASH"
           echo "BUCKET_NAME=$BUCKET_NAME"
-          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/infra/${REF_NAME}"
-          echo "PARAM_VALUE=$RELEASE_HASH"
-          echo "=========================="
+          echo "==========================="
 
           cd infra
           make publish bucket_name="$BUCKET_NAME" artifact_hash="$RELEASE_HASH" CF_DIR="$CF_DIR"
