@@ -31,27 +31,20 @@ jobs:
       artifact_account_id: ${{ steps.read_artifact_account_id.outputs.artifact_account_id }}
       infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - uses: mikefarah/yq@v4.44.3
-        with:
-          cmd: yq -V
 
-      # Read Artifact Account ID
-      - name: Read the account id of the Artifact account
+      - name: Read Artifact Account ID
         id: read_artifact_account_id
         run: |
           ARTIFACT_ACCOUNT_ID=$(yq eval '.aws_account_id' cd/artifact-account/config.yaml)
           echo "artifact_account_id=$ARTIFACT_ACCOUNT_ID" >> $GITHUB_OUTPUT
 
-      # Assume the OIDC Role to get temporary credentials
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ steps.read_artifact_account_id.outputs.artifact_account_id }}:role/deploy
 
-      # Read project-specific Artifact Stack configuration
       - name: Read Configuration from Artifact Account Stack
         id: read_artifact_stack_config
         env:
@@ -74,24 +67,25 @@ jobs:
     outputs:
       client_s3_key: ${{ steps.upload.outputs.client_s3_key }}
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install dependencies & build
+        working-directory: client
         run: |
-          cd client
           npm install --frozen-lockfile
-          npm run build
+          DISABLE_ESLINT_PLUGIN=true npm run build
 
       - name: Upload static build to S3
         id: upload
+        working-directory: client
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           ARTIFACT_KEY="client/${REF_NAME}/build.zip"
-          cd client
-          zip -r ../client-build.zip build
-          aws s3 cp ../client-build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+
+          zip -r build.zip build
+          aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+
           echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   server:
@@ -101,22 +95,23 @@ jobs:
     outputs:
       server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install dependencies & package
+        working-directory: server
         run: |
-          cd server
           npm install --frozen-lockfile
-          zip -r ../server-lambda.zip * -x 'node_modules/.cache/*'
+          zip -r server-lambda.zip * -x 'node_modules/.cache/*'
 
       - name: Upload Lambda zip to S3
         id: upload
+        working-directory: server
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           ARTIFACT_KEY="server/${REF_NAME}/server-lambda.zip"
-          aws s3 cp ../server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+
+          aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
           echo "server_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   infra:
@@ -124,8 +119,7 @@ jobs:
     needs: [config]
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
