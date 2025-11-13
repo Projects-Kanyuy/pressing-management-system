@@ -150,3 +150,10 @@ jobs:
 
           cd infra
           make publish bucket_name="$BUCKET_NAME" artifact_hash="$COMMIT_HASH" CF_DIR="$CF_DIR"
+
+          echo "💾 Storing infra release hash in SSM..."
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/infra/${REF_NAME}" \
+            --value "$COMMIT_HASH" \
+            --type String \
+            --overwrite
