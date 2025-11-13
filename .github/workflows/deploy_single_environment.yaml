@@ -61,9 +61,7 @@ jobs:
           CLIENT_S3_KEY=$(aws ssm get-parameter \
             --name "/build-artifact/${PROJECT_ID}/client/${TARGET_REF}" \
             --query "Parameter.Value" --output text)
-          SERVER_S3_KEY=$(aws ssm get-parameter \
-            --name "/build-artifact/${PROJECT_ID}/server/${TARGET_REF}" \
-            --query "Parameter.Value" --output text)
+          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/server/$target_ref" --query "Parameter.Value" --output text)
           CLIENT_HASH=$(find client -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
 
 
@@ -73,7 +71,7 @@ jobs:
           echo "environment_aws_account_id=$ENV_AWS_ACCOUNT_ID" >> $GITHUB_OUTPUT
           echo "infra_bucket_name=$INFRA_BUCKET" >> $GITHUB_OUTPUT
           echo "client_s3_key=$CLIENT_S3_KEY" >> $GITHUB_OUTPUT
-          echo "server_s3_key=$SERVER_S3_KEY" >> $GITHUB_OUTPUT
+          echo "server_image_tag=$server_image_tag" >> $GITHUB_OUTPUT
           echo "hosted_zone_id=$HOSTED_ZONE_ID" >> $GITHUB_OUTPUT
           echo "client_hash=$CLIENT_HASH" >> $GITHUB_OUTPUT
 
@@ -111,6 +109,6 @@ jobs:
               HostedZoneId="${{ steps.get_release_config.outputs.hosted_zone_id }}" \
               ClientHash="${{ steps.get_release_config.outputs.client_hash }}" \
               ClientArtifactS3Key="${{ steps.get_release_config.outputs.client_s3_key }}" \
-              ServerArtifactS3Key="${{ steps.get_release_config.outputs.server_s3_key }}" \
+              ServerImageTag="${{ steps.get_release_config.outputs.server_image_tag }}" \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_NAMED_IAM

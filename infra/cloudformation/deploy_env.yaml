@@ -45,10 +45,9 @@ Parameters:
     Type: String
     Description: S3 key (path) to the client build artifact (zip) inside the InfraArtifactsBucket.
 
-  # New param for server s3 path
-  ServerArtifactS3Key:
+  ServerImageTag:
     Type: String
-    Description: S3 key (path) to the server lambda zip inside the InfraArtifactsBucket.
+    Description: "ECR image URI for the server container"
 
 Resources:
   LogGroup:
@@ -123,7 +122,7 @@ Resources:
         EnvId: !Sub "${ProjectId}-${EnvId}"
         DomainName: !Ref DomainName
         InfraArtifactsBucket: !Ref InfraArtifactsBucket
-        ServerArtifactS3Key: !Ref ServerArtifactS3Key
+        ServerImageTag: !Ref ServerImageTag
         WebCertArn: !Ref WebCert
         MongoDBSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.MongoDBSecretArn"
         CloudinarySecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.CloudinarySecretArn"

@@ -1,27 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys the Node.js server as a Lambda function behind API Gateway"
+Description: "Deploys Node.js/Express server on ECS Fargate with ALB, HTTPS, and Route53"
 
 Parameters:
   EnvId:
     Type: String
-    Description: Environment Id for namespacing resources.
-
   DomainName:
     Type: String
-    Description: Base domain (e.g., example.com).
-
   InfraArtifactsBucket:
     Type: String
-    Description: The S3 bucket where the built server artifact zip is stored.
-
-  ServerArtifactS3Key:
+  ServerImageUri:
     Type: String
-    Description: The S3 key (path) for the zipped server artifact.
-
   WebCertArn:
     Type: String
-    Description: The ARN of the ACM certificate for HTTPS.
-
   MongoDBSecretArn:
     Type: String
   CloudinarySecretArn:
@@ -42,20 +32,26 @@ Parameters:
     Type: String
 
 Resources:
-  # --- Lambda Execution Role ---
-  ServerLambdaRole:
+  # --- ECS Cluster ---
+  ServerCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${EnvId}-server-cluster"
+
+  # --- Task Execution Role ---
+  ServerTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${EnvId}-server-lambda-role"
+      RoleName: !Sub "${EnvId}-server-task-execution-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Service: lambda.amazonaws.com
+              Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
         - PolicyName: AllowSecretsAccess
           PolicyDocument:
@@ -74,123 +70,145 @@ Resources:
                   - !Ref ExchangeRateSecretArn
                   - !Ref AccountpeSecretArn
 
-  # --- Lambda Function ---
-  ServerLambda:
-    Type: AWS::Lambda::Function
+  # --- Task Definition ---
+  ServerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
     Properties:
-      FunctionName: !Sub "${EnvId}-server-lambda"
-      Runtime: nodejs20.x
-      Handler: lambda.handler
-      Role: !GetAtt ServerLambdaRole.Arn
-      Timeout: 30
-      MemorySize: 512
-      Environment:
-        Variables:
-          NODE_ENV: production
-          MONGODB_SECRET_ARN: !Ref MongoDBSecretArn
-          CLOUDINARY_SECRET_ARN: !Ref CloudinarySecretArn
-          JWT_SECRET_ARN: !Ref JWTSecretArn
-          ADMIN_SECRET_ARN: !Ref AdminSecretArn
-          SMTP_SECRET_ARN: !Ref SmtpSecretArn
-          TWILIO_SECRET_ARN: !Ref TwilioSecretArn
-          DIRECTORY_ADMIN_SECRET_ARN: !Ref DirectoryAdminSecretArn
-          EXCHANGE_RATE_SECRET_ARN: !Ref ExchangeRateSecretArn
-          ACCOUNTPAY_SECRET_ARN: !Ref AccountpeSecretArn
-      Code:
-        S3Bucket: !Ref InfraArtifactsBucket
-        S3Key: !Ref ServerArtifactS3Key
+      Family: !Sub "${EnvId}-server-task"
+      Cpu: "512"
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: ["FARGATE"]
+      ExecutionRoleArn: !GetAtt ServerTaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: server
+          Image: !Ref ServerImageUri
+          Essential: true
+          PortMappings:
+            - ContainerPort: 3000
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+          Secrets:
+            - Name: MONGODB_URI
+              ValueFrom: !Ref MongoDBSecretArn
+            - Name: CLOUDINARY_SECRET
+              ValueFrom: !Ref CloudinarySecretArn
+            - Name: JWT_SECRET
+              ValueFrom: !Ref JWTSecretArn
+            - Name: ADMIN_SECRET
+              ValueFrom: !Ref AdminSecretArn
+            - Name: SMTP_SECRET
+              ValueFrom: !Ref SmtpSecretArn
+            - Name: TWILIO_SECRET
+              ValueFrom: !Ref TwilioSecretArn
+            - Name: DIRECTORY_ADMIN_SECRET
+              ValueFrom: !Ref DirectoryAdminSecretArn
+            - Name: EXCHANGE_RATE_SECRET
+              ValueFrom: !Ref ExchangeRateSecretArn
+            - Name: ACCOUNTPAY_SECRET
+              ValueFrom: !Ref AccountpeSecretArn
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/ecs/${EnvId}/server"
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: server
 
-  # --- API Gateway ---
-  ServerApi:
-    Type: AWS::ApiGateway::RestApi
+  # --- Security Group ---
+  ServerSG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      Name: !Sub "${EnvId}-server-api"
-      Description: "API Gateway for ${EnvId} Node.js Lambda backend"
+      GroupDescription: !Sub "Server security group for ${EnvId}"
+      VpcId: !Ref "AWS::NoValue"  # Will be imported from main VPC stack if needed
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
 
-  # Root resource ("/{proxy+}")
-  RootResource:
-    Type: AWS::ApiGateway::Resource
+  # --- ALB ---
+  ServerALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      ParentId: !GetAtt ServerApi.RootResourceId
-      PathPart: "{proxy+}"
-      RestApiId: !Ref ServerApi
+      Name: !Sub "${EnvId}-alb"
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref ServerSG
+      Subnets:
+        - !Ref "AWS::NoValue" # imported from VPC stack or parameters
 
-  # Method - ANY
-  ServerApiMethod:
-    Type: AWS::ApiGateway::Method
+  ServerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      RestApiId: !Ref ServerApi
-      ResourceId: !Ref RootResource
-      HttpMethod: ANY
-      AuthorizationType: NONE
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub
-          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-          - { LambdaArn: !GetAtt ServerLambda.Arn }
+      Name: !Sub "${EnvId}-tg"
+      Port: 3000
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref "AWS::NoValue"
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 15
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
 
-  # --- Deployment ---
-  ServerApiDeployment:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn: ServerApiMethod
+  ServerALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      RestApiId: !Ref ServerApi
+      LoadBalancerArn: !Ref ServerALB
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref WebCertArn
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ServerTargetGroup
 
-  # --- Explicit Stage ---
-  ServerApiStage:
-    Type: AWS::ApiGateway::Stage
+  # --- ECS Service ---
+  ServerECSService:
+    Type: AWS::ECS::Service
     Properties:
-      StageName: dev
-      DeploymentId: !Ref ServerApiDeployment
-      RestApiId: !Ref ServerApi
-      MethodSettings:
-        - ResourcePath: "/*"
-          HttpMethod: "*"
+      Cluster: !Ref ServerCluster
+      DesiredCount: 1
+      LaunchType: FARGATE
+      TaskDefinition: !Ref ServerTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref "AWS::NoValue" # imported from VPC stack or parameters
+          SecurityGroups:
+            - !Ref ServerSG
+      LoadBalancers:
+        - TargetGroupArn: !Ref ServerTargetGroup
+          ContainerName: server
+          ContainerPort: 3000
+      DependsOn: ServerALBListener
 
-  # ---- Permission for API Gateway to invoke Lambda ---
-  LambdaInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref ServerLambda
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerApi}/*"
-
-  # --- Custom Domain for API ---
-  ApiGatewayDomain:
-    Type: AWS::ApiGateway::DomainName
-    Properties:
-      DomainName: !Sub "api.${DomainName}"
-      RegionalCertificateArn: !Ref WebCertArn
-      EndpointConfiguration:
-        Types: ["REGIONAL"]
-
-  # Base path mapping for custom domain
-  ApiBasePathMapping:
-    Type: AWS::ApiGateway::BasePathMapping
-    DependsOn: ServerApiStage
-    Properties:
-      DomainName: !Ref ApiGatewayDomain
-      RestApiId: !Ref ServerApi
-      Stage: !Ref ServerApiStage
-
-  # --- Route53 Record for API ---
-  ApiDNSRecord:
+  # --- Route53 DNS ---
+  ServerDNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneName: !Sub "${DomainName}."
       Name: !Sub "api.${DomainName}"
       Type: A
       AliasTarget:
-        DNSName: !GetAtt ApiGatewayDomain.RegionalDomainName
-        HostedZoneId: !GetAtt ApiGatewayDomain.RegionalHostedZoneId
+        DNSName: !GetAtt ServerALB.DNSName
+        HostedZoneId: !GetAtt ServerALB.CanonicalHostedZoneID
 
 Outputs:
-  ApiUrl:
-    Description: The custom domain URL for the API
+  ServerApiUrl:
+    Description: Custom domain URL for server API
     Value: !Sub "https://api.${DomainName}"
 
-  LambdaFunctionName:
-    Description: Lambda function name
-    Value: !Ref ServerLambda
+  ServerECSServiceName:
+    Description: ECS Service name
+    Value: !Ref ServerECSService

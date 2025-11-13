@@ -123,54 +123,47 @@ jobs:
           echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   server:
-    name: Build and Publish Server Lambda Artifact
+    name: Build and Publish Server Docker Image
     needs: [config]
     runs-on: ubuntu-latest
-    outputs:
-      server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::${{ needs.config.outputs.artifact_account_id }}:role/deploy
 
-      - name: Install dependencies & package
-        working-directory: server
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Docker Image and Push to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          npm install --frozen-lockfile
-          zip -r server-lambda.zip * -x 'node_modules/.cache/*'
+          ref_name=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          project_id=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
 
-      - name: Upload Lambda zip to S3 and push to SSM
-        id: upload
-        working-directory: server
-        run: |
-          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
-          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
-          PROJECT_ID=${{ needs.config.outputs.project_id }}
-          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
+          commit_hash=$(find ./server/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
+          server_ecr_repo_arn="${{ needs.config.outputs.server_ecr_repo_arn }}"
+          server_ecr_repo_name=$(echo "$server_ecr_repo_arn" | cut -d'/' -f2)
+          full_image_tag="$ECR_REGISTRY/$server_ecr_repo_name:$commit_hash"
 
-          echo "==== SERVER DEBUG INFO ===="
-          echo "PROJECT_ID=$PROJECT_ID"
-          echo "REF_NAME=$REF_NAME"
-          echo "RELEASE_HASH=$RELEASE_HASH"
-          echo "ARTIFACT_BUCKET=$ARTIFACT_BUCKET"
-          echo "PARAM_NAME=/build-artifact/${PROJECT_ID}/server/${REF_NAME}"
-          echo "PARAM_VALUE=$ARTIFACT_KEY"
-          echo "==========================="
-
-          aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+          if [ -z "$(docker manifest inspect "$full_image_tag" 2>/dev/null)" ]; then
+            cd server
+            make build full_image_tag="$full_image_tag"
+            make publish full_image_tag="$full_image_tag"
+          else
+            echo "✅ Server image already exists, skipping build."
+          fi
 
           aws ssm put-parameter \
-            --name "/build-artifact/${PROJECT_ID}/server/${REF_NAME}" \
-            --value "$ARTIFACT_KEY" \
-            --type String \
+            --name "/build-artifact/${project_id}/server/${ref_name}" \
+            --value "$full_image_tag" \
+            --type "String" \
             --overwrite
-
-          echo "server_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   infra:
     name: Publish Infra Artifacts
