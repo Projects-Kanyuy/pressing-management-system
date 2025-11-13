@@ -32,11 +32,12 @@ Parameters:
     Type: String
     Description: The domain name for the environment.
 
-  # New params for artifact S3 paths
+  # New param for client s3 path
   ClientArtifactS3Key:
     Type: String
     Description: S3 key (path) to the client build artifact (zip) inside the InfraArtifactsBucket.
 
+  # New param for server s3 path
   ServerArtifactS3Key:
     Type: String
     Description: S3 key (path) to the server lambda zip inside the InfraArtifactsBucket.
