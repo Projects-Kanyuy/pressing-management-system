@@ -1,4 +1,4 @@
-const server = require("./server");
-const serverless = require("@vendia/serverless-express");
+import app from "./server.js";
+import serverless from "@vendia/serverless-express";
 
-exports.handler = serverless({ app: server });
+export const handler = serverless({ app });
