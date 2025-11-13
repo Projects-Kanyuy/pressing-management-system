@@ -47,8 +47,6 @@ jobs:
 
       - name: Read Configuration from Artifact Account Stack
         id: read_artifact_stack_config
-        env:
-          GIT_REPOSITORY_NAME: ${{ github.repository }}
         run: |
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
@@ -81,23 +79,36 @@ jobs:
           npm install --frozen-lockfile
           DISABLE_ESLINT_PLUGIN=true npm run build
 
-      - name: Upload static build to S3
+      - name: Compute Release Hash
+        id: release_hash
+        run: |
+          # Use a hash of the build for release identity
+          RELEASE_HASH=$(find ./build -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
+          echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
+
+      - name: Upload static build to S3 and push to SSM
         id: upload
         working-directory: client
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
-          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          ARTIFACT_KEY="client/${REF_NAME}/build.zip"
+          RELEASE_HASH=${{ steps.release_hash.outputs.release_hash }}
+          ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
-          echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
+          # Push S3 path to SSM
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/client/${GITHUB_REF_NAME}" \
+            --value "$ARTIFACT_KEY" \
+            --type String \
+            --overwrite
 
+          echo "client_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   server:
     name: Build and Publish Server Lambda Artifact
-    needs: [config]
+    needs: [config, client]
     runs-on: ubuntu-latest
     outputs:
       server_s3_key: ${{ steps.upload.outputs.server_s3_key }}
@@ -116,20 +127,28 @@ jobs:
           npm install --frozen-lockfile
           zip -r server-lambda.zip * -x 'node_modules/.cache/*'
 
-      - name: Upload Lambda zip to S3
+      - name: Upload Lambda zip to S3 and push to SSM
         id: upload
         working-directory: server
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
-          REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
-          ARTIFACT_KEY="server/${REF_NAME}/server-lambda.zip"
+          RELEASE_HASH=${{ steps.client.outputs.release_hash }}
+          ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
 
           aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
+
+          # Push S3 path to SSM
+          aws ssm put-parameter \
+            --name "/build-artifact/${PROJECT_ID}/server/${GITHUB_REF_NAME}" \
+            --value "$ARTIFACT_KEY" \
+            --type String \
+            --overwrite
+
           echo "server_s3_key=$ARTIFACT_KEY" >> $GITHUB_OUTPUT
 
   infra:
     name: Publish Infra Artifacts
-    needs: [config]
+    needs: [config, client, server]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -145,15 +164,15 @@ jobs:
         run: |
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-          COMMIT_HASH=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f 1 -d ' ')
+          RELEASE_HASH=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d ' ')
           BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
 
           cd infra
-          make publish bucket_name="$BUCKET_NAME" artifact_hash="$COMMIT_HASH" CF_DIR="$CF_DIR"
+          make publish bucket_name="$BUCKET_NAME" artifact_hash="$RELEASE_HASH" CF_DIR="$CF_DIR"
 
-          echo "💾 Storing infra release hash in SSM..."
+          # Push infra release hash to SSM
           aws ssm put-parameter \
-            --name "/build-artifact/${PROJECT_ID}/infra/${REF_NAME}" \
-            --value "$COMMIT_HASH" \
+            --name "/build-artifact/${PROJECT_ID}/infra/${GITHUB_REF_NAME}" \
+            --value "$RELEASE_HASH" \
             --type String \
             --overwrite
