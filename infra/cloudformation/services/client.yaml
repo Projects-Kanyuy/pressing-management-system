@@ -26,6 +26,10 @@ Parameters:
     Type: String
     Description: ARN of the ACM certificate for HTTPS (must be in us-east-1 for CloudFront).
 
+  ClientHash:
+    Type: String
+    Description: The hash for a specific commit being deployed for the client.
+
 Resources:
   # --- Static Website Bucket ---
   ClientBucket:
@@ -221,7 +225,7 @@ Resources:
     Type: Custom::DeployClient
     Properties:
       ServiceToken: !GetAtt DeployClientLambda.Arn
-      DeploymentHash: !Ref ClientArtifactS3Key
+      DeploymentHash: !Ref ClientHash
 
   # --- CloudFront Cache Invalidation Lambda ---
   CloudFrontInvalidationLambda:

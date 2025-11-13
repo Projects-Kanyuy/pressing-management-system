@@ -28,6 +28,10 @@ Parameters:
     Type: String
     Description: The git branch or tag being deployed.
 
+  ClientHash:
+    Type: String
+    Description: The hash for a specific commit being deployed for the client.
+
   DomainName:
     Type: String
     Description: The domain name for the environment.
@@ -95,6 +99,7 @@ Resources:
         ClientArtifactS3Key: !Ref ClientArtifactS3Key
         WebCertArn: !Ref WebCert
         HostedZoneId: !Ref HostedZoneId
+        ClientHash: !Ref ClientHash
       Tags:
         - Key: EnvId
           Value: !Sub "${ProjectId}-${EnvId}"
