@@ -32,6 +32,7 @@ jobs:
       infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
       release_hash: ${{ steps.compute_release_hash.outputs.release_hash }}
       project_id: ${{ steps.read_project_id.outputs.project_id }}
+      server_ecr_repo_arn: ${{ steps.compute_release_hash.outputs.server_ecr_repo_arn }}
     steps:
       - uses: actions/checkout@v4
       - uses: mikefarah/yq@v4.44.3
@@ -70,6 +71,12 @@ jobs:
         run: |
           RELEASE_HASH=$(find ./infra -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
           echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
+
+          server_ecr_repo_arn=$(aws cloudformation describe-stacks \
+            --stack-name "$artifacts_stack_name" \
+            --query "Stacks[0].Outputs[?OutputKey=='ServerEcrRepositoryArn'].OutputValue" \
+            --output text)
+          echo "server_ecr_repo_arn=$server_ecr_repo_arn" >> $GITHUB_OUTPUT
 
   client:
     name: Build and Publish Client Artifact
