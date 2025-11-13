@@ -141,15 +141,12 @@ Resources:
   ServerApiStage:
     Type: AWS::ApiGateway::Stage
     Properties:
-      StageName: prod
+      StageName: dev
       DeploymentId: !Ref ServerApiDeployment
       RestApiId: !Ref ServerApi
       MethodSettings:
         - ResourcePath: "/*"
           HttpMethod: "*"
-          MetricsEnabled: true
-          LoggingLevel: INFO
-          DataTraceEnabled: true
 
   # Permission for API Gateway to invoke Lambda
   LambdaInvokePermission:
