@@ -80,50 +80,16 @@ Resources:
           ],
         ]
 
-  # # --- CLIENT STACK (S3 + CloudFront) ---
-  # ClientStack:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     Parameters:
-  #       EnvId: !Sub "${ProjectId}-${EnvId}"
-  #       DomainName: !Ref DomainName
-  #       InfraArtifactsBucket: !Ref InfraArtifactsBucket
-  #       ClientArtifactS3Key: !Ref ClientArtifactS3Key
-  #       WebCertArn: !Ref WebCert
-  #     Tags:
-  #       - Key: EnvId
-  #         Value: !Sub "${ProjectId}-${EnvId}"
-  #     TemplateURL:
-  #       !Join [
-  #         "",
-  #         [
-  #           "https://s3.amazonaws.com/",
-  #           !Ref "InfraArtifactsBucket",
-  #           "/cloudformation/",
-  #           !Ref "InfraReleaseHash",
-  #           "/services/client.yaml",
-  #         ],
-  #       ]
-
-  # --- SERVER STACK (Lambda + API Gateway) ---
-  ServerStack:
+  # --- CLIENT STACK (S3 + CloudFront) ---
+  ClientStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         EnvId: !Sub "${ProjectId}-${EnvId}"
         DomainName: !Ref DomainName
         InfraArtifactsBucket: !Ref InfraArtifactsBucket
-        ServerArtifactS3Key: !Ref ServerArtifactS3Key
+        ClientArtifactS3Key: !Ref ClientArtifactS3Key
         WebCertArn: !Ref WebCert
-        MongoDBSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.MongoDBSecretArn"
-        CloudinarySecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.CloudinarySecretArn"
-        JWTSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.JWTSecretArn"
-        AdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AdminSecretArn"
-        SmtpSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.SmtpSecretArn"
-        TwilioSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.TwilioSecretArn"
-        DirectoryAdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn"
-        ExchangeRateSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn"
-        AccountpeSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AccountpeSecretArn"
       Tags:
         - Key: EnvId
           Value: !Sub "${ProjectId}-${EnvId}"
@@ -135,9 +101,43 @@ Resources:
             !Ref "InfraArtifactsBucket",
             "/cloudformation/",
             !Ref "InfraReleaseHash",
-            "/services/server.yaml",
+            "/services/client.yaml",
           ],
         ]
+
+  # --- SERVER STACK (Lambda + API Gateway) ---
+  # ServerStack:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     Parameters:
+  #       EnvId: !Sub "${ProjectId}-${EnvId}"
+  #       DomainName: !Ref DomainName
+  #       InfraArtifactsBucket: !Ref InfraArtifactsBucket
+  #       ServerArtifactS3Key: !Ref ServerArtifactS3Key
+  #       WebCertArn: !Ref WebCert
+  #       MongoDBSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.MongoDBSecretArn"
+  #       CloudinarySecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.CloudinarySecretArn"
+  #       JWTSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.JWTSecretArn"
+  #       AdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AdminSecretArn"
+  #       SmtpSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.SmtpSecretArn"
+  #       TwilioSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.TwilioSecretArn"
+  #       DirectoryAdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn"
+  #       ExchangeRateSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn"
+  #       AccountpeSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AccountpeSecretArn"
+  #     Tags:
+  #       - Key: EnvId
+  #         Value: !Sub "${ProjectId}-${EnvId}"
+  #     TemplateURL:
+  #       !Join [
+  #         "",
+  #         [
+  #           "https://s3.amazonaws.com/",
+  #           !Ref "InfraArtifactsBucket",
+  #           "/cloudformation/",
+  #           !Ref "InfraReleaseHash",
+  #           "/services/server.yaml",
+  #         ],
+  #       ]
 
 # Outputs:
 #   ClientDistributionDomain:
