@@ -40,7 +40,7 @@ Resources:
         - Key: EnvId
           Value: !Ref EnvId
 
-  # --- CloudFront Origin Access Control (OAC) ---
+  # --- CloudFront Origin Access Control ---
   ClientOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
@@ -87,25 +87,7 @@ Resources:
             ResponseCode: 200
             ErrorCachingMinTTL: 0
 
-  # --- Bucket Policy to Allow CloudFront Access ---
-  ClientBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref ClientBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: AllowCloudFrontAccessViaOAC
-            Effect: Allow
-            Principal:
-              Service: cloudfront.amazonaws.com
-            Action: "s3:GetObject"
-            Resource: !Sub "${ClientBucket.Arn}/*"
-            Condition:
-              StringEquals:
-                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
-
-  # --- Lambda to deploy client zip to S3 ---
+  # --- Deployment Lambda (copies artifact to bucket) ---
   DeployClientLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -156,26 +138,20 @@ Resources:
                       for name in z.namelist():
                           if name.endswith('/'):
                               continue
+
+                          # ✅ Remove build/ prefix if present
+                          fixed_name = name.split("build/", 1)[-1] if name.startswith("build/") else name
+                          if not fixed_name:
+                              continue
+
                           content = z.read(name)
                           put_kwargs = {
                               "Bucket": target_bucket,
-                              "Key": name,
+                              "Key": fixed_name,
                               "Body": content
                           }
-                          if name.endswith('.html'):
+                          if fixed_name.endswith('.html'):
                               put_kwargs["ContentType"] = "text/html"
-                          elif name.endswith('.js'):
-                              put_kwargs["ContentType"] = "application/javascript"
-                          elif name.endswith('.css'):
-                              put_kwargs["ContentType"] = "text/css"
-                          elif name.endswith('.json'):
-                              put_kwargs["ContentType"] = "application/json"
-                          elif name.endswith('.svg'):
-                              put_kwargs["ContentType"] = "image/svg+xml"
-                          elif name.endswith('.png'):
-                              put_kwargs["ContentType"] = "image/png"
-                          elif name.endswith('.jpg') or name.endswith('.jpeg'):
-                              put_kwargs["ContentType"] = "image/jpeg"
                           s3.put_object(**put_kwargs)
 
                   send_response(event, context, "SUCCESS")
