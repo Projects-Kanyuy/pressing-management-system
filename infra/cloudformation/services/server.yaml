@@ -8,7 +8,7 @@ Parameters:
     Type: String
   InfraArtifactsBucket:
     Type: String
-  ServerImageUri:
+  ServerImageTag:
     Type: String
   WebCertArn:
     Type: String
@@ -82,7 +82,7 @@ Resources:
       ExecutionRoleArn: !GetAtt ServerTaskExecutionRole.Arn
       ContainerDefinitions:
         - Name: server
-          Image: !Ref ServerImageUri
+          Image: !Ref ServerImageTag
           Essential: true
           PortMappings:
             - ContainerPort: 3000
