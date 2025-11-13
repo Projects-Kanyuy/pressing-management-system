@@ -149,11 +149,11 @@ Resources:
           ],
         ]
 
-Outputs:
-  ClientDistributionDomain:
-    Description: CloudFront domain for client
-    Value: !GetAtt ClientStack.Outputs.CloudFrontDomain
+# Outputs:
+#   ClientDistributionDomain:
+#     Description: CloudFront domain for client
+#     Value: !GetAtt ClientStack.Outputs.CloudFrontDomain
 
-  ApiGatewayUrl:
-    Description: URL for the server API
-    Value: !GetAtt ServerStack.Outputs.ApiGatewayUrl
+#   ApiGatewayUrl:
+#     Description: URL for the server API
+#     Value: !GetAtt ServerStack.Outputs.ApiGatewayUrl
