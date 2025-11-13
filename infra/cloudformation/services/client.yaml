@@ -28,7 +28,7 @@ Parameters:
 
   ClientHash:
     Type: String
-    Description: The hash for a specific commit being deployed for the client.
+    Description: Unique hash for a specific commit/build of the client.
 
 Resources:
   # --- Static Website Bucket ---
@@ -113,7 +113,7 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
 
-  # --- Lambda that uploads client build ---
+  # --- Lambda to deploy client build ---
   DeployClientLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -132,35 +132,31 @@ Resources:
           import boto3, zipfile, io, os, json, urllib3
           s3 = boto3.client('s3')
           http = urllib3.PoolManager()
-
+          
           def send_response(event, context, status, reason=None):
               body = json.dumps({
                   "Status": status,
-                  "Reason": reason or "See CloudWatch logs for details",
+                  "Reason": reason or "See CloudWatch logs",
                   "PhysicalResourceId": context.log_stream_name,
                   "StackId": event["StackId"],
                   "RequestId": event["RequestId"],
                   "LogicalResourceId": event["LogicalResourceId"],
               })
               http.request("PUT", event["ResponseURL"], body=body)
-
+          
           def handler(event, context):
               print("Received event:", json.dumps(event))
               if event.get("RequestType") == "Delete":
                   send_response(event, context, "SUCCESS", "No-op on delete")
                   return
-
               try:
                   target_bucket = os.environ['TARGET_BUCKET']
                   artifact_bucket = os.environ['ARTIFACT_BUCKET']
                   artifact_key = os.environ['ARTIFACT_KEY']
-
                   obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
                   with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
                       for name in z.namelist():
-                          if name.endswith('/'):
-                              continue
-                          # remove any top-level folder
+                          if name.endswith('/'): continue
                           parts = name.split('/', 1)
                           key = parts[1] if len(parts) == 2 else parts[0]
                           content = z.read(name)
@@ -186,7 +182,6 @@ Resources:
                           elif key.endswith(".webmanifest"):
                               kwargs["ContentType"] = "application/manifest+json"
                           s3.put_object(**kwargs)
-
                   send_response(event, context, "SUCCESS")
               except Exception as e:
                   print("Error:", str(e))
@@ -220,14 +215,14 @@ Resources:
                   - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
                   - !Sub "arn:aws:s3:::${ClientBucket}/*"
 
-  # --- Trigger client deployment ---
+  # --- Custom Resource: Deploy Client ---
   ClientDeploymentTrigger:
     Type: Custom::DeployClient
     Properties:
       ServiceToken: !GetAtt DeployClientLambda.Arn
       DeploymentHash: !Ref ClientHash
 
-  # --- CloudFront Cache Invalidation Lambda ---
+  # --- Lambda for CloudFront Invalidation ---
   CloudFrontInvalidationLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -238,10 +233,10 @@ Resources:
       Timeout: 60
       Code:
         ZipFile: |
-          import boto3, json, os, urllib3
+          import boto3, json, os, urllib3, time
           cf = boto3.client("cloudfront")
           http = urllib3.PoolManager()
-
+          
           def send_response(event, context, status, reason=None):
               body = json.dumps({
                   "Status": status,
@@ -252,7 +247,7 @@ Resources:
                   "LogicalResourceId": event["LogicalResourceId"],
               })
               http.request("PUT", event["ResponseURL"], body=body)
-
+          
           def handler(event, context):
               print("Received event:", json.dumps(event))
               try:
@@ -260,11 +255,13 @@ Resources:
                       send_response(event, context, "SUCCESS", "No invalidation on delete")
                       return
                   dist_id = event["ResourceProperties"]["DistributionId"]
+                  deployment_hash = event["ResourceProperties"]["DeploymentHash"]
+                  caller_ref = f"{deployment_hash}-{int(time.time())}"
                   cf.create_invalidation(
                       DistributionId=dist_id,
                       InvalidationBatch={
                           "Paths": {"Quantity": 1, "Items": ["/*"]},
-                          "CallerReference": context.log_stream_name,
+                          "CallerReference": caller_ref,
                       },
                   )
                   send_response(event, context, "SUCCESS")
@@ -295,15 +292,16 @@ Resources:
                 Action: "cloudfront:CreateInvalidation"
                 Resource: "*"
 
+  # --- Trigger CloudFront Invalidation ---
   ClientCacheInvalidation:
     Type: Custom::InvalidateCloudFrontCache
     DependsOn: ClientDeploymentTrigger
     Properties:
       ServiceToken: !GetAtt CloudFrontInvalidationLambda.Arn
       DistributionId: !Ref ClientDistribution
-      DeploymentHash: !Ref ClientArtifactS3Key
+      DeploymentHash: !Ref ClientHash
 
-  # --- Route53 DNS Records (root + www) ---
+  # --- Route53 Records ---
   ClientARecord:
     Type: AWS::Route53::RecordSet
     DependsOn: ClientDistribution
