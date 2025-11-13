@@ -32,6 +32,10 @@ Parameters:
     Type: String
     Description: The domain name for the environment.
 
+  HostedZoneId:
+    Type: String
+    Description: The Route53 Hosted Zone ID that manages the domain.
+
   # New param for client s3 path
   ClientArtifactS3Key:
     Type: String
@@ -90,6 +94,7 @@ Resources:
         InfraArtifactsBucket: !Ref InfraArtifactsBucket
         ClientArtifactS3Key: !Ref ClientArtifactS3Key
         WebCertArn: !Ref WebCert
+        HostedZoneId: !Ref HostedZoneId
       Tags:
         - Key: EnvId
           Value: !Sub "${ProjectId}-${EnvId}"

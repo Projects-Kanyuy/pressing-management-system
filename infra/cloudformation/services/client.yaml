@@ -109,7 +109,7 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
 
-  # --- Lambda that copies build.zip to bucket ---
+  # --- Lambda that uploads client build ---
   DeployClientLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -130,7 +130,7 @@ Resources:
           http = urllib3.PoolManager()
 
           def send_response(event, context, status, reason=None):
-              response_body = json.dumps({
+              body = json.dumps({
                   "Status": status,
                   "Reason": reason or "See CloudWatch logs for details",
                   "PhysicalResourceId": context.log_stream_name,
@@ -138,7 +138,7 @@ Resources:
                   "RequestId": event["RequestId"],
                   "LogicalResourceId": event["LogicalResourceId"],
               })
-              http.request("PUT", event["ResponseURL"], body=response_body)
+              http.request("PUT", event["ResponseURL"], body=body)
 
           def handler(event, context):
               print("Received event:", json.dumps(event))
@@ -151,9 +151,7 @@ Resources:
                   artifact_bucket = os.environ['ARTIFACT_BUCKET']
                   artifact_key = os.environ['ARTIFACT_KEY']
 
-                  print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
                   obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
-
                   with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
                       for name in z.namelist():
                           if name.endswith('/'):
@@ -175,6 +173,14 @@ Resources:
                               kwargs["ContentType"] = "image/png"
                           elif key.endswith(".jpg") or key.endswith(".jpeg"):
                               kwargs["ContentType"] = "image/jpeg"
+                          elif key.endswith(".svg"):
+                              kwargs["ContentType"] = "image/svg+xml"
+                          elif key.endswith(".ico"):
+                              kwargs["ContentType"] = "image/x-icon"
+                          elif key.endswith(".txt"):
+                              kwargs["ContentType"] = "text/plain"
+                          elif key.endswith(".webmanifest"):
+                              kwargs["ContentType"] = "application/manifest+json"
                           s3.put_object(**kwargs)
 
                   send_response(event, context, "SUCCESS")
@@ -199,27 +205,25 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
+                Action: "logs:*"
                 Resource: "*"
               - Effect: Allow
                 Action:
                   - s3:GetObject
                   - s3:PutObject
+                  - s3:DeleteObject
                 Resource:
                   - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
                   - !Sub "arn:aws:s3:::${ClientBucket}/*"
 
-  # --- Custom Resource: Deploy Client Files ---
+  # --- Trigger client deployment ---
   ClientDeploymentTrigger:
     Type: Custom::DeployClient
     Properties:
       ServiceToken: !GetAtt DeployClientLambda.Arn
       DeploymentHash: !Ref ClientArtifactS3Key
 
-  # --- CloudFront Cache Invalidation ---
+  # --- CloudFront Cache Invalidation Lambda ---
   CloudFrontInvalidationLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -281,36 +285,35 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
+                Action: "logs:*"
                 Resource: "*"
               - Effect: Allow
-                Action:
-                  - cloudfront:CreateInvalidation
+                Action: "cloudfront:CreateInvalidation"
                 Resource: "*"
 
   ClientCacheInvalidation:
     Type: Custom::InvalidateCloudFrontCache
+    DependsOn: ClientDeploymentTrigger
     Properties:
       ServiceToken: !GetAtt CloudFrontInvalidationLambda.Arn
       DistributionId: !Ref ClientDistribution
       DeploymentHash: !Ref ClientArtifactS3Key
 
-  # --- Route53 DNS Records ---
+  # --- Route53 DNS Records (root + www) ---
   ClientARecord:
     Type: AWS::Route53::RecordSet
+    DependsOn: ClientDistribution
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
       Type: A
       AliasTarget:
-        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (global)
+        HostedZoneId: Z2FDTNDATAQYW2
         DNSName: !GetAtt ClientDistribution.DomainName
 
   ClientAAAARecord:
     Type: AWS::Route53::RecordSet
+    DependsOn: ClientDistribution
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
@@ -318,6 +321,23 @@ Resources:
       AliasTarget:
         HostedZoneId: Z2FDTNDATAQYW2
         DNSName: !GetAtt ClientDistribution.DomainName
+
+  ClientWWWRecord:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn: ClientDistribution
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: !Sub "www.${DomainName}"
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt ClientDistribution.DomainName
+        - Name: !Sub "www.${DomainName}"
+          Type: AAAA
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt ClientDistribution.DomainName
 
 Outputs:
   ClientBucketName:
