@@ -61,7 +61,7 @@ jobs:
           CLIENT_S3_KEY=$(aws ssm get-parameter \
             --name "/build-artifact/${PROJECT_ID}/client/${TARGET_REF}" \
             --query "Parameter.Value" --output text)
-          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/${projectId}/server/$target_ref" --query "Parameter.Value" --output text)
+          server_image_tag=$(aws ssm get-parameter --name "/build-artifact/${PROJECT_ID}/server/${TARGET_REF}" --query "Parameter.Value" --output text)
           CLIENT_HASH=$(find client -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
 
 
