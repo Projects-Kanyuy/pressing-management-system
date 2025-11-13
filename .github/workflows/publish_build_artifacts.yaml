@@ -30,6 +30,7 @@ jobs:
     outputs:
       artifact_account_id: ${{ steps.read_artifact_account_id.outputs.artifact_account_id }}
       infra_bucket_name: ${{ steps.read_artifact_stack_config.outputs.infra_bucket_name }}
+      release_hash: ${{ steps.compute_release_hash.outputs.release_hash }}
     steps:
       - uses: actions/checkout@v4
       - uses: mikefarah/yq@v4.44.3
@@ -50,13 +51,18 @@ jobs:
         run: |
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
           artifacts_stack_name="artifact-account-setup-${PROJECT_ID}"
-
           infra_bucket_name=$(aws cloudformation describe-stacks \
             --stack-name "$artifacts_stack_name" \
             --query "Stacks[0].Outputs[?OutputKey=='InfraArtifactsBucket'].OutputValue" \
             --output text)
-
           echo "infra_bucket_name=$infra_bucket_name" >> $GITHUB_OUTPUT
+
+      - name: Compute Global Release Hash
+        id: compute_release_hash
+        run: |
+          # Compute based on infra files to ensure consistency across builds
+          RELEASE_HASH=$(find ./infra -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
+          echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
 
   client:
     name: Build and Publish Client Artifact
@@ -79,27 +85,19 @@ jobs:
           npm install --frozen-lockfile
           DISABLE_ESLINT_PLUGIN=true npm run build
 
-      - name: Compute Release Hash
-        id: release_hash
-        run: |
-          # Use a hash of the build for release identity
-          RELEASE_HASH=$(find ./build -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d' ')
-          echo "release_hash=$RELEASE_HASH" >> $GITHUB_OUTPUT
-
       - name: Upload static build to S3 and push to SSM
         id: upload
         working-directory: client
         run: |
           ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
-          RELEASE_HASH=${{ steps.release_hash.outputs.release_hash }}
-          ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
+          ARTIFACT_KEY="client/${RELEASE_HASH}/build.zip"
 
           zip -r build.zip build
           aws s3 cp build.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
-          # Push S3 path to SSM
           aws ssm put-parameter \
             --name "/build-artifact/${PROJECT_ID}/client/${REF_NAME}" \
             --value "$ARTIFACT_KEY" \
@@ -133,15 +131,14 @@ jobs:
         id: upload
         working-directory: server
         run: |
+          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-          ARTIFACT_BUCKET=${{ needs.config.outputs.infra_bucket_name }}
-          RELEASE_HASH=${{ steps.client.outputs.release_hash }}
           ARTIFACT_KEY="server/${RELEASE_HASH}/server-lambda.zip"
 
           aws s3 cp server-lambda.zip s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
 
-          # Push S3 path to SSM
           aws ssm put-parameter \
             --name "/build-artifact/${PROJECT_ID}/server/${REF_NAME}" \
             --value "$ARTIFACT_KEY" \
@@ -168,13 +165,12 @@ jobs:
         run: |
           REF_NAME=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
           PROJECT_ID=$(yq e '.[] | .projectName' ./cd/environments.yaml | head -n1)
-          RELEASE_HASH=$(find ./infra/ -type f -exec sha256sum {} + | sort | sha256sum | cut -f1 -d ' ')
+          RELEASE_HASH=${{ needs.config.outputs.release_hash }}
           BUCKET_NAME="${{ needs.config.outputs.infra_bucket_name }}"
 
           cd infra
           make publish bucket_name="$BUCKET_NAME" artifact_hash="$RELEASE_HASH" CF_DIR="$CF_DIR"
 
-          # Push infra release hash to SSM
           aws ssm put-parameter \
             --name "/build-artifact/${PROJECT_ID}/infra/${REF_NAME}" \
             --value "$RELEASE_HASH" \
