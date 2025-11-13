@@ -141,6 +141,8 @@ Resources:
   # --- SERVER STACK (Lambda + API Gateway) ---
   ServerStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - VpcStack
     Properties:
       Parameters:
         EnvId: !Ref EnvId
