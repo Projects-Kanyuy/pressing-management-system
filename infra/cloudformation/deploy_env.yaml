@@ -116,44 +116,44 @@ Resources:
         ]
 
   # --- SERVER STACK (Lambda + API Gateway) ---
-  # ServerStack:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     Parameters:
-  #       EnvId: !Sub "${ProjectId}-${EnvId}"
-  #       DomainName: !Ref DomainName
-  #       InfraArtifactsBucket: !Ref InfraArtifactsBucket
-  #       ServerArtifactS3Key: !Ref ServerArtifactS3Key
-  #       WebCertArn: !Ref WebCert
-  #       MongoDBSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.MongoDBSecretArn"
-  #       CloudinarySecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.CloudinarySecretArn"
-  #       JWTSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.JWTSecretArn"
-  #       AdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AdminSecretArn"
-  #       SmtpSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.SmtpSecretArn"
-  #       TwilioSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.TwilioSecretArn"
-  #       DirectoryAdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn"
-  #       ExchangeRateSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn"
-  #       AccountpeSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AccountpeSecretArn"
-  #     Tags:
-  #       - Key: EnvId
-  #         Value: !Sub "${ProjectId}-${EnvId}"
-  #     TemplateURL:
-  #       !Join [
-  #         "",
-  #         [
-  #           "https://s3.amazonaws.com/",
-  #           !Ref "InfraArtifactsBucket",
-  #           "/cloudformation/",
-  #           !Ref "InfraReleaseHash",
-  #           "/services/server.yaml",
-  #         ],
-  #       ]
+  ServerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        DomainName: !Ref DomainName
+        InfraArtifactsBucket: !Ref InfraArtifactsBucket
+        ServerArtifactS3Key: !Ref ServerArtifactS3Key
+        WebCertArn: !Ref WebCert
+        MongoDBSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.MongoDBSecretArn"
+        CloudinarySecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.CloudinarySecretArn"
+        JWTSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.JWTSecretArn"
+        AdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AdminSecretArn"
+        SmtpSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.SmtpSecretArn"
+        TwilioSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.TwilioSecretArn"
+        DirectoryAdminSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn"
+        ExchangeRateSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn"
+        AccountpeSecretArn: !GetAtt "ThirdPartySecretsStack.Outputs.AccountpeSecretArn"
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/services/server.yaml",
+          ],
+        ]
 
-# Outputs:
-#   ClientDistributionDomain:
-#     Description: CloudFront domain for client
-#     Value: !GetAtt ClientStack.Outputs.CloudFrontDomain
+Outputs:
+  ClientDistributionDomain:
+    Description: CloudFront domain for client
+    Value: !GetAtt ClientStack.Outputs.CloudFrontDomain
 
-# ApiGatewayUrl:
-#   Description: URL for the server API
-#   Value: !GetAtt ServerStack.Outputs.ApiGatewayUrl
+ApiGatewayUrl:
+  Description: URL for the server API
+  Value: !GetAtt ServerStack.Outputs.ApiGatewayUrl
