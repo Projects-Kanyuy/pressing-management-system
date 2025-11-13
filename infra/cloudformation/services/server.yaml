@@ -4,14 +4,36 @@ Description: "Deploys Node.js/Express server on ECS Fargate with ALB, HTTPS, and
 Parameters:
   EnvId:
     Type: String
+    Description: Environment Id for namespacing resources
+
   DomainName:
     Type: String
+    Description: Base domain (e.g., example.com)
+
   InfraArtifactsBucket:
     Type: String
-  ServerImageTag:
+    Description: S3 bucket where server Docker image artifacts or build info are stored
+
+  ImageTag:
     Type: String
+    Description: ECR image URI for the server container
+
   WebCertArn:
     Type: String
+    Description: ARN of ACM certificate for HTTPS
+
+  VpcId:
+    Type: String
+    Description: VPC ID to deploy ECS and ALB
+
+  PublicSubnetIds:
+    Type: CommaDelimitedList
+    Description: Public subnets for ALB
+
+  PrivateSubnetIds:
+    Type: CommaDelimitedList
+    Description: Private subnets for ECS tasks
+
   MongoDBSecretArn:
     Type: String
   CloudinarySecretArn:
@@ -82,7 +104,7 @@ Resources:
       ExecutionRoleArn: !GetAtt ServerTaskExecutionRole.Arn
       ContainerDefinitions:
         - Name: server
-          Image: !Ref ServerImageTag
+          Image: !Ref ImageTag
           Essential: true
           PortMappings:
             - ContainerPort: 3000
@@ -120,7 +142,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: !Sub "Server security group for ${EnvId}"
-      VpcId: !Ref "AWS::NoValue"  # Will be imported from main VPC stack if needed
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -142,8 +164,7 @@ Resources:
       Scheme: internet-facing
       SecurityGroups:
         - !Ref ServerSG
-      Subnets:
-        - !Ref "AWS::NoValue" # imported from VPC stack or parameters
+      Subnets: !Ref PublicSubnetIds
 
   ServerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -152,7 +173,7 @@ Resources:
       Port: 3000
       Protocol: HTTP
       TargetType: ip
-      VpcId: !Ref "AWS::NoValue"
+      VpcId: !Ref VpcId
       HealthCheckProtocol: HTTP
       HealthCheckPath: /health
       HealthCheckIntervalSeconds: 15
@@ -183,8 +204,7 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
-          Subnets:
-            - !Ref "AWS::NoValue" # imported from VPC stack or parameters
+          Subnets: !Ref PrivateSubnetIds
           SecurityGroups:
             - !Ref ServerSG
       LoadBalancers:
