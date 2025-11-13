@@ -144,19 +144,47 @@ Resources:
     DependsOn:
       - VpcStack
     Properties:
+      TemplateURL: !Join [
+        "",
+        [
+          "https://s3.amazonaws.com/",
+          !Ref InfraArtifactsBucket,
+          "/cloudformation/",
+          !Ref InfraReleaseHash,
+          "/services/server.yaml",
+        ],
+      ]
       Parameters:
-        EnvId: !Ref EnvId
+        EnvId: !Sub "${ProjectId}-${EnvId}"
         DomainName: !Ref DomainName
         InfraArtifactsBucket: !Ref InfraArtifactsBucket
+
+        # --- Docker Image Tag ---
         ImageTag: !Ref ServerImageTag
-        WebCertArn: !Ref WebCert
+
+        # --- VPC Networking ---
         VpcId: !GetAtt VpcStack.Outputs.VPC
-        PublicSubnetIds:
-          - !GetAtt VpcStack.Outputs.SubnetAPublic
-          - !GetAtt VpcStack.Outputs.SubnetBPublic
-        PrivateSubnetIds:
-          - !GetAtt VpcStack.Outputs.SubnetAPrivate
-          - !GetAtt VpcStack.Outputs.SubnetBPrivate
+
+        PublicSubnetIds: !Join [
+          ",",
+          [
+            !GetAtt VpcStack.Outputs.SubnetAPublic,
+            !GetAtt VpcStack.Outputs.SubnetBPublic
+          ]
+        ]
+
+        PrivateSubnetIds: !Join [
+          ",",
+          [
+            !GetAtt VpcStack.Outputs.SubnetAPrivate,
+            !GetAtt VpcStack.Outputs.SubnetBPrivate
+          ]
+        ]
+
+        # --- HTTPS Cert ---
+        WebCertArn: !Ref WebCert
+
+        # --- Third-party secret ARNs ---
         MongoDBSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.MongoDBSecretArn
         CloudinarySecretArn: !GetAtt ThirdPartySecretsStack.Outputs.CloudinarySecretArn
         JWTSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.JWTSecretArn
@@ -166,7 +194,7 @@ Resources:
         DirectoryAdminSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn
         ExchangeRateSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn
         AccountpeSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.AccountpeSecretArn
-
+        
 # Outputs:
 #   ClientDistributionDomain:
 #     Description: CloudFront domain for client

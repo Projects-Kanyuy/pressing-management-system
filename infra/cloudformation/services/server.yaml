@@ -1,38 +1,30 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploys Node.js/Express server on ECS Fargate with ALB, HTTPS, and Route53"
+Description: "Deploy Node.js/Express server on ECS Fargate behind ALB with HTTPS + Route53"
 
 Parameters:
   EnvId:
     Type: String
-    Description: Environment Id for namespacing resources
 
   DomainName:
     Type: String
-    Description: Base domain (e.g., example.com)
 
   InfraArtifactsBucket:
     Type: String
-    Description: S3 bucket where server Docker image artifacts or build info are stored
 
   ImageTag:
     Type: String
-    Description: ECR image URI for the server container
 
   WebCertArn:
     Type: String
-    Description: ARN of ACM certificate for HTTPS
 
   VpcId:
     Type: String
-    Description: VPC ID to deploy ECS and ALB
 
   PublicSubnetIds:
     Type: CommaDelimitedList
-    Description: Public subnets for ALB
 
   PrivateSubnetIds:
     Type: CommaDelimitedList
-    Description: Private subnets for ECS tasks
 
   MongoDBSecretArn:
     Type: String
@@ -53,6 +45,7 @@ Parameters:
   AccountpeSecretArn:
     Type: String
 
+# -------------------------------------------------------
 Resources:
   # --- ECS Cluster ---
   ServerCluster:
@@ -64,7 +57,7 @@ Resources:
   ServerTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${EnvId}-server-task-execution-role"
+      RoleName: !Sub "${EnvId}-server-task-exec-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -96,7 +89,7 @@ Resources:
   ServerTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub "${EnvId}-server-task"
+      Family: !Sub "${EnvId}-server"
       Cpu: "512"
       Memory: "1024"
       NetworkMode: awsvpc
@@ -134,20 +127,16 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: !Sub "/ecs/${EnvId}/server"
-              awslogs-region: !Ref "AWS::Region"
+              awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: server
 
   # --- Security Group ---
   ServerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub "Server security group for ${EnvId}"
+      GroupDescription: !Sub "${EnvId} server SG"
       VpcId: !Ref VpcId
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
@@ -196,6 +185,7 @@ Resources:
   # --- ECS Service ---
   ServerECSService:
     Type: AWS::ECS::Service
+    DependsOn: ServerALBListener
     Properties:
       Cluster: !Ref ServerCluster
       DesiredCount: 1
@@ -203,17 +193,16 @@ Resources:
       TaskDefinition: !Ref ServerTaskDefinition
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           Subnets: !Ref PrivateSubnetIds
           SecurityGroups:
             - !Ref ServerSG
       LoadBalancers:
-        - TargetGroupArn: !Ref ServerTargetGroup
-          ContainerName: server
+        - ContainerName: server
           ContainerPort: 3000
-      DependsOn: ServerALBListener
+          TargetGroupArn: !Ref ServerTargetGroup
 
-  # --- Route53 DNS ---
+  # --- Route53 ---
   ServerDNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
@@ -224,11 +213,10 @@ Resources:
         DNSName: !GetAtt ServerALB.DNSName
         HostedZoneId: !GetAtt ServerALB.CanonicalHostedZoneID
 
+# -------------------------------------------------------
 Outputs:
   ServerApiUrl:
-    Description: Custom domain URL for server API
     Value: !Sub "https://api.${DomainName}"
 
   ServerECSServiceName:
-    Description: ECS Service name
     Value: !Ref ServerECSService
