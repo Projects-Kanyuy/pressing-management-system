@@ -192,6 +192,7 @@ Resources:
     Type: Custom::DeployClient
     Properties:
       ServiceToken: !GetAtt DeployClientLambda.Arn
+      DeploymentHash: !Ref ClientArtifactS3Key
 
 Outputs:
   ClientBucketName:
