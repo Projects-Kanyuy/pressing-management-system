@@ -148,7 +148,7 @@ Resources:
         - ResourcePath: "/*"
           HttpMethod: "*"
 
-  # Permission for API Gateway to invoke Lambda
+  # ---- Permission for API Gateway to invoke Lambda ---
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
