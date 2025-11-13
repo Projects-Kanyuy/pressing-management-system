@@ -40,25 +40,7 @@ Resources:
         - Key: EnvId
           Value: !Ref EnvId
 
-  # --- S3 Bucket Policy for CloudFront Access ---
-  ClientBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref ClientBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: AllowCloudFrontAccess
-            Effect: Allow
-            Principal:
-              Service: "cloudfront.amazonaws.com"
-            Action: "s3:GetObject"
-            Resource: !Sub "${ClientBucket.Arn}/*"
-            Condition:
-              StringEquals:
-                "AWS:SourceArn": !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
-
-  # --- CloudFront Origin Access Control (OAC) ---
+  # --- CloudFront Origin Access Control ---
   ClientOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
@@ -95,7 +77,7 @@ Resources:
           AllowedMethods: ["GET", "HEAD", "OPTIONS"]
           CachedMethods: ["GET", "HEAD"]
           Compress: true
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
         PriceClass: PriceClass_100
         HttpVersion: http2
         IPV6Enabled: true
@@ -141,7 +123,6 @@ Resources:
               req_type = event.get("RequestType")
 
               if req_type == "Delete":
-                  # Nothing to clean up — just acknowledge success
                   send_response(event, context, "SUCCESS", "No-op on delete")
                   return
 
@@ -158,12 +139,14 @@ Resources:
                           if name.endswith('/'):
                               continue
                           content = z.read(name)
-                          s3.put_object(
-                              Bucket=target_bucket,
-                              Key=name,
-                              Body=content,
-                              ContentType='text/html' if name.endswith('.html') else None
-                          )
+                          put_kwargs = {
+                              "Bucket": target_bucket,
+                              "Key": name,
+                              "Body": content
+                          }
+                          if name.endswith('.html'):
+                              put_kwargs["ContentType"] = "text/html"
+                          s3.put_object(**put_kwargs)
 
                   send_response(event, context, "SUCCESS")
 
