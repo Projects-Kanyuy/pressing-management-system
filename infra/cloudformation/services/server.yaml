@@ -80,7 +80,7 @@ Resources:
     Properties:
       FunctionName: !Sub "${EnvId}-server-lambda"
       Runtime: nodejs20.x
-      Handler: index.handler
+      Handler: server.handler
       Role: !GetAtt ServerLambdaRole.Arn
       Timeout: 30
       MemorySize: 512
