@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploy Node.js/Express server on ECS Fargate behind ALB with HTTPS + Route53"
+Description: "Deploy Node.js/Express API to ECS Fargate with ALB & Route53"
 
 Parameters:
   EnvId:
@@ -45,19 +45,16 @@ Parameters:
   AccountpeSecretArn:
     Type: String
 
-# -------------------------------------------------------
-Resources:
-  # --- ECS Cluster ---
-  ServerCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub "${EnvId}-server-cluster"
+# ------------------------------------------------------------
+# IAM ROLES (Execution Role + Task Role)
+# ------------------------------------------------------------
 
-  # --- Task Execution Role ---
+Resources:
+
   ServerTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${EnvId}-server-task-exec-role"
+      RoleName: !Sub "${EnvId}-server-exec-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -67,13 +64,26 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  ServerTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-server-task-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
       Policies:
         - PolicyName: AllowSecretsAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action: secretsmanager:GetSecretValue
+                Action:
+                  - secretsmanager:GetSecretValue
                 Resource:
                   - !Ref MongoDBSecretArn
                   - !Ref CloudinarySecretArn
@@ -85,22 +95,54 @@ Resources:
                   - !Ref ExchangeRateSecretArn
                   - !Ref AccountpeSecretArn
 
-  # --- Task Definition ---
+# ------------------------------------------------------------
+# Networking
+# ------------------------------------------------------------
+
+  ServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub "Security group for ECS API (${EnvId})"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+# ------------------------------------------------------------
+# ECS CLUSTER + TASK
+# ------------------------------------------------------------
+
+  ServerCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${EnvId}-server-cluster"
+
   ServerTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub "${EnvId}-server"
+      Family: !Sub "${EnvId}-server-task"
       Cpu: "512"
       Memory: "1024"
       NetworkMode: awsvpc
       RequiresCompatibilities: ["FARGATE"]
       ExecutionRoleArn: !GetAtt ServerTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ServerTaskRole.Arn
       ContainerDefinitions:
         - Name: server
           Image: !Ref ImageTag
           Essential: true
           PortMappings:
             - ContainerPort: 3000
+              Protocol: tcp
           Environment:
             - Name: NODE_ENV
               Value: production
@@ -127,25 +169,13 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: !Sub "/ecs/${EnvId}/server"
-              awslogs-region: !Ref AWS::Region
+              awslogs-region: !Ref "AWS::Region"
               awslogs-stream-prefix: server
 
-  # --- Security Group ---
-  ServerSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub "${EnvId} server SG"
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
+# ------------------------------------------------------------
+# ALB + Target Group + HTTPS Listener
+# ------------------------------------------------------------
 
-  # --- ALB ---
   ServerALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -182,10 +212,12 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref ServerTargetGroup
 
-  # --- ECS Service ---
+# ------------------------------------------------------------
+# ECS SERVICE
+# ------------------------------------------------------------
+
   ServerECSService:
     Type: AWS::ECS::Service
-    DependsOn: ServerALBListener
     Properties:
       Cluster: !Ref ServerCluster
       DesiredCount: 1
@@ -193,16 +225,20 @@ Resources:
       TaskDefinition: !Ref ServerTaskDefinition
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           Subnets: !Ref PrivateSubnetIds
           SecurityGroups:
             - !Ref ServerSG
       LoadBalancers:
-        - ContainerName: server
+        - TargetGroupArn: !Ref ServerTargetGroup
+          ContainerName: server
           ContainerPort: 3000
-          TargetGroupArn: !Ref ServerTargetGroup
+      DependsOn: ServerALBListener
 
-  # --- Route53 ---
+# ------------------------------------------------------------
+# ROUTE53
+# ------------------------------------------------------------
+
   ServerDNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
@@ -213,10 +249,15 @@ Resources:
         DNSName: !GetAtt ServerALB.DNSName
         HostedZoneId: !GetAtt ServerALB.CanonicalHostedZoneID
 
-# -------------------------------------------------------
+# ------------------------------------------------------------
+# OUTPUTS
+# ------------------------------------------------------------
+
 Outputs:
   ServerApiUrl:
+    Description: API URL
     Value: !Sub "https://api.${DomainName}"
 
   ServerECSServiceName:
+    Description: ECS Service Name
     Value: !Ref ServerECSService
