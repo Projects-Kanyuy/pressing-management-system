@@ -87,6 +87,24 @@ Resources:
             ResponseCode: 200
             ErrorCachingMinTTL: 0
 
+  # --- S3 Bucket Policy to Allow CloudFront OAC ---
+  ClientBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ClientBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowCloudFrontAccessViaOAC"
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Sub "${ClientBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
+
   # --- Deployment Lambda (copies artifact to bucket) ---
   DeployClientLambda:
     Type: AWS::Lambda::Function
@@ -101,10 +119,12 @@ Resources:
           TARGET_BUCKET: !Ref ClientBucket
           ARTIFACT_BUCKET: !Ref InfraArtifactsBucket
           ARTIFACT_KEY: !Ref ClientArtifactS3Key
+          DISTRIBUTION_ID: !Ref ClientDistribution
       Code:
         ZipFile: |
           import boto3, zipfile, io, os, json, urllib3
           s3 = boto3.client('s3')
+          cf = boto3.client('cloudfront')
           http = urllib3.PoolManager()
 
           def send_response(event, context, status, reason=None):
@@ -130,6 +150,7 @@ Resources:
                   target_bucket = os.environ['TARGET_BUCKET']
                   artifact_bucket = os.environ['ARTIFACT_BUCKET']
                   artifact_key = os.environ['ARTIFACT_KEY']
+                  distribution_id = os.environ['DISTRIBUTION_ID']
 
                   print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
                   obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
@@ -138,7 +159,6 @@ Resources:
                       for name in z.namelist():
                           if name.endswith('/'):
                               continue
-                          # Strip top-level folder if exists
                           parts = name.split('/', 1)
                           key = parts[1] if len(parts) == 2 else parts[0]
                           content = z.read(name)
@@ -150,6 +170,15 @@ Resources:
                           if key.endswith('.html'):
                               put_kwargs["ContentType"] = "text/html"
                           s3.put_object(**put_kwargs)
+
+                  print("Deployment complete, invalidating CloudFront cache...")
+                  cf.create_invalidation(
+                      DistributionId=distribution_id,
+                      InvalidationBatch={
+                          'Paths': {'Quantity': 1, 'Items': ['/*']},
+                          'CallerReference': context.log_stream_name
+                      }
+                  )
 
                   send_response(event, context, "SUCCESS")
 
@@ -186,8 +215,12 @@ Resources:
                 Resource:
                   - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
                   - !Sub "arn:aws:s3:::${ClientBucket}/*"
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: "*"
 
-  # --- Custom Resource to Trigger Deployment ---
+  # --- Custom Resource to Trigger Deployment (re-runs on new hash) ---
   ClientDeploymentTrigger:
     Type: Custom::DeployClient
     Properties:
