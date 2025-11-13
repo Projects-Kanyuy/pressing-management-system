@@ -121,26 +121,55 @@ Resources:
           ARTIFACT_KEY: !Ref ClientArtifactS3Key
       Code:
         ZipFile: |
-          import boto3, zipfile, io, os
+          import boto3, zipfile, io, os, json, urllib3
           s3 = boto3.client('s3')
+          http = urllib3.PoolManager()
+
+          def send_response(event, context, status, reason=None):
+              response_body = json.dumps({
+                  "Status": status,
+                  "Reason": reason or "See CloudWatch logs for details",
+                  "PhysicalResourceId": context.log_stream_name,
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+              })
+              http.request("PUT", event["ResponseURL"], body=response_body)
+
           def handler(event, context):
-              target_bucket = os.environ['TARGET_BUCKET']
-              artifact_bucket = os.environ['ARTIFACT_BUCKET']
-              artifact_key = os.environ['ARTIFACT_KEY']
-              print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
-              obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
-              with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
-                  for name in z.namelist():
-                      if name.endswith('/'):
-                          continue
-                      content = z.read(name)
-                      s3.put_object(
-                          Bucket=target_bucket,
-                          Key=name,
-                          Body=content,
-                          ContentType='text/html' if name.endswith('.html') else None
-                      )
-              return {"status": "success"}
+              print("Received event:", json.dumps(event))
+              req_type = event.get("RequestType")
+
+              if req_type == "Delete":
+                  # Nothing to clean up — just acknowledge success
+                  send_response(event, context, "SUCCESS", "No-op on delete")
+                  return
+
+              try:
+                  target_bucket = os.environ['TARGET_BUCKET']
+                  artifact_bucket = os.environ['ARTIFACT_BUCKET']
+                  artifact_key = os.environ['ARTIFACT_KEY']
+
+                  print(f"Deploying client from s3://{artifact_bucket}/{artifact_key} to {target_bucket}")
+                  obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
+
+                  with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
+                      for name in z.namelist():
+                          if name.endswith('/'):
+                              continue
+                          content = z.read(name)
+                          s3.put_object(
+                              Bucket=target_bucket,
+                              Key=name,
+                              Body=content,
+                              ContentType='text/html' if name.endswith('.html') else None
+                          )
+
+                  send_response(event, context, "SUCCESS")
+
+              except Exception as e:
+                  print("Error during deployment:", str(e))
+                  send_response(event, context, "FAILED", str(e))
 
   DeployClientLambdaRole:
     Type: AWS::IAM::Role
