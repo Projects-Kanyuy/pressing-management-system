@@ -1,48 +1,62 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Deploy Node.js/Express API to ECS Fargate with ALB & Route53"
+AWSTemplateFormatVersion: 2010-09-09
+Description: The Jsonproxy API service (FARGATE)
 
 Parameters:
   EnvId:
     Type: String
+    Description: Environment Id (used to namespace resources)
+    AllowedPattern: "^[a-z][a-z0-9-]{2,49}$"
+    ConstraintDescription: Must be lower case letters, digits, or hyphens (3-50 characters).
+
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+  LogGroupName:
+    Type: String
+    Description: LogGroup name that should be use for the service
+
+  ClusterArn:
+    Type: String
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+
+  Image:
+    Type: String
+
+  DesiredCount:
+    Type: Number
+    Default: 1
 
   DomainName:
     Type: String
+    Description: The domain name for the environment where the service register a DNS record.
 
-  InfraArtifactsBucket:
+  LoadBalancerDNSName:
     Type: String
+    Description: The DNS name of the load balancer that the service is registered with.
 
-  ImageTag:
+  LoadBalancerCanonicalHostedZoneID:
     Type: String
+    Description: The canonical hosted zone ID of the load balancer.
 
-  WebCertArn:
+  HttpsListener:
     Type: String
-
-  VpcId:
-    Type: String
-
-  PublicSubnetIds:
-    Type: CommaDelimitedList
-
-  PrivateSubnetIds:
-    Type: CommaDelimitedList
+    Description: The ARN of the HTTPS listener to use.
 
   MongoDBSecretArn:
     Type: String
+
   CloudinarySecretArn:
     Type: String
+
+  FapshiSecretArn:
+    Type: String
+
   JWTSecretArn:
     Type: String
+
   AdminSecretArn:
-    Type: String
-  SmtpSecretArn:
-    Type: String
-  TwilioSecretArn:
-    Type: String
-  DirectoryAdminSecretArn:
-    Type: String
-  ExchangeRateSecretArn:
-    Type: String
-  AccountpeSecretArn:
     Type: String
 
   ContainerPort:
@@ -53,137 +67,35 @@ Parameters:
     Type: String
     Default: "server"
 
-# ------------------------------------------------------------
-# IAM ROLES (Execution Role + Task Role)
-# ------------------------------------------------------------
-
 Resources:
 
-  ServerLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/ecs/${EnvId}/server"
-      RetentionInDays: 30
-
-  ServerTaskExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "${EnvId}-server-exec-role"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "secretsmanager:GetResourcePolicy"
-                  - "secretsmanager:GetSecretValue"
-                  - "secretsmanager:DescribeSecret"
-                  - "secretsmanager:ListSecretVersionIds"
-                  - "secretsmanager:ListSecrets"
-                Resource:
-                  - !Ref MongoDBSecretArn
-                  - !Ref CloudinarySecretArn
-                  - !Ref JWTSecretArn
-                  - !Ref AdminSecretArn
-                  - !Ref SmtpSecretArn
-                  - !Ref TwilioSecretArn
-                  - !Ref DirectoryAdminSecretArn
-                  - !Ref ExchangeRateSecretArn
-                  - !Ref AccountpeSecretArn
-
-  ServerTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "${EnvId}-server-task-role"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: AllowSecretsAccess
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "secretsmanager:GetResourcePolicy"
-                  - "secretsmanager:GetSecretValue"
-                  - "secretsmanager:DescribeSecret"
-                  - "secretsmanager:ListSecretVersionIds"
-                  - "secretsmanager:ListSecrets"
-                Resource:
-                  - !Ref MongoDBSecretArn
-                  - !Ref CloudinarySecretArn
-                  - !Ref JWTSecretArn
-                  - !Ref AdminSecretArn
-                  - !Ref SmtpSecretArn
-                  - !Ref TwilioSecretArn
-                  - !Ref DirectoryAdminSecretArn
-                  - !Ref ExchangeRateSecretArn
-                  - !Ref AccountpeSecretArn
-
-# ------------------------------------------------------------
-# Networking
-# ------------------------------------------------------------
-
-  ServerSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub "Security group for ECS API (${EnvId})"
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
-
-# ------------------------------------------------------------
-# ECS CLUSTER + TASK
-# ------------------------------------------------------------
-
-  ServerCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub "${EnvId}-server-cluster"
-
-  ServerTaskDefinition:
+  # ------------------------------------------------------------
+  # TASK DEFINITION
+  # ------------------------------------------------------------
+  TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    DependsOn: ServerLogGroup
     Properties:
-      Family: !Sub "${EnvId}-server-task"
+      Family: !Sub "${EnvId}-${AppName}"
+      RequiresCompatibilities:
+        - FARGATE
+      NetworkMode: awsvpc
       Cpu: "512"
       Memory: "1024"
-      NetworkMode: awsvpc
-      RequiresCompatibilities: ["FARGATE"]
-      ExecutionRoleArn: !GetAtt ServerTaskExecutionRole.Arn
-      TaskRoleArn: !GetAtt ServerTaskRole.Arn
+      ExecutionRoleArn: !Ref ExecutionRole
+      TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
-        - Name: server
-          Image: !Ref ImageTag
+        - Name: !Ref AppName
+          Image: !Ref Image
           Essential: true
           PortMappings:
             - ContainerPort: !Ref ContainerPort
               Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroupName
+              awslogs-stream-prefix: !Ref AppName
           Environment:
             - Name: PORT
               Value: !Ref ContainerPort
@@ -191,8 +103,6 @@ Resources:
               Value: !Sub "https://${DomainName}"
             - Name: BACKEND_URL
               Value: !Sub "https://api.${DomainName}"
-            - Name: NODE_ENV
-              Value: "production"
           Secrets:
             - Name: MONGO_URI
               ValueFrom: !Sub "${MongoDBSecretArn}:mongo_uri::"
@@ -202,125 +112,133 @@ Resources:
               ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_key::"
             - Name: CLOUDINARY_API_SECRET
               ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_secret::"
+            - Name: FAPSHI_API_USER
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_api_user::"
+            - Name: FAPSHI_API_KEY
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_api_key::"
+            - Name: FAPSHI_BASE_URL
+              ValueFrom: !Sub "${FapshiSecretArn}:fapshi_base_url::"
             - Name: JWT_SECRET
               ValueFrom: !Sub "${JWTSecretArn}:jwt_secret::"
             - Name: ADMIN_EMAIL
               ValueFrom: !Sub "${AdminSecretArn}:admin_email::"
             - Name: ADMIN_PASSWORD
               ValueFrom: !Sub "${AdminSecretArn}:admin_password::"
-            - Name: EMAIL_HOST
-              ValueFrom: !Sub "${SmtpSecretArn}:host::"
-            - Name: EMAIL_PORT
-              ValueFrom: !Sub "${SmtpSecretArn}:port::"
-            - Name: EMAIL_USER
-              ValueFrom: !Sub "${SmtpSecretArn}:user::"
-            - Name: EMAIL_PASS
-              ValueFrom: !Sub "${SmtpSecretArn}:password::"
-            - Name: EMAIL_FROM
-              ValueFrom: !Sub "${SmtpSecretArn}:from::"
-            - Name: EMAIL_SECURE
-              ValueFrom: !Sub "${SmtpSecretArn}:secure::"
-            - Name: TWILIO_ACCOUNT_SID
-              ValueFrom: !Sub "${TwilioSecretArn}:account_sid::"
-            - Name: TWILIO_AUTH_TOKEN
-              ValueFrom: !Sub "${TwilioSecretArn}:auth_token::"
-            - Name: TWILIO_WHATSAPP_FROM_NUMBER
-              ValueFrom: !Sub "${TwilioSecretArn}:whatsapp_from_number::"
-            - Name: DIRECTORY_ADMIN_USER
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:user::"
-            - Name: DIRECTORY_ADMIN_PASS_HASH
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:pass_hash::"
-            - Name: DIRECTORY_ADMIN_JWT_SECRET
-              ValueFrom: !Sub "${DirectoryAdminSecretArn}:jwt_secret::"
-            - Name: EXCHANGE_RATE_API_KEY
-              ValueFrom: !Sub "${ExchangeRateSecretArn}:api_key::"
-            - Name: ACCOUNTPE_EMAIL
-              ValueFrom: !Sub "${AccountpeSecretArn}:email::"
-            - Name: ACCOUNTPE_PASSWORD
-              ValueFrom: !Sub "${AccountpeSecretArn}:password::"
-            - Name: ACCOUNTPE_PAYIN_BASE_URL
-              ValueFrom: !Sub "${AccountpeSecretArn}:payin_base_url::"
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Sub "/ecs/${EnvId}/server"
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: !Ref AppName
+            - Name: ADMIN_JWT_SECRET
+              ValueFrom: !Sub "${AdminSecretArn}:admin_jwt_secret::"
 
-# ------------------------------------------------------------
-# ALB + Target Group + HTTPS Listener
-# ------------------------------------------------------------
-
-  ServerALB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  # ------------------------------------------------------------
+  # IAM ROLES
+  # ------------------------------------------------------------
+  ExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      Name: !Sub "${EnvId}-alb"
-      Scheme: internet-facing
-      SecurityGroups:
-        - !Ref ServerSG
-      Subnets: !Ref PublicSubnetIds
+      RoleName: !Sub "${EnvId}-${AppName}-EcsExecutionRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      Policies:
+        - PolicyName: allowSecrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                Resource:
+                  - !Ref MongoDBSecretArn
+                  - !Ref CloudinarySecretArn
+                  - !Ref FapshiSecretArn
+                  - !Ref JWTSecretArn
+                  - !Ref AdminSecretArn
 
-  ServerTargetGroup:
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-${AppName}-TaskRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+
+  # ------------------------------------------------------------
+  # TARGET GROUP & LISTENER RULE
+  # ------------------------------------------------------------
+  TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub "${EnvId}-tg"
-      Port: !Ref ContainerPort
+      Name: !Sub "${EnvId}-${AppName}-TargetGroup"
       Protocol: HTTP
+      Port: !Ref ContainerPort
       TargetType: ip
-      VpcId: !Ref VpcId
-      HealthCheckProtocol: HTTP
-      HealthCheckPath: /
-      HealthCheckIntervalSeconds: 15
+      VpcId: !Ref VPC
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: "/"
       HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 2
       HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 3
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
 
-  ServerALBListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+  ListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
     Properties:
-      LoadBalancerArn: !Ref ServerALB
-      Port: 443
-      Protocol: HTTPS
-      Certificates:
-        - CertificateArn: !Ref WebCertArn
-      DefaultActions:
+      Actions:
         - Type: forward
-          TargetGroupArn: !Ref ServerTargetGroup
+          TargetGroupArn: !Ref TargetGroup
+      Conditions:
+        - Field: host-header
+          HostHeaderConfig:
+            Values:
+              - !Sub "api.${DomainName}"
+      ListenerArn: !Ref HttpsListener
+      Priority: 1
 
-# ------------------------------------------------------------
-# ECS SERVICE
-# ------------------------------------------------------------
-
-  ServerECSService:
+  # ------------------------------------------------------------
+  # ECS SERVICE
+  # ------------------------------------------------------------
+  EcsService:
     Type: AWS::ECS::Service
-    DependsOn: ServerALBListener
+    DependsOn: ListenerRule
     Properties:
-      Cluster: !Ref ServerCluster
-      DesiredCount: 1
+      ServiceName: !Sub "${EnvId}-${AppName}"
+      Cluster: !Ref ClusterArn
+      TaskDefinition: !Ref TaskDefinition
       LaunchType: FARGATE
-      TaskDefinition: !Ref ServerTaskDefinition
+      DesiredCount: !Ref DesiredCount
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
-          Subnets: !Ref PrivateSubnetIds
-          SecurityGroups:
-            - !Ref ServerSG
+          AssignPublicIp: DISABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups: []
       LoadBalancers:
-        - TargetGroupArn: !Ref ServerTargetGroup
-          ContainerName: !Ref AppName
+        - ContainerName: !Ref AppName
           ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref TargetGroup
 
-
-
-# ------------------------------------------------------------
-# OUTPUTS
-# ------------------------------------------------------------
+  # ------------------------------------------------------------
+  # DNS RECORD
+  # ------------------------------------------------------------
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub "${DomainName}."
+      Name: !Sub "api.${DomainName}"
+      Type: A
+      AliasTarget:
+        DNSName: !Ref LoadBalancerDNSName
+        HostedZoneId: !Ref LoadBalancerCanonicalHostedZoneID
 
 Outputs:
-  ServerApiUrl:
+  ApiUrl:
     Description: API URL
     Value: !Sub "https://api.${DomainName}"
-
-  ServerECSServiceName:
-    Description: ECS Service Name
-    Value: !Ref ServerECSService

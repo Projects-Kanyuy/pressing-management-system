@@ -111,6 +111,38 @@ Resources:
           ],
         ]
         
+   # LoadBalancerStack deploys the default load balancer.
+  LoadBalancerStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: [VpcStack, WebCert]
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        VPC: !GetAtt VpcStack.Outputs.VPC
+        SubnetIds:
+          !Join [
+            ",",
+            [
+              !GetAtt VpcStack.Outputs.SubnetAPublic,
+              !GetAtt VpcStack.Outputs.SubnetBPublic,
+            ],
+          ]
+        CertificateArn: !Ref WebCert
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/aws-cloudformation-templates/core-components/load_balancer.yaml",
+          ],
+        ]
+        
   # --- CLIENT STACK (S3 + CloudFront) ---
   ClientStack:
     Type: AWS::CloudFormation::Stack
@@ -184,6 +216,9 @@ Resources:
         # --- HTTPS Cert ---
         WebCertArn: !Ref WebCert
 
+        LoadBalancerCanonicalHostedZoneID: !GetAtt LoadBalancerStack.Outputs.LoadBalancerCanonicalHostedZoneID
+        LoadBalancerDNSName: !GetAtt LoadBalancerStack.Outputs.LoadBalancerDNSName
+
         # --- Third-party secret ARNs ---
         MongoDBSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.MongoDBSecretArn
         CloudinarySecretArn: !GetAtt ThirdPartySecretsStack.Outputs.CloudinarySecretArn
@@ -194,7 +229,7 @@ Resources:
         DirectoryAdminSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn
         ExchangeRateSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn
         AccountpeSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.AccountpeSecretArn
-        
+
 # Outputs:
 #   ClientDistributionDomain:
 #     Description: CloudFront domain for client
