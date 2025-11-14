@@ -4,28 +4,28 @@ Description: "Deploy Node.js/Express API to ECS Fargate with ALB & Route53"
 Parameters:
   EnvId:
     Type: String
-
   DomainName:
     Type: String
-
   InfraArtifactsBucket:
     Type: String
-
   ImageTag:
     Type: String
-
   WebCertArn:
     Type: String
-
   VpcId:
     Type: String
-
   PublicSubnetIds:
     Type: CommaDelimitedList
-
   PrivateSubnetIds:
     Type: CommaDelimitedList
+  ContainerPort:
+    Type: Number
+    Default: 8000
+  AppName:
+    Type: String
+    Default: "server"
 
+  # Secrets
   MongoDBSecretArn:
     Type: String
   CloudinarySecretArn:
@@ -45,38 +45,10 @@ Parameters:
   AccountpeSecretArn:
     Type: String
 
-  ContainerPort:
-    Type: Number
-    Default: 8000
-
-  AppName:
-    Type: String
-    Default: "server"
-
+# ----------------------------
+# Security Groups
+# ----------------------------
 Resources:
-
-  # ----------------------------
-  # Security Group
-  # ----------------------------
-  ServerSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub "Security group for ECS API (${EnvId})"
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId: !Ref ServerSGALB
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId: !Ref ServerSGALB
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
-
-  # ALB Security Group
   ServerSGALB:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -84,37 +56,51 @@ Resources:
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
           CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
 
-  # ----------------------------
-  # ECS Cluster
-  # ----------------------------
+  ServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub "Security group for ECS API (${EnvId})"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ContainerPort
+          ToPort: !Ref ContainerPort
+          SourceSecurityGroupId: !Ref ServerSGALB
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+# ----------------------------
+# ECS Cluster
+# ----------------------------
   ServerCluster:
     Type: AWS::ECS::Cluster
     Properties:
       ClusterName: !Sub "${EnvId}-server-cluster"
 
-  # ----------------------------
-  # Log Group
-  # ----------------------------
+# ----------------------------
+# CloudWatch Logs
+# ----------------------------
   ServerLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/ecs/${EnvId}/server"
       RetentionInDays: 30
 
-  # ----------------------------
-  # IAM Roles
-  # ----------------------------
+# ----------------------------
+# IAM Roles
+# ----------------------------
   ServerTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -161,9 +147,9 @@ Resources:
               Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
 
-  # ----------------------------
-  # ECS Task Definition
-  # ----------------------------
+# ----------------------------
+# ECS Task Definition
+# ----------------------------
   ServerTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn: ServerLogGroup
@@ -245,9 +231,9 @@ Resources:
               awslogs-region: !Ref "AWS::Region"
               awslogs-stream-prefix: !Ref AppName
 
-  # ----------------------------
-  # ALB
-  # ----------------------------
+# ----------------------------
+# ALB + Target Group + Listener
+# ----------------------------
   ServerALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -284,9 +270,9 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref ServerTargetGroup
 
-  # ----------------------------
-  # ECS Service
-  # ----------------------------
+# ----------------------------
+# ECS Service
+# ----------------------------
   ServerECSService:
     Type: AWS::ECS::Service
     DependsOn: ServerALBListener
@@ -307,7 +293,7 @@ Resources:
           ContainerPort: !Ref ContainerPort
 
 # ----------------------------
-# DNS
+# Route53 DNS
 # ----------------------------
   ServerDNSRecord:
     Type: AWS::Route53::RecordSet
