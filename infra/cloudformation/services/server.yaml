@@ -269,19 +269,7 @@ Resources:
           ContainerName: !Ref AppName
           ContainerPort: !Ref ContainerPort
 
-# ------------------------------------------------------------
-# ROUTE53
-# ------------------------------------------------------------
 
-  ServerDNSRecord:
-    Type: AWS::Route53::RecordSet
-    Properties:
-      HostedZoneName: !Sub "${DomainName}."
-      Name: !Sub "api.${DomainName}"
-      Type: A
-      AliasTarget:
-        DNSName: !GetAtt ServerALB.DNSName
-        HostedZoneId: !GetAtt ServerALB.CanonicalHostedZoneID
 
 # ------------------------------------------------------------
 # OUTPUTS
