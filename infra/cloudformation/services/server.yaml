@@ -218,6 +218,7 @@ Resources:
 
   ServerECSService:
     Type: AWS::ECS::Service
+    DependsOn: ServerALBListener
     Properties:
       Cluster: !Ref ServerCluster
       DesiredCount: 1
@@ -233,7 +234,6 @@ Resources:
         - TargetGroupArn: !Ref ServerTargetGroup
           ContainerName: server
           ContainerPort: 3000
-      DependsOn: ServerALBListener
 
 # ------------------------------------------------------------
 # ROUTE53
