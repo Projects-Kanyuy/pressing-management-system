@@ -269,7 +269,7 @@ Resources:
       TargetType: ip
       VpcId: !Ref VpcId
       HealthCheckProtocol: HTTP
-      HealthCheckPath: /health
+      HealthCheckPath: /api/test
       HealthCheckIntervalSeconds: 15
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
