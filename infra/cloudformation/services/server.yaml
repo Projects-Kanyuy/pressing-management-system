@@ -185,27 +185,61 @@ Resources:
             - ContainerPort: !Ref ContainerPort
               Protocol: tcp
           Environment:
+            - Name: PORT
+              Value: !Ref ContainerPort
+            - Name: FRONTEND_URL
+              Value: !Sub "https://${DomainName}"
+            - Name: BACKEND_URL
+              Value: !Sub "https://api.${DomainName}"
             - Name: NODE_ENV
-              Value: production
+              Value: "production"
           Secrets:
-            - Name: MONGODB_URI
-              ValueFrom: !Ref MongoDBSecretArn
-            - Name: CLOUDINARY_SECRET
-              ValueFrom: !Ref CloudinarySecretArn
+            - Name: MONGO_URI
+              ValueFrom: !Sub "${MongoDBSecretArn}:mongo_uri::"
+            - Name: CLOUDINARY_CLOUD_NAME
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_cloud_name::"
+            - Name: CLOUDINARY_API_KEY
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_key::"
+            - Name: CLOUDINARY_API_SECRET
+              ValueFrom: !Sub "${CloudinarySecretArn}:cloudinary_api_secret::"
             - Name: JWT_SECRET
-              ValueFrom: !Ref JWTSecretArn
-            - Name: ADMIN_SECRET
-              ValueFrom: !Ref AdminSecretArn
-            - Name: SMTP_SECRET
-              ValueFrom: !Ref SmtpSecretArn
-            - Name: TWILIO_SECRET
-              ValueFrom: !Ref TwilioSecretArn
-            - Name: DIRECTORY_ADMIN_SECRET
-              ValueFrom: !Ref DirectoryAdminSecretArn
-            - Name: EXCHANGE_RATE_SECRET
-              ValueFrom: !Ref ExchangeRateSecretArn
-            - Name: ACCOUNTPAY_SECRET
-              ValueFrom: !Ref AccountpeSecretArn
+              ValueFrom: !Sub "${JWTSecretArn}:jwt_secret::"
+            - Name: ADMIN_EMAIL
+              ValueFrom: !Sub "${AdminSecretArn}:admin_email::"
+            - Name: ADMIN_PASSWORD
+              ValueFrom: !Sub "${AdminSecretArn}:admin_password::"
+            - Name: EMAIL_HOST
+              ValueFrom: !Sub "${SmtpSecretArn}:host::"
+            - Name: EMAIL_PORT
+              ValueFrom: !Sub "${SmtpSecretArn}:port::"
+            - Name: EMAIL_USER
+              ValueFrom: !Sub "${SmtpSecretArn}:user::"
+            - Name: EMAIL_PASS
+              ValueFrom: !Sub "${SmtpSecretArn}:password::"
+            - Name: EMAIL_FROM
+              ValueFrom: !Sub "${SmtpSecretArn}:from::"
+            - Name: EMAIL_SECURE
+              ValueFrom: !Sub "${SmtpSecretArn}:secure::"
+            - Name: TWILIO_ACCOUNT_SID
+              ValueFrom: !Sub "${TwilioSecretArn}:account_sid::"
+            - Name: TWILIO_AUTH_TOKEN
+              ValueFrom: !Sub "${TwilioSecretArn}:auth_token::"
+            - Name: TWILIO_WHATSAPP_FROM_NUMBER
+              ValueFrom: !Sub "${TwilioSecretArn}:whatsapp_from_number::"
+            - Name: DIRECTORY_ADMIN_USER
+              ValueFrom: !Sub "${DirectoryAdminSecretArn}:user::"
+            - Name: DIRECTORY_ADMIN_PASS_HASH
+              ValueFrom: !Sub "${DirectoryAdminSecretArn}:pass_hash::"
+            - Name: DIRECTORY_ADMIN_JWT_SECRET
+              ValueFrom: !Sub "${DirectoryAdminSecretArn}:jwt_secret::"
+            - Name: EXCHANGE_RATE_API_KEY
+              ValueFrom: !Sub "${ExchangeRateSecretArn}:api_key::"
+            - Name: ACCOUNTPE_EMAIL
+              ValueFrom: !Sub "${AccountpeSecretArn}:email::"
+            - Name: ACCOUNTPE_PASSWORD
+              ValueFrom: !Sub "${AccountpeSecretArn}:password::"
+            - Name: ACCOUNTPE_PAYIN_BASE_URL
+              ValueFrom: !Sub "${AccountpeSecretArn}:payin_base_url::"
           LogConfiguration:
             LogDriver: awslogs
             Options:
