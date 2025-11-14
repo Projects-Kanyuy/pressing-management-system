@@ -283,7 +283,7 @@ Resources:
       TaskDefinition: !Ref ServerTaskDefinition
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           Subnets: !Ref PrivateSubnetIds
           SecurityGroups:
             - !Ref ServerSG
