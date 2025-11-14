@@ -48,6 +48,10 @@ Parameters:
   ContainerPort:
     Type: Number
     Default: 8000
+    
+  AppName:
+    Type: String
+    Default: "server"
 
 # ------------------------------------------------------------
 # IAM ROLES (Execution Role + Task Role)
