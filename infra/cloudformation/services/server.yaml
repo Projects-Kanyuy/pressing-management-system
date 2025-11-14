@@ -48,7 +48,7 @@ Parameters:
   ContainerPort:
     Type: Number
     Default: 8000
-    
+
   AppName:
     Type: String
     Default: "server"
@@ -72,6 +72,28 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetResourcePolicy"
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                  - "secretsmanager:ListSecretVersionIds"
+                  - "secretsmanager:ListSecrets"
+                Resource:
+                  - !Ref MongoDBSecretArn
+                  - !Ref CloudinarySecretArn
+                  - !Ref JWTSecretArn
+                  - !Ref AdminSecretArn
+                  - !Ref SmtpSecretArn
+                  - !Ref TwilioSecretArn
+                  - !Ref DirectoryAdminSecretArn
+                  - !Ref ExchangeRateSecretArn
+                  - !Ref AccountpeSecretArn
 
   ServerTaskRole:
     Type: AWS::IAM::Role
@@ -91,7 +113,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - secretsmanager:GetSecretValue
+                  - "secretsmanager:GetResourcePolicy"
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                  - "secretsmanager:ListSecretVersionIds"
+                  - "secretsmanager:ListSecrets"
                 Resource:
                   - !Ref MongoDBSecretArn
                   - !Ref CloudinarySecretArn
