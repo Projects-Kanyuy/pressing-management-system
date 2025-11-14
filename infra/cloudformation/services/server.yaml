@@ -59,6 +59,12 @@ Parameters:
 
 Resources:
 
+  ServerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${EnvId}/server"
+      RetentionInDays: 30
+
   ServerTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -162,6 +168,7 @@ Resources:
 
   ServerTaskDefinition:
     Type: AWS::ECS::TaskDefinition
+    DependsOn: ServerLogGroup
     Properties:
       Family: !Sub "${EnvId}-server-task"
       Cpu: "512"
@@ -204,7 +211,7 @@ Resources:
             Options:
               awslogs-group: !Sub "/ecs/${EnvId}/server"
               awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: server
+              awslogs-stream-prefix: !Ref AppName
 
 # ------------------------------------------------------------
 # ALB + Target Group + HTTPS Listener
