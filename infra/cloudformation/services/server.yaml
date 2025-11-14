@@ -45,6 +45,10 @@ Parameters:
   AccountpeSecretArn:
     Type: String
 
+  ContainerPort:
+    Type: Number
+    Default: 8000
+
 # ------------------------------------------------------------
 # IAM ROLES (Execution Role + Task Role)
 # ------------------------------------------------------------
@@ -141,7 +145,7 @@ Resources:
           Image: !Ref ImageTag
           Essential: true
           PortMappings:
-            - ContainerPort: 3000
+            - ContainerPort: !Ref ContainerPort
               Protocol: tcp
           Environment:
             - Name: NODE_ENV
@@ -189,7 +193,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub "${EnvId}-tg"
-      Port: 3000
+      Port: !Ref ContainerPort
       Protocol: HTTP
       TargetType: ip
       VpcId: !Ref VpcId
@@ -232,8 +236,8 @@ Resources:
             - !Ref ServerSG
       LoadBalancers:
         - TargetGroupArn: !Ref ServerTargetGroup
-          ContainerName: server
-          ContainerPort: 3000
+          ContainerName: !Ref AppName
+          ContainerPort: !Ref ContainerPort
 
 # ------------------------------------------------------------
 # ROUTE53
