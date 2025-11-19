@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalization } from '../../contexts/LocalizationContext'
 import Spinner from '../../components/UI/Spinner'
 import { Check, Sparkles } from 'lucide-react'
 import { getPublicPlansApi } from '../../services/api'
@@ -19,7 +18,6 @@ const CheckListItem = ({ children }) => (
 
 const PricingPage = () => {
   const { t } = useTranslation()
-  const { location, loading: isLocalizationLoading } = useLocalization()
 
   const [plans, setPlans] = useState([])
   const [loadingPlans, setLoadingPlans] = useState(true)
@@ -55,7 +53,7 @@ const PricingPage = () => {
     }).format(usdPrice.amount)
   }
 
-  if (isLocalizationLoading || loadingPlans) {
+  if (loadingPlans) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <Spinner text={t('public.pricing.localizing', 'Loading Plans...')} />
