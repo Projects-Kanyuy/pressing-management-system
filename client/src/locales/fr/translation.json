@@ -691,56 +691,80 @@
         "startTrial": "Commencer Votre Essai Gratuit"
       }
     },
+    "public": {
     "pricing": {
-      "title": "Trouvez le Plan Qui Convient à Votre Entreprise",
-      "subtitle": "Tarification simple et transparente. Choisissez le plan qui correspond à vos besoins et commencez à rationaliser vos opérations dès aujourd'hui.",
+      "title": "Choisissez Votre Formule",
+      "subtitle": "Une tarification simple et transparente pour les pressings de toutes tailles.",
       "mostPopular": "Le Plus Populaire",
+      "choosePlan": "Choisir cette formule",
       "plans": {
         "basic": {
-          "name": "Basique",
-          "price": "29€",
+          "name": "Formule de Base",
           "frequency": "mois",
           "features": [
-            "Jusqu'à 250 commandes par mois",
-            "2 comptes employés",
-            "Gestion des clients",
-            "Suivi des paiements",
-            "Notifications par e-mail"
+            "Enregistrez et gérez vos clients manuellement",
+            "Générez des reçus pour chaque transaction",
+            "Un seul utilisateur (vous) peut gérer la plateforme",
+            "Fonctionne sur l'application Android et l'installation sur ordinateur",
+            "Inclut 1 mois d'essai gratuit avant le début de la facturation"
+          ]
+        },
+        "starter": {
+          "name": "Formule Démarrage",
+          "frequency": "mois",
+          "features": [
+            "Attirez du trafic local — connectez-vous instantanément avec les gens à proximité",
+            "Proposez des collectes et livraisons à domicile avec suivi client",
+            "Enregistrez et gérez les clients facilement",
+            "Communiquez avec les clients via la messagerie intégrée",
+            "Envoyez des SMS et des e-mails en masse pour des promotions",
+            "Ajoutez jusqu'à 2 employés",
+            "Responsabilité en temps réel pour éviter la fraude du personnel",
+            "Consultez les rapports de ventes en un clic",
+            "Prédisez les clients fidèles et envoyez des promotions automatiques"
+          ]
+        },
+        "growth": {
+          "name": "Formule Croissance",
+          "frequency": "mois",
+          "features": [
+            "Tout ce qui est dans la Formule Démarrage, plus :",
+            "3x plus de trafic client de votre région",
+            "Positionnement prioritaire dans l'annuaire PressMark",
+            "Ajoutez jusqu'à 5 employés",
+            "Tableau de bord de performance et analyses avancées",
+            "Rappels automatisés aux clients pour les collectes"
           ]
         },
         "pro": {
-          "name": "Pro",
-          "price": "59€",
+          "name": "Formule Pro",
           "frequency": "mois",
           "features": [
-            "Commandes illimitées",
-            "Jusqu'à 10 comptes employés",
-            "Tout ce qui est dans Basique",
-            "Notifications SMS (Twilio)",
-            "Rapports de vente de base",
-            "Notifications admin en temps réel"
-          ]
-        },
-        "enterprise": {
-          "name": "Entreprise",
-          "price": "Sur mesure",
-          "frequency": "nous contacter",
-          "features": [
-            "Tout ce qui est dans Pro",
-            "Comptes employés illimités",
-            "Image de marque personnalisée",
-            "Analyses avancées",
-            "Support prioritaire",
-            "Assistance à l'intégration"
+            "Tout ce qui est dans les Formules Démarrage et Croissance, plus :",
+            "6x plus de trafic client et un placement premium",
+            "Ajoutez jusqu'à 15 employés et suivez chaque transaction",
+            "Prévenez la fraude du personnel avec un suivi d'activité détaillé",
+            "Accès en un clic à tous les rapports de ventes",
+            "Prédiction intelligente des clients fidèles avec auto-promotion",
+            "Ligne de support prioritaire dédiée"
           ]
         }
       },
-      "choose": "Choisir",
+      "allPlans": {
+        "title": "⚡ Toutes les Formules Incluent",
+        "features": [
+          "Tableau de bord PressMark sécurisé (web, Android et ordinateur)",
+          "Sauvegarde des données dans le cloud",
+          "Vue instantanée des performances des ventes et activités du personnel",
+          "Base de données clients et outils promotionnels intégrés",
+          "Support technique 24/7 et mises à jour automatiques"
+        ]
+      },
       "faq": {
         "title": "Questions Fréquemment Posées",
         "freeTrial": {
           "question": "Y a-t-il un essai gratuit ?",
-          "answer": "Oui ! Vous pouvez vous inscrire à notre plan Pro et l'utiliser gratuitement pendant 14 jours, aucune carte de crédit requise au départ."
+          "answer": "Oui, notre Formule de Base inclut 1 mois d'essai gratuit. Vous pouvez tester toutes les fonctionnalités essentielles avant de vous engager. Aucune carte de crédit n'est requise pour commencer."
         },
         "changePlan": {
           "question": "Puis-je changer de plan plus tard ?",
@@ -748,10 +772,11 @@
         },
         "smsRequirements": {
           "question": "Quelles sont les exigences pour les notifications SMS ?",
-          "answer": "La fonctionnalité SMS s'intègre avec Twilio. Vous aurez besoin de votre propre compte Twilio et de vos identifiants. Les tarifs de messagerie standard de Twilio s'appliqueront."
+          "answer": "La fonctionnalité SMS s'intègre avec des services tiers comme Twilio. Vous aurez besoin de votre propre compte Twilio. Les tarifs de messagerie standard de votre fournisseur s'appliqueront."
         }
       }
-    },
+    }
+  },
     "features": {
       "title": "Fonctionnalités Qui Alimentent Votre Entreprise",
       "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing plus simple, plus rapide et plus professionnelle.",

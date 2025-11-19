@@ -9,6 +9,7 @@ import OrderTable from '../../components/Dashboard/OrderTable';
 import FilterControls from '../../components/Dashboard/FilterControls';
 import Modal from '../../components/UI/Modal';
 import Input from '../../components/UI/Input';
+import { trackEvent } from '../../utils/pixel'; 
 import { PlusCircle, AlertTriangle, CheckCircle2, Clock3, Shirt, TrendingUp, Filter as FilterIcon, Search as SearchIcon, DollarSign } from 'lucide-react'; // Added more icons
 import { format, isPast, parseISO } from 'date-fns';
 import { useAuth } from '../../contexts/AuthContext';
@@ -123,6 +124,10 @@ const DashboardPage = () => {
     useEffect(() => {
         loadOrders(filters);
         loadDailyPayments();
+         trackEvent('ViewContent', {
+            content_name: 'Dashboard',
+            content_category: 'Management',
+        });
     }, [filters, loadOrders, loadDailyPayments]);
 
     const handleFilterChange = (newFilters) => setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));

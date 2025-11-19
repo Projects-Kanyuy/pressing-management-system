@@ -1,58 +1,61 @@
-// server/middleware/usageLimitMiddleware.js
 import asyncHandler from './asyncHandler.js';
 import Tenant from '../models/Tenant.js';
-import Plan from '../models/Plan.js';
+// We don't need to import Plan here anymore, populate will handle it.
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 
-// Middleware to check if a tenant can create a new staff member
 export const canCreateStaff = asyncHandler(async (req, res, next) => {
-    const tenantId = req.tenantId; 
-    const tenant = await Tenant.findById(tenantId).populate('plan'); // Populate is not needed if plan name is stored
+    const tenantId = req.tenantId;
+    // --- UPDATED LOGIC ---
+    const tenant = await Tenant.findById(tenantId).populate('plan');
 
     if (!tenant) throw new Error('Tenant not found.');
-
-    const plan = await Plan.findOne({ name: tenant.plan });
-    if (!plan) throw new Error('Subscription plan not found.');
+    if (!tenant.plan) throw new Error('Subscription plan not found for this tenant.');
 
     const currentStaffCount = await User.countDocuments({ tenantId: tenantId });
+    const maxStaff = tenant.plan.limits.maxStaff;
 
-    if (currentStaffCount >= plan.limits.maxStaff) {
-        res.status(403); // 403 Forbidden
-        throw new Error(`Your '${plan.name}' plan is limited to ${plan.limits.maxStaff} staff members. Please upgrade your plan to add more.`);
+    if (currentStaffCount >= maxStaff) {
+        res.status(403);
+        throw new Error(`Your '${tenant.plan.name}' plan is limited to ${maxStaff} staff members. Please upgrade your plan to add more.`);
     }
 
-    next(); // If limit is not reached, proceed
+    next();
 });
 
-// Middleware to check if a tenant can create a new order
 export const canCreateOrder = asyncHandler(async (req, res, next) => {
-    const tenantId = req.tenantId; 
-    const tenant = await Tenant.findById(tenantId);
-    
+    const tenantId = req.tenantId;
+    // --- UPDATED LOGIC ---
+    const tenant = await Tenant.findById(tenantId).populate('plan');
+
     if (!tenant) throw new Error('Tenant not found.');
+    if (!tenant.plan) throw new Error('Subscription plan not found for this tenant.');
+
     if (tenant.subscriptionStatus !== 'active' && tenant.subscriptionStatus !== 'trialing') {
         res.status(403);
         throw new Error('Your subscription is inactive. Please upgrade to create new orders.');
     }
-    
-    const plan = await Plan.findOne({ name: tenant.plan });
-    if (!plan) throw new Error('Subscription plan not found.');
 
-    // Get the start of the current month
+    const maxOrders = tenant.plan.limits.maxOrdersPerMonth;
+    
+    // If maxOrders is not defined on the plan, it's unlimited.
+    if (maxOrders === null || maxOrders === undefined) {
+        return next(); // Proceed without checking
+    }
+
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
     const currentOrderCount = await Order.countDocuments({
         tenantId: tenantId,
-        createdAt: { $gte: startOfMonth } // $gte = greater than or equal to
+        createdAt: { $gte: startOfMonth }
     });
 
-    if (currentOrderCount >= plan.limits.maxOrdersPerMonth) {
+    if (currentOrderCount >= maxOrders) {
         res.status(403);
-        throw new Error(`You have reached your monthly limit of ${plan.limits.maxOrdersPerMonth} orders for the '${plan.name}' plan. Please upgrade to continue.`);
+        throw new Error(`You have reached your monthly limit of ${maxOrders} orders for the '${tenant.plan.name}' plan. Please upgrade to continue.`);
     }
-    
-    next(); // If limit is not reached, proceed
+
+    next();
 });

@@ -18,6 +18,7 @@ import OrderStatusBadge from '../../components/Dashboard/OrderStatusBadge';
 import Modal from '../../components/UI/Modal';
 import Input from '../../components/UI/Input';
 import Select from '../../components/UI/Select';
+import { trackEvent } from '../../utils/pixel';
 import {
     ArrowLeft, Edit3, Printer, DollarSign, MessageSquare, AlertTriangle,
     CheckCircle2, Clock3, RefreshCw, Trash2
@@ -101,8 +102,7 @@ const OrderDetailsPage = () => {
     }, [actionSuccess, actionError]);
 
     const handlePrintReceipt = () => window.print();
-
-    const handleUpdateStatus = async (newStatus) => {
+const handleUpdateStatus = async (newStatus) => {
         if (!order || isUpdatingStatus) return;
         setIsUpdatingStatus(true); setActionError(''); setActionSuccess('');
         try {
@@ -115,6 +115,23 @@ const OrderDetailsPage = () => {
                 successMsg += ` ${t('orderDetails.messages.notificationSent', { method: updatedOrder.notificationMethod.replace('manual-', '') })}.`;
             }
             setActionSuccess(successMsg);
+
+            // --- META PIXEL TRACKING for Status Change ---
+            if (newStatus === 'Ready for Pickup') {
+                // 'Schedule' is a standard event that fits this action well.
+                trackEvent('Schedule', {
+                    content_name: `Order Ready for Pickup - #${order.receiptNumber}`,
+                    content_ids: [order._id],
+                });
+            } else if (newStatus === 'Completed') {
+                // 'CompleteRegistration' can be used to signify the end of the order lifecycle.
+                trackEvent('CompleteRegistration', {
+                    content_name: `Order Completed - #${order.receiptNumber}`,
+                    status: 'completed', // You can add custom properties
+                });
+            }
+            // --- END META PIXEL TRACKING ---
+
         } catch (err) { setActionError(err.response?.data?.message || err.message || t('orderDetails.messages.errorUpdatingStatus'));
         } finally { setIsUpdatingStatus(false); }
     };
@@ -132,7 +149,6 @@ const OrderDetailsPage = () => {
         e.preventDefault();
         const amountToPay = parseFloat(paymentAmount);
         if (isNaN(amountToPay) || amountToPay <= 0) {
-            // This error should ideally be displayed inside the modal
             alert(t('orderDetails.messages.validPaymentRequired'));
             return;
         }
@@ -142,20 +158,29 @@ const OrderDetailsPage = () => {
         try {
             const payload = { amount: amountToPay, method: paymentMethod };
             const { data: updatedOrder } = await recordPaymentApi(order._id, payload);
-            setOrder(updatedOrder); // Update the main order state with the response
-            setShowPaymentModal(false); // Close the modal
-            setPaymentAmount(''); // Reset form field
+            setOrder(updatedOrder);
+            setShowPaymentModal(false);
+            setPaymentAmount('');
             setActionSuccess(t('orderDetails.messages.paymentRecorded', { currency: settings.defaultCurrencySymbol || '$', amount: payload.amount.toFixed(2) }));
+
+            // --- META PIXEL TRACKING for Purchase ---
+            // This is the most important event for tracking revenue.
+            trackEvent('Purchase', {
+                value: amountToPay,
+                currency: settings.defaultCurrencySymbol || 'FCFA',
+                content_name: `Payment for Order #${order.receiptNumber}`,
+                content_ids: [order._id],
+                content_type: 'product_group', // Use 'product' or 'product_group'
+            });
+            // --- END META PIXEL TRACKING ---
+
         } catch (err) {
-            // For now, this error appears on the main page after the modal closes.
-            // A better UX would be to have an error state for the modal itself.
             setActionError(err.response?.data?.message || t('orderDetails.messages.failedToRecordPayment'));
-            setShowPaymentModal(false); // Also close modal on error
+            setShowPaymentModal(false);
         } finally {
             setIsRecordingPayment(false);
         }
     };
-
     const handleSendNotification = async () => {
         if (!order?.customer || (!order.customer.email && !order.customer.phone)) { setActionError(t('orderDetails.messages.customerContactMissing')); return; }
         if (isSendingNotification) return;
