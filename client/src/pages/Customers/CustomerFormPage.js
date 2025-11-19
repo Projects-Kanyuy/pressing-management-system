@@ -1,5 +1,5 @@
 // client/src/pages/Customers/CustomerFormPage.js
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -57,7 +57,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
             // Reset form for create mode if navigating back from edit or similar
             setFormData({ name: '', phone: '', email: '', address: '' });
         }
-    }, [isEditMode, id]); // Only re-run if mode or id changes
+    }, [isEditMode, id, t]); // Only re-run if mode or id changes
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

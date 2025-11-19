@@ -40,7 +40,7 @@ const PublicProfileManager = () => {
             }
         };
         loadProfile();
-    }, []);
+    }, [t]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -211,7 +211,7 @@ const SettingsPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         loadSettings();

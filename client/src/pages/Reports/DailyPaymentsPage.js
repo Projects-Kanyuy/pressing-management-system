@@ -31,12 +31,12 @@ const DailyPaymentsPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     // Fetch report on initial load
     useEffect(() => {
         loadReport(selectedDate);
-    }, [loadReport]);
+    }, [loadReport, selectedDate]);
 
     const handleFetchReport = () => {
         loadReport(selectedDate);

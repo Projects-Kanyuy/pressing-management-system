@@ -7,7 +7,7 @@ const planSchema = mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      enum: ['Trial', 'Basic', 'Pro', 'Enterprise'],
+      enum: ['Trial', 'Basic', 'Starter', 'Growth', 'Pro', 'Enterprise'],
     },
     // The 'price' field will now store regional prices
     prices: [
@@ -35,19 +35,19 @@ const planSchema = mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-    }, 
+    },
     limits: {
-        maxStaff: {
-            type: Number,
-            required: true,
-            default: 1 // Default limit
-        },
-        maxOrdersPerMonth: {
-            type: Number,
-            required: true,
-            default: 50 // Default limit
-        },
-  },
+      maxStaff: {
+        type: Number,
+        required: true,
+        default: 1 // Default limit
+      },
+      maxOrdersPerMonth: {
+        type: Number,
+        required: true,
+        default: 50 // Default limit
+      },
+    },
   },
   {
     timestamps: true,

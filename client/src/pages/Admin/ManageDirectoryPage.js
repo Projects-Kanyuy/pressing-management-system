@@ -1,17 +1,16 @@
 // client/src/pages/Admin/ManageDirectoryPage.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { createDirectoryListingApi, getAllDirectoryListingsApi, updateDirectoryListingApi, deleteDirectoryListingApi } from '../../services/api'; // Create these in api.js
+import { getAllDirectoryListingsApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Spinner from '../../components/UI/Spinner';
-import { List, PlusCircle, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { List, PlusCircle, AlertTriangle } from 'lucide-react';
 // You will also need a Form Modal for creating/editing, like UserFormModal
 
 const ManageDirectoryPage = () => {
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     const loadListings = useCallback(async () => {
         setLoading(true);
@@ -29,11 +28,6 @@ const ManageDirectoryPage = () => {
         loadListings();
     }, [loadListings]);
 
-    // Placeholder handlers - you would wire these up to a modal form
-    const handleCreateListing = async (formData) => { /* Calls createDirectoryListingApi */ };
-    const handleUpdateListing = async (listingId, formData) => { /* Calls updateDirectoryListingApi */ };
-    const handleDeleteListing = async (listingId) => { /* Calls deleteDirectoryListingApi */ };
-
     return (
         <div className="space-y-6">
             <div className="flex items-center space-x-3">
@@ -44,7 +38,6 @@ const ManageDirectoryPage = () => {
                 Manually add, edit, or remove businesses that are advertised in the public directory.
             </p>
             
-            {success && <div className="p-3 bg-green-100 text-apple-green rounded-apple"><CheckCircle2 size={18} className="inline mr-2"/>{success}</div>}
             {error && <div className="p-3 bg-red-100 text-apple-red rounded-apple"><AlertTriangle size={18} className="inline mr-2"/>{error}</div>}
 
             <Card>

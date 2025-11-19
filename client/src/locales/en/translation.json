@@ -667,38 +667,67 @@
       }
     },
     "pricing": {
-      "title": "Find the Right Plan for Your Business",
+      "title": "Choose Your Plan",
       "subtitle": "Simple, transparent pricing. Choose the plan that fits your needs and start streamlining your operations today.",
       "mostPopular": "Most Popular",
+      "localizing": "Loading Plans...",
       "plans": {
         "basic": {
-          "name": "Basic",
-          "price": "$29",
+          "name": "Basic Plan",
+          "price": "$2",
           "frequency": "mo",
           "features": [
-            "Up to 250 Orders per month",
-            "2 Staff Accounts",
-             "Basic Reporting Dashboard",
-             "Customer Management",
-            "Printable Receipts",
-            "Payment Tracking",
-            "Email Notifications",
-            "Boosted Buisness Traffic"
+            "Register and manage your clients manually",
+            "Generate receipts for every transaction",
+            "Only one user (you) can manage the platform",
+            "Includes a 1-month free trial before billing starts",
+            "Works on Android App and Laptop Installation"
+          ]
+        },
+        "starter": {
+          "name": "Starter Plan",
+          "price": "$10",
+          "frequency": "mo",
+          "features": [
+            "Get local traffic — connect instantly with people nearby who need laundry services",
+            "Offer home pickups and deliveries with client tracking",
+            "Register and manage customers easily",
+            "Communicate with clients directly through in-app messaging",
+            "Send bulk SMS and bulk emails to promote offers or reminders",
+            "Add up to 2 workers to help manage orders and deliveries",
+            "Real-time accountability: track all activities so staff can't cheat",
+            "View daily, weekly, or monthly sales in one click",
+            "Predict returning customers and send them promotions automatically",
+            "Works on both Android App and Laptop Installation for your office"
+          ]
+        },
+        "growth": {
+          "name": "Growth Plan",
+          "price": "$25",
+          "frequency": "mo",
+          "features": [
+            "Everything in Starter Plan",
+            "3× more customer traffic from your area",
+            "Priority listing in the PressMark directory",
+            "Add up to 5 workers, all managed under one account",
+            "Advanced analytics and performance dashboard",
+            "Automated reminders to clients for pickups and deliveries",
+            "Full support for Android and Laptop access"
           ]
         },
         "pro": {
-          "name": "Pro",
-          "price": "$59",
+          "name": "Pro Plan",
+          "price": "$50",
           "frequency": "mo",
           "features": [
-            "Unlimited Orders",
-            "Up to 10 Staff Accounts",
-            "Everything in Basic",
-            "SMS Notifications (Twilio)",
-            "Basic Sales Reports",
-            "Admin Bell Notifications",
-            "Advanced Customer Insights",
-            "Priority Email Support"
+            "Everything in Starter and Growth Plans",
+            "6× more customer traffic and premium directory placement",
+            "Add up to 15 workers and monitor every transaction in real time",
+            "Prevent staff cheating with detailed activity tracking",
+            "One-click access to daily, weekly, and monthly sales reports",
+            "Smart prediction of returning customers with auto-promotion tools",
+            "Dedicated priority support line",
+            "Full Android App + Laptop Installation access"
           ]
         },
         "enterprise": {
@@ -714,6 +743,16 @@
             "Onboarding Assistance"
           ]
         }
+      },
+      "allPlansInclude": {
+        "title": "⚡ All Plans Include:",
+        "features": [
+          "Secure PressMark Dashboard (web, Android, and laptop versions)",
+          "Cloud-based data backup for clients and orders",
+          "Instant view of sales performance and staff activities",
+          "Built-in customer database and promotional tools",
+          "24/7 technical support and automatic updates"
+        ]
       },
       "choose": "Choose",
       "faq": {

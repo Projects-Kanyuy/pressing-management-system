@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchCustomers, deleteCustomerApi } from '../../services/api';
 import Card from '../../components/UI/Card';
@@ -8,12 +8,10 @@ import Input from '../../components/UI/Input';
 import Spinner from '../../components/UI/Spinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { Users, PlusCircle, Search, Edit3, Trash2, Eye, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 const CustomerListPage = () => {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const navigate = useNavigate();
     
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,9 +26,8 @@ const CustomerListPage = () => {
         totalCustomers: 0,
     });
 
-    // This is now a regular async function, not wrapped in useCallback.
-    // This simplifies the logic and avoids stale closure issues.
-    const loadCustomers = async (search, page) => {
+    // Wrap in useCallback to avoid dependency issues
+    const loadCustomers = useCallback(async (search, page) => {
         setLoading(true);
         setError('');
         try {
@@ -56,7 +53,7 @@ const CustomerListPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
 
     // Debouncing effect for search input
     useEffect(() => {
@@ -69,7 +66,7 @@ const CustomerListPage = () => {
     // Effect to fetch data when debounced search term or page changes
     useEffect(() => {
         loadCustomers(debouncedSearchTerm, pagination.currentPage);
-    }, [debouncedSearchTerm, pagination.currentPage]); // The dependencies are simple and correct now
+    }, [debouncedSearchTerm, pagination.currentPage, loadCustomers]); // The dependencies are simple and correct now
 
     // Timer for action messages
     useEffect(() => {

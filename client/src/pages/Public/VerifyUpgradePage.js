@@ -1,7 +1,7 @@
 // client/src/pages/Public/VerifyUpgradePage.jsx
 
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getMyTenantProfileApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../../components/UI/Spinner';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getPublicDirectoryApi } from '../../services/api';
 import Spinner from '../../components/UI/Spinner';

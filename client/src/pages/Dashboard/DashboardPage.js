@@ -9,7 +9,7 @@ import OrderTable from '../../components/Dashboard/OrderTable';
 import FilterControls from '../../components/Dashboard/FilterControls';
 import Modal from '../../components/UI/Modal';
 import Input from '../../components/UI/Input';
-import { PlusCircle, AlertTriangle, CheckCircle2, Clock3, Shirt, TrendingUp, Filter as FilterIcon, Search as SearchIcon, DollarSign } from 'lucide-react'; // Added more icons
+import { PlusCircle, AlertTriangle, CheckCircle2, Clock3, Shirt, TrendingUp, Filter as FilterIcon } from 'lucide-react';
 import { format, isPast, parseISO } from 'date-fns';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppSettings } from '../../contexts/SettingsContext';
@@ -29,7 +29,7 @@ const StatCard = ({ title, value, icon, colorClass, isLoading }) => (
 
 
 const DashboardPage = () => {
-    const { settings, loadingSettings } = useAppSettings();
+    const { settings } = useAppSettings();
     const { t } = useTranslation();
     const { user } = useAuth()
     const [orders, setOrders] = useState([]);
@@ -53,8 +53,6 @@ const DashboardPage = () => {
     const [paymentError, setPaymentError] = useState('');
     const [paymentSuccess, setPaymentSuccess] = useState('');
     const [showFilters, setShowFilters] = useState(false);
-    const [salesData, setSalesData] = useState(null);
-    const [salesError, setSalesError] = useState('');
 
     const currencySymbol = settings?.defaultCurrencySymbol || '$';
     // TODO: Get from global settings context
@@ -88,11 +86,10 @@ const DashboardPage = () => {
         } finally {
             setLoadingOrders(false);
         }
-    }, [filters]);
+    }, [filters, t]);
 
     // Calculate stats based on the currently fetched page of orders
     useEffect(() => {
-        const now = new Date();
         setStats({
             total: pagination.totalOrders, // This is the grand total from backend
             pending: orders.filter(o => ['Pending', 'Processing'].includes(o.status)).length,

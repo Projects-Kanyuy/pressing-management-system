@@ -1,6 +1,5 @@
 // client/src/pages/Messaging/InboxPage.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchInboundMessagesApi } from '../../services/api';
 import Card from '../../components/UI/Card';
@@ -58,7 +57,7 @@ const InboxPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         loadMessages(1); // Load first page on mount

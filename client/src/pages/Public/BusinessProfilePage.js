@@ -174,9 +174,9 @@ const BusinessDetailPage = () => {
                             <div className="border-t dark:border-apple-gray-700 pt-6">
                                 <h3 className="font-semibold mb-4 text-apple-gray-800 dark:text-white">Social Media</h3>
                                 <div className="flex gap-4 text-apple-gray-500">
-                                    <a href="#" className="hover:text-apple-blue"><Globe size={20} /></a>
-                                    <a href="#" className="hover:text-apple-blue"><Facebook size={20} /></a>
-                                    <a href="#" className="hover:text-apple-blue"><Twitter size={20} /></a>
+                                    <button type="button" className="hover:text-apple-blue" aria-label="Website"><Globe size={20} /></button>
+                                    <button type="button" className="hover:text-apple-blue" aria-label="Facebook"><Facebook size={20} /></button>
+                                    <button type="button" className="hover:text-apple-blue" aria-label="Twitter"><Twitter size={20} /></button>
                                 </div>
                             </div>
                             <Button onClick={handleWhatsAppContact} className="w-full mt-4" variant="primary" disabled={!business.publicPhone}>Contact via WhatsApp</Button>

@@ -14,11 +14,6 @@ const tenantSchema = new mongoose.Schema({
         unique: true, // MUST be unique
         index: true,
     },
-    plan: {
-        type: String,
-        enum: ['trial', 'basic', 'pro', 'enterprise'],
-        default: 'trial',
-    },
     isActive: {
         type: Boolean,
         default: true,
@@ -61,10 +56,10 @@ const tenantSchema = new mongoose.Schema({
         default: true, 
         index: true 
     },
-     plan: {
+    plan: {
       type: String,
       required: true,
-      enum: ['Trial', 'Basic', 'Pro', 'Enterprise'],
+      enum: ['Trial', 'Basic', 'Starter', 'Growth', 'Pro', 'Enterprise'],
       default: 'Trial',
     },
     subscriptionStatus: {

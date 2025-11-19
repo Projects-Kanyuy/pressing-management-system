@@ -3,11 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { initiateRegistrationApi, finalizeRegistrationApi, initiatePaidSubscriptionApi } from '../../services/api';
+import { initiateRegistrationApi, finalizeRegistrationApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
-import Spinner from '../../components/UI/Spinner';
 import { ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, User, Building, Wrench, KeyRound, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PhoneInput from '../../components/UI/PhoneInput'; 
@@ -31,17 +30,6 @@ const Step1AdminAccount = ({ data, setData, onNext }) => {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false); 
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const togglePasswordVisibility = () => {
-            setShowPassword(!showPassword);
-        };
-    
-        const passwordIcon = (
-            showPassword ? (
-                <EyeOff size={18} onClick={togglePasswordVisibility} className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200" />
-            ) : (
-                <Eye size={18} onClick={togglePasswordVisibility} className="cursor-pointer text-apple-gray-400 hover:text-apple-gray-600 dark:hover:text-apple-gray-200" />
-            )
-        );
 
     const handleNext = () => {
         setError('');
@@ -334,7 +322,6 @@ const SignUpPage = () => {
 
     const [step, setStep] = useState(1);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const planNameFromUrl = new URLSearchParams(location.search).get('plan') || 'trial';
@@ -375,16 +362,6 @@ const SignUpPage = () => {
             }));
         }
     };
-    const handleSetData = (section, field, value) => {
-        if (section === 'setTopLevel') {
-            updateFormData(field, value);
-        } else {
-            updateFormData(section, value, field); // Note: order might be different
-        }
-    };
-    // Then you pass `handleSetData` to the step components. This requires refactoring
-    // how you call setData. Let's simplify the Step2 call for now.
-    
     // A simpler way to update the main component's state from the child
     const handleSetDataForStep2 = (section, field, value) => {
         if (section === 'setTopLevel') {
@@ -393,8 +370,6 @@ const SignUpPage = () => {
             setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
         }
     };
-
-    const setTopLevelFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
     const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 // Paste this entire block inside your SignUpPage component, replacing the old handler functions.
@@ -402,18 +377,15 @@ const SignUpPage = () => {
  const handleInitiateRegistration = async () => {
         setIsSubmitting(true);
         setError('');
-        setSuccess('');
         try {
             // It makes ONE API call. The backend's logic will decide what to do.
             const { data } = await initiateRegistrationApi(formData);
 
             if (data.paymentRequired) {
                 // The backend says payment is needed and has sent us the link.
-                setSuccess(data.message);
                 window.location.href = data.paymentLink;
             } else {
                 // The backend says it's a Trial, so we move to the OTP step.
-                setSuccess(data.message);
                 setStep(5);
             }
         } catch (err) {

@@ -34,7 +34,7 @@ const PricingManager = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         loadData();

@@ -7,7 +7,6 @@ import {
     fetchOrderById,
     updateExistingOrder,
     sendManualNotification,
-    deleteOrderApi,
     recordPaymentApi,
     fetchAppSettings
 } from '../../services/api';
@@ -19,8 +18,8 @@ import Modal from '../../components/UI/Modal';
 import Input from '../../components/UI/Input';
 import Select from '../../components/UI/Select';
 import {
-    ArrowLeft, Edit3, Printer, DollarSign, MessageSquare, AlertTriangle,
-    CheckCircle2, Clock3, RefreshCw, Trash2
+    ArrowLeft, Printer, DollarSign, MessageSquare, AlertTriangle,
+    CheckCircle2, Clock3, RefreshCw
 } from 'lucide-react';
 import { format, parseISO, isPast, isValid as isValidDate } from 'date-fns';
 
@@ -63,7 +62,6 @@ const OrderDetailsPage = () => {
     const [actionSuccess, setActionSuccess] = useState('');
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
     const [isSendingNotification, setIsSendingNotification] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     // State for the Payment Modal
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -88,7 +86,7 @@ const OrderDetailsPage = () => {
         } finally {
             if (showLoadingSpinner) setLoading(false);
         }
-    }, [id]);
+    }, [id, t]);
 
     useEffect(() => { loadData(); }, [loadData]);
 
@@ -165,21 +163,6 @@ const OrderDetailsPage = () => {
         finally { setIsSendingNotification(false); }
     };
 
-    const handleDeleteOrder = async () => {
-        if (!order) return;
-        if (window.confirm(t('orderDetails.messages.deleteConfirm', { receiptNumber: order.receiptNumber }))) {
-            setIsDeleting(true); setActionError(''); setActionSuccess('');
-            try {
-                await deleteOrderApi(order._id);
-                setActionSuccess(t('orderDetails.messages.orderDeleted', { receiptNumber: order.receiptNumber }));
-                setTimeout(() => navigate('/app/dashboard'), 2000);
-            } catch (err) {
-                setActionError(err.response?.data?.message || t('orderDetails.messages.failedToDelete'));
-            } finally {
-                setIsDeleting(false);
-            }
-        }
-    };
 
     if (loading) return <div className="flex justify-center items-center h-64"><Spinner size="lg" /></div>;
     if (error) return ( <div className="text-center py-10 max-w-xl mx-auto"><Card><AlertTriangle size={48} className="mx-auto text-apple-red mb-4" /><p className="text-xl text-apple-red">{error}</p><Button onClick={() => navigate('/app/dashboard')} variant="secondary" className="mt-6">{t('common.back')} {t('sidebar.dashboard')}</Button></Card></div> );
