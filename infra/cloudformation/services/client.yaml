@@ -1,0 +1,351 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the client (React app) via S3 + CloudFront + Route53 + automatic cache invalidation"
+
+Parameters:
+  EnvId:
+    Type: String
+    Description: Environment Id for namespacing resources.
+
+  DomainName:
+    Type: String
+    Description: Root domain name (e.g., example.com).
+
+  HostedZoneId:
+    Type: String
+    Description: The Route53 Hosted Zone ID that manages the domain.
+
+  InfraArtifactsBucket:
+    Type: String
+    Description: The S3 bucket where the build artifact (zip) is stored.
+
+  ClientArtifactS3Key:
+    Type: String
+    Description: The S3 key path to the built client zip file.
+
+  WebCertArn:
+    Type: String
+    Description: ARN of the ACM certificate for HTTPS (must be in us-east-1 for CloudFront).
+
+  ClientHash:
+    Type: String
+    Description: Unique hash for a specific commit/build of the client.
+
+Resources:
+  # --- Static Website Bucket ---
+  ClientBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${EnvId}-client-${AWS::Region}-${AWS::AccountId}"
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: EnvId
+          Value: !Ref EnvId
+
+  # --- CloudFront Origin Access Control ---
+  ClientOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${EnvId}-client-oac"
+        Description: "Access control for CloudFront to access S3 bucket"
+        SigningProtocol: sigv4
+        SigningBehavior: always
+        OriginAccessControlOriginType: s3
+
+  # --- CloudFront Distribution ---
+  ClientDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "Client distribution for ${EnvId}"
+        DefaultRootObject: index.html
+        Aliases:
+          - !Ref DomainName
+          - !Sub "www.${DomainName}"
+        ViewerCertificate:
+          AcmCertificateArn: !Ref WebCertArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: ClientS3Origin
+            DomainName: !GetAtt ClientBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref ClientOriginAccessControl
+        DefaultCacheBehavior:
+          TargetOriginId: ClientS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: ["GET", "HEAD", "OPTIONS"]
+          CachedMethods: ["GET", "HEAD"]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+        IPV6Enabled: true
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponsePagePath: /index.html
+            ResponseCode: 200
+            ErrorCachingMinTTL: 0
+
+  # --- Bucket Policy to allow CloudFront via OAC ---
+  ClientBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ClientBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowCloudFrontAccessViaOAC"
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Sub "${ClientBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ClientDistribution}"
+
+  # --- Lambda to deploy client build ---
+  DeployClientLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${EnvId}-deploy-client"
+      Role: !GetAtt DeployClientLambdaRole.Arn
+      Runtime: python3.11
+      Handler: index.handler
+      Timeout: 300
+      Environment:
+        Variables:
+          TARGET_BUCKET: !Ref ClientBucket
+          ARTIFACT_BUCKET: !Ref InfraArtifactsBucket
+          ARTIFACT_KEY: !Ref ClientArtifactS3Key
+      Code:
+        ZipFile: |
+          import boto3, zipfile, io, os, json, urllib3
+          s3 = boto3.client('s3')
+          http = urllib3.PoolManager()
+          
+          def send_response(event, context, status, reason=None):
+              body = json.dumps({
+                  "Status": status,
+                  "Reason": reason or "See CloudWatch logs",
+                  "PhysicalResourceId": context.log_stream_name,
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+              })
+              http.request("PUT", event["ResponseURL"], body=body)
+          
+          def handler(event, context):
+              print("Received event:", json.dumps(event))
+              if event.get("RequestType") == "Delete":
+                  send_response(event, context, "SUCCESS", "No-op on delete")
+                  return
+              try:
+                  target_bucket = os.environ['TARGET_BUCKET']
+                  artifact_bucket = os.environ['ARTIFACT_BUCKET']
+                  artifact_key = os.environ['ARTIFACT_KEY']
+                  obj = s3.get_object(Bucket=artifact_bucket, Key=artifact_key)
+                  with zipfile.ZipFile(io.BytesIO(obj['Body'].read())) as z:
+                      for name in z.namelist():
+                          if name.endswith('/'): continue
+                          parts = name.split('/', 1)
+                          key = parts[1] if len(parts) == 2 else parts[0]
+                          content = z.read(name)
+                          kwargs = {"Bucket": target_bucket, "Key": key, "Body": content}
+                          if key.endswith(".html"):
+                              kwargs["ContentType"] = "text/html"
+                          elif key.endswith(".css"):
+                              kwargs["ContentType"] = "text/css"
+                          elif key.endswith(".js"):
+                              kwargs["ContentType"] = "application/javascript"
+                          elif key.endswith(".json"):
+                              kwargs["ContentType"] = "application/json"
+                          elif key.endswith(".png"):
+                              kwargs["ContentType"] = "image/png"
+                          elif key.endswith(".jpg") or key.endswith(".jpeg"):
+                              kwargs["ContentType"] = "image/jpeg"
+                          elif key.endswith(".svg"):
+                              kwargs["ContentType"] = "image/svg+xml"
+                          elif key.endswith(".ico"):
+                              kwargs["ContentType"] = "image/x-icon"
+                          elif key.endswith(".txt"):
+                              kwargs["ContentType"] = "text/plain"
+                          elif key.endswith(".webmanifest"):
+                              kwargs["ContentType"] = "application/manifest+json"
+                          s3.put_object(**kwargs)
+                  send_response(event, context, "SUCCESS")
+              except Exception as e:
+                  print("Error:", str(e))
+                  send_response(event, context, "FAILED", str(e))
+
+  DeployClientLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-deploy-client-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DeployClientAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "logs:*"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${InfraArtifactsBucket}/*"
+                  - !Sub "arn:aws:s3:::${ClientBucket}/*"
+
+  # --- Custom Resource: Deploy Client ---
+  ClientDeploymentTrigger:
+    Type: Custom::DeployClient
+    Properties:
+      ServiceToken: !GetAtt DeployClientLambda.Arn
+      DeploymentHash: !Ref ClientHash
+
+  # --- Lambda for CloudFront Invalidation ---
+  CloudFrontInvalidationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${EnvId}-invalidate-client-cache"
+      Role: !GetAtt CloudFrontInvalidationRole.Arn
+      Runtime: python3.11
+      Handler: index.handler
+      Timeout: 60
+      Code:
+        ZipFile: |
+          import boto3, json, os, urllib3, time
+          cf = boto3.client("cloudfront")
+          http = urllib3.PoolManager()
+          
+          def send_response(event, context, status, reason=None):
+              body = json.dumps({
+                  "Status": status,
+                  "Reason": reason or "See CloudWatch logs",
+                  "PhysicalResourceId": context.log_stream_name,
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+              })
+              http.request("PUT", event["ResponseURL"], body=body)
+          
+          def handler(event, context):
+              print("Received event:", json.dumps(event))
+              try:
+                  if event["RequestType"] == "Delete":
+                      send_response(event, context, "SUCCESS", "No invalidation on delete")
+                      return
+                  dist_id = event["ResourceProperties"]["DistributionId"]
+                  deployment_hash = event["ResourceProperties"]["DeploymentHash"]
+                  caller_ref = f"{deployment_hash}-{int(time.time())}"
+                  cf.create_invalidation(
+                      DistributionId=dist_id,
+                      InvalidationBatch={
+                          "Paths": {"Quantity": 1, "Items": ["/*"]},
+                          "CallerReference": caller_ref,
+                      },
+                  )
+                  send_response(event, context, "SUCCESS")
+              except Exception as e:
+                  print("Error:", str(e))
+                  send_response(event, context, "FAILED", str(e))
+
+  CloudFrontInvalidationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvId}-invalidate-client-cache-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFrontInvalidationPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "logs:*"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:CreateInvalidation"
+                Resource: "*"
+
+  # --- Trigger CloudFront Invalidation ---
+  ClientCacheInvalidation:
+    Type: Custom::InvalidateCloudFrontCache
+    DependsOn: ClientDeploymentTrigger
+    Properties:
+      ServiceToken: !GetAtt CloudFrontInvalidationLambda.Arn
+      DistributionId: !Ref ClientDistribution
+      DeploymentHash: !Ref ClientHash
+
+  # --- Route53 Records ---
+  ClientARecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: ClientDistribution
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt ClientDistribution.DomainName
+
+  ClientAAAARecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: ClientDistribution
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt ClientDistribution.DomainName
+
+  ClientWWWRecord:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn: ClientDistribution
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: !Sub "www.${DomainName}"
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt ClientDistribution.DomainName
+        - Name: !Sub "www.${DomainName}"
+          Type: AAAA
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt ClientDistribution.DomainName
+
+Outputs:
+  ClientBucketName:
+    Description: Name of the S3 bucket hosting the client
+    Value: !Ref ClientBucket
+
+  CloudFrontDomain:
+    Description: CloudFront distribution domain name
+    Value: !GetAtt ClientDistribution.DomainName

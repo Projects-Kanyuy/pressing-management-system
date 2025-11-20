@@ -1,97 +1,100 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# PressFlow - Laundry & Pressing Management System
 
-# Getting Started
+PressFlow is a full-stack MERN application designed as a comprehensive Software as a Service (SaaS) platform for laundry and pressing businesses. It provides tools for business owners (Tenants) to manage their operations, customers, and orders, while also featuring a public-facing directory for end-users to discover local laundry services.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+ 
+<!-- **Action:** Replace this with a real screenshot URL of your running application! -->
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## ✨ Key Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+The application is divided into three main user experiences: the Public Directory, the Tenant (Business Owner) Dashboard, and the Super Admin Dashboard.
 
-```sh
-# Using npm
-npm start
+### 🧑‍🤝‍🧑 For Public Users:
+-   **Business Directory:** A searchable directory of all subscribed laundry businesses.
+-   **Search & Filter:** Users can search for businesses by name and filter by city.
+-   **Business Profiles:** View detailed profiles for each business, including services, pricing, and contact information.
 
-# OR using Yarn
-yarn start
-```
+### 👔 For Tenant / Business Owners:
+-   **Secure Authentication:** Tenants can register and log in to their own dedicated dashboard.
+-   **Order Management:** Full CRUD (Create, Read, Update, Delete) functionality for customer orders. Track order status (e.g., Pending, Processing, Ready for Pickup).
+-   **Customer Management:** Manage a list of their business's customers.
+-   **Service & Pricing Management:** Define the services they offer (e.g., Washing, Ironing) and set prices.
+-   **Dashboard Analytics:** An overview of key business metrics like total orders and revenue.
 
-## Step 2: Build and run your app
+### 👑 For the Directory Super Admin:
+-   **Secure Admin Login:** A separate, protected login for the platform administrator.
+-   **Tenant Management:** View all subscribed tenant businesses, manage their subscription plans, and activate/deactivate their accounts.
+-   **Manual Directory Listings:** Add or edit business listings in the public directory directly.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## 🛠️ Technology Stack
 
-```sh
-# Using npm
-npm run android
+This project is a complete MERN stack application built with a modern and scalable toolset.
 
-# OR using Yarn
-yarn android
-```
+-   **Backend:**
+    -   **Node.js & Express.js:** For building the robust RESTful API.
+    -   **MongoDB & Mongoose:** NoSQL database for flexible data storage.
+    -   **JWT (JSON Web Tokens) & bcrypt.js:** For secure, role-based authentication (Tenant vs. Super Admin).
+    -   **Cloudinary:** For cloud-based image hosting and management.
+    -   **Multer:** Middleware for handling file uploads.
 
-### iOS
+-   **Frontend:**
+    -   **React:** For building a dynamic and interactive user interface.
+    -   **React Router:** For client-side routing and navigation.
+    -   **Axios:** For handling API requests, with interceptors for global error and auth handling.
+    -   **Context API:** For global state management (user sessions, settings).
+    -   **Tailwind CSS:** For utility-first styling and responsive design.
+    -   **Lucide React:** For clean and modern icons.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+-   **Deployment:**
+    -   **Render:** For hosting the Node.js backend.
+    -   **Vercel:** For hosting the React frontend.
+    -   **Monorepo Structure:** Both frontend and backend are managed in a single Git repository.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+---
 
-```sh
-bundle install
-```
+## 🚀 Getting Started
 
-Then, and every time you update your native dependencies, run:
+To get a local copy up and running, follow these simple steps.
 
-```sh
-bundle exec pod install
-```
+### Prerequisites
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+-   Node.js and npm (or yarn)
+-   MongoDB Atlas account
+-   Cloudinary account
 
-```sh
-# Using npm
-npm run ios
+### Installation & Setup
 
-# OR using Yarn
-yarn ios
-```
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/ndip23/pressing-management-system.git
+    cd pressing-management-system
+    ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+2.  **Backend Setup (`server` directory):**
+    -   Navigate to the server directory: `cd server`
+    -   Install dependencies: `npm install`
+    -   Create a `.env` file and add the following required variables:
+        ```env
+        MONGO_URI=your_mongodb_connection_string
+        JWT_SECRET=your_jwt_secret_key
+        CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+        CLOUDINARY_API_KEY=your_cloudinary_api_key
+        CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+        ```
+    -   Start the backend server: `npm run dev`
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+3.  **Frontend Setup (`client` directory):**
+    -   In a new terminal, navigate to the client directory: `cd client`
+    -   Install dependencies: `npm install`
+    -   Create a `.env` file and add the backend API URL:
+        ```env
+        REACT_APP_API_BASE_URL=http://localhost:5000 
+        # Port must match your backend server port
+        ```
+    -   Start the frontend development server: `npm start`
 
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+The application should now be running, with the frontend on `http://localhost:3000` and the backend on `http://localhost:5000`.

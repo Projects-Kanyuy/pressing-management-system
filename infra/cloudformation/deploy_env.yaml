@@ -1,0 +1,237 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  License: Apache-2.0
+Description: "Deploys the environment stack for the Pressing management Site application (CloudFront + Lambda version)."
+
+Parameters:
+  EnvId:
+    Type: String
+    Description: Environment Id (used to namespace resources)
+    AllowedPattern: "[a-z][a-z0-9]{2,19}"
+    ConstraintDescription: Must be lower case letters between 3 and 20 characters.
+
+  ProjectId:
+    Type: String
+    Description: Project Id (used to determine the specific project)
+    AllowedPattern: "^[a-z][a-z0-9-]{2,49}$"
+    ConstraintDescription: Must be lower case letters, digits, or hyphens (3-50 characters).
+
+  InfraArtifactsBucket:
+    Type: String
+    Description: The bucket where the infra artifacts are stored (specifically the cloudformation templates).
+
+  InfraReleaseHash:
+    Type: String
+    Description: The id of the cloudformation templates to use for nested stacks.
+
+  ReleaseTarget:
+    Type: String
+    Description: The git branch or tag being deployed.
+
+  ClientHash:
+    Type: String
+    Description: The hash for a specific commit being deployed for the client.
+
+  DomainName:
+    Type: String
+    Description: The domain name for the environment.
+
+  HostedZoneId:
+    Type: String
+    Description: The Route53 Hosted Zone ID that manages the domain.
+
+  # New param for client s3 path
+  ClientArtifactS3Key:
+    Type: String
+    Description: S3 key (path) to the client build artifact (zip) inside the InfraArtifactsBucket.
+
+  ServerImageTag:
+    Type: String
+    Description: "ECR image URI for the server container"
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${ProjectId}-${EnvId}"
+
+  WebCert:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName: !Ref "DomainName"
+      SubjectAlternativeNames:
+        - !Sub "www.${DomainName}"
+        - !Sub "api.${DomainName}"
+      ValidationMethod: DNS
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+
+  ThirdPartySecretsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/components/third_party_secrets.yaml",
+          ],
+        ]
+
+  # VpcStack set up VPC with 2 AZs.
+  VpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        IsDevelopmentGrade: true
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+        - Key: ReleaseTarget
+          Value: !Ref "ReleaseTarget"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/aws-cloudformation-templates/core-components/vpc.yaml",
+          ],
+        ]
+        
+   # LoadBalancerStack deploys the default load balancer.
+  LoadBalancerStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: [VpcStack, WebCert]
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        VPC: !GetAtt VpcStack.Outputs.VPC
+        SubnetIds:
+          !Join [
+            ",",
+            [
+              !GetAtt VpcStack.Outputs.SubnetAPublic,
+              !GetAtt VpcStack.Outputs.SubnetBPublic,
+            ],
+          ]
+        CertificateArn: !Ref WebCert
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/aws-cloudformation-templates/core-components/load_balancer.yaml",
+          ],
+        ]
+        
+  # --- CLIENT STACK (S3 + CloudFront) ---
+  ClientStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        DomainName: !Ref DomainName
+        InfraArtifactsBucket: !Ref InfraArtifactsBucket
+        ClientArtifactS3Key: !Ref ClientArtifactS3Key
+        WebCertArn: !Ref WebCert
+        HostedZoneId: !Ref HostedZoneId
+        ClientHash: !Ref ClientHash
+      Tags:
+        - Key: EnvId
+          Value: !Sub "${ProjectId}-${EnvId}"
+      TemplateURL:
+        !Join [
+          "",
+          [
+            "https://s3.amazonaws.com/",
+            !Ref "InfraArtifactsBucket",
+            "/cloudformation/",
+            !Ref "InfraReleaseHash",
+            "/services/client.yaml",
+          ],
+        ]
+
+  # --- SERVER STACK (Lambda + API Gateway) ---
+  ServerStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - VpcStack
+    Properties:
+      TemplateURL: !Join [
+        "",
+        [
+          "https://s3.amazonaws.com/",
+          !Ref InfraArtifactsBucket,
+          "/cloudformation/",
+          !Ref InfraReleaseHash,
+          "/services/server.yaml",
+        ],
+      ]
+      Parameters:
+        EnvId: !Sub "${ProjectId}-${EnvId}"
+        DomainName: !Ref DomainName
+        InfraArtifactsBucket: !Ref InfraArtifactsBucket
+
+        # --- Docker Image Tag ---
+        ImageTag: !Ref ServerImageTag
+
+        # --- VPC Networking ---
+        VpcId: !GetAtt VpcStack.Outputs.VPC
+
+        PublicSubnetIds: !Join [
+          ",",
+          [
+            !GetAtt VpcStack.Outputs.SubnetAPublic,
+            !GetAtt VpcStack.Outputs.SubnetBPublic
+          ]
+        ]
+
+        PrivateSubnetIds: !Join [
+          ",",
+          [
+            !GetAtt VpcStack.Outputs.SubnetAPrivate,
+            !GetAtt VpcStack.Outputs.SubnetBPrivate
+          ]
+        ]
+
+        # --- HTTPS Cert ---
+        WebCertArn: !Ref WebCert
+
+        # --- Third-party secret ARNs ---
+        MongoDBSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.MongoDBSecretArn
+        CloudinarySecretArn: !GetAtt ThirdPartySecretsStack.Outputs.CloudinarySecretArn
+        JWTSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.JWTSecretArn
+        AdminSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.AdminSecretArn
+        SmtpSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.SmtpSecretArn
+        TwilioSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.TwilioSecretArn
+        DirectoryAdminSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.DirectoryAdminSecretArn
+        ExchangeRateSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.ExchangeRateSecretArn
+        AccountpeSecretArn: !GetAtt ThirdPartySecretsStack.Outputs.AccountpeSecretArn
+
+# Outputs:
+#   ClientDistributionDomain:
+#     Description: CloudFront domain for client
+#     Value: !GetAtt ClientStack.Outputs.CloudFrontDomain
+
+#   ApiGatewayUrl:
+#     Description: URL for the server API
+#     Value: !GetAtt ServerStack.Outputs.ApiGatewayUrl

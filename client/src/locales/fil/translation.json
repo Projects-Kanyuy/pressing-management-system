@@ -1,0 +1,984 @@
+{
+  "sidebar": {
+    "navigation": {
+      "dashboard": "Dashboard",
+      "newOrder": "Bagong Order",
+      "customers": "Mga Customer",
+      "payments": "Mga Bayad",
+      "inbox": "Inbox"
+    },
+    "admin": {
+      "title": "Admin Area",
+      "settings": "Mga Setting",
+      "manageStaff": "Pamahalaan ang Staff",
+      "servicesPricing": "Mga Serbisyo at Presyo"
+    },
+    "closeSidebar": "Isara ang sidebar"
+  },
+  "orderItemRow": {
+    "itemNumber": "Item #{{number}}",
+    "removeItem": "Tanggalin ang item",
+    "removeItemAria": "Tanggalin ang item {{number}}",
+    "itemType": "Uri ng Item*",
+    "serviceType": "Uri ng Serbisyo*",
+    "quantity": "Dami*",
+    "specialInstructions": "Mga Espesyal na Tagubilin",
+    "linePrice": "Presyo ng Linya",
+    "selectItem": "Pumili ng Item",
+    "selectService": "Pumili ng Serbisyo",
+    "instructionsPlaceholder": "hal., Walang starch",
+    "placeholders": {
+      "selectItemType": "Pumili ng Item",
+      "selectServiceType": "Pumili ng Serbisyo",
+      "quantity": "1",
+      "specialInstructions": "hal., Walang starch"
+    },
+    "accessibility": {
+      "itemType": "Pumili ng uri ng item",
+      "serviceType": "Pumili ng uri ng serbisyo",
+      "quantity": "Ilagay ang dami",
+      "specialInstructions": "Mga espesyal na tagubilin para sa item na ito",
+      "linePrice": "Kabuuang presyo ng linya",
+      "removeItem": "Tanggalin ang item",
+      "removeItemWithNumber": "Tanggalin ang item {{number}}"
+    }
+  },
+  "login": {
+    "title": "Login ng Staff",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Ilagay ang inyong username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Ilagay ang inyong password",
+    "loginButton": "Mag-login",
+    "loggingIn": "Nag-lo-login...",
+    "showPassword": "Ipakita ang password",
+    "hidePassword": "Itago ang password",
+    "pageTitle": "Login",
+    "alreadyLoggedIn": "Naka-login na. Nire-redirect...",
+    "copyright": "Lahat ng karapatan ay nakalaan.",
+    "loginFailed": "Nabigo ang login. Pakisuri ang inyong mga kredensyal."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalOrders": "Kabuuang Mga Order",
+    "pendingProcessing": "Naghihintay/Ginagawa",
+    "readyForPickup": "Handa na para Kunin",
+    "overdueOrders": "Mga Order na Lampas sa Takdang Araw",
+    "orderList": "Listahan ng Mga Order",
+    "todaysSales": "Benta Ngayong Araw",
+    "filters": "Mga Filter",
+    "filtersHide": "(Itago)",
+    "filtersShow": "(Ipakita)",
+    "createNewOrder": "Gumawa ng Bagong Order",
+    "noOrdersFound": "Walang nahanap na order na tumugma sa criteria.",
+    "previous": "Nakaraan",
+    "next": "Susunod",
+    "pageInfo": "Pahina {{currentPage}} ng {{totalPages}} ({{totalOrders}} na order)",
+    "filterOrders": "I-filter ang Mga Order",
+    "recordPayment": "I-record ang Bayad para sa Order #{{receiptNumber}}",
+    "paymentSuccess": "{{amount}} na bayad na-record para sa #{{receiptNumber}}.",
+    "paymentError": "Nabigo sa pag-record ng bayad.",
+    "customer": "Customer",
+    "totalAmount": "Kabuuang Halaga",
+    "currentlyPaid": "Kasalukuyang Nabayad",
+    "balanceDue": "Balanseng Utang",
+    "paymentAmountToAdd": "Halagang Bayad na Idadagdag",
+    "enterAmount": "Ilagay ang halaga",
+    "submitPayment": "Isumite ang Bayad",
+    "cancel": "Kanselahin",
+    "paymentAmountRequired": "Pakiusap, maglagay ng halaga ng bayad.",
+    "validAmountRequired": "Kailangan ng wastong positibong halaga.",
+    "dailyPaymentsError": "Hindi ma-load ang datos ng araw-araw na benta.",
+    "ordersError": "Nabigo sa pag-kuha ng mga order. Pakisubukan muli."
+  },
+  "orderTable": {
+    "noOrders": "Walang nahanap na order.",
+    "noOrdersSubtext": "Subukan na i-adjust ang inyong mga filter o gumawa ng bagong order.",
+    "headers": {
+      "receiptNumber": "Receipt #",
+      "customer": "Customer",
+      "dropOff": "Drop-off",
+      "pickupDue": "Takdang Kunin",
+      "status": "Status",
+      "payment": "Bayad",
+      "total": "Kabuuan",
+      "actions": "Mga Aksyon"
+    },
+    "paymentStatus": {
+      "paid": "Nabayad",
+      "partiallyPaid": "Bahagyang Nabayad",
+      "unpaid": "Hindi Nabayad"
+    },
+    "actions": {
+      "pay": "Magbayad",
+      "recordPayment": "I-record ang Bayad",
+      "viewDetails": "Tingnan ang Mga Detalye",
+      "editOrder": "I-edit ang Order"
+    },
+    "overdue": "Lampas sa Takdang Araw"
+  },
+  "orderStatus": {
+    "pending": "Naghihintay",
+    "processing": "Ginagawa",
+    "readyForPickup": "Handa na para Kunin",
+    "completed": "Tapos na",
+    "cancelled": "Nakansela"
+  },
+  "orderDetails": {
+    "title": "Mga Detalye ng Order",
+    "receiptNumber": "Receipt #",
+    "goBack": "Bumalik",
+    "refresh": "I-refresh",
+    "printReceipt": "I-print ang Receipt",
+    "editOrder": "I-edit ang Order",
+    "orderOverdue": "Order ay Lampas sa Takdang Araw!",
+    "expected": "Inaasahan",
+    "orderInfo": {
+      "title": "Mga Detalye ng Order",
+      "currentStatus": "Kasalukuyang Status",
+      "orderPlaced": "Order na Nailagay",
+      "dropOff": "Drop-off",
+      "expectedPickup": "Inaasahang Pagkuha",
+      "actualPickup": "Totoong Pagkuha",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "finalTotal": "Huling Kabuuan",
+      "advancePaid": "Advance na Nabayad",
+      "balanceDue": "Balanseng Utang",
+      "paymentStatus": "Status ng Bayad",
+      "orderNotes": "Mga Tala ng Order",
+      "processedBy": "Na-proseso ni",
+      "notificationSent": "Na-send ang Notification"
+    },
+    "customer": {
+      "title": "Impormasyon ng Customer",
+      "name": "Pangalan",
+      "phone": "Telepono",
+      "email": "Email",
+      "address": "Address"
+    },
+    "items": {
+      "title": "Mga Item sa Order",
+      "service": "Serbisyo",
+      "instructions": "Mga Tagubilin",
+      "noItems": "Walang nahanap na item."
+    },
+    "actions": {
+      "title": "Mga Aksyon ng Order",
+      "updateStatus": "I-update ang Status:",
+      "recordPayment": "I-record ang Bayad",
+      "orderFullyPaid": "Order ay Lubos na Nabayad",
+      "sendNotification": "Magpadala ng Notification",
+      "resendNotification": "Muling Magpadala ng Notification",
+      "deleteOrder": "Burahin ang Order na Ito"
+    },
+    "paymentModal": {
+      "title": "I-record ang Bayad para sa Order #{{receiptNumber}}",
+      "totalAmount": "Kabuuang Halaga:",
+      "currentlyPaid": "Kasalukuyang Nabayad:",
+      "balanceDue": "Balanseng Utang:",
+      "paymentAmount": "Halaga ng Bayad",
+      "paymentMethod": "Paraan ng Bayad",
+      "confirmPayment": "Kumpirmahin ang Bayad",
+      "cancel": "Kanselahin"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Credit/Debit Card",
+      "mobileMoney": "Mobile Money",
+      "other": "Iba pa"
+    },
+    "paymentStatus": {
+      "paidInFull": "Lubos na Nabayad",
+      "unpaidPartial": "Hindi Nabayad / Bahagya"
+    },
+    "receipt": {
+      "qty": "DAMI",
+      "itemService": "ITEM / SERBISYO",
+      "price": "PRESYO",
+      "subtotal": "Subtotal:",
+      "discount": "Discount:",
+      "total": "KABUUAN:",
+      "advancePaid": "Advance na Nabayad:",
+      "balanceDue": "BALANSENG UTANG:",
+      "orderNotes": "Mga Tala ng Order:",
+      "thankYou": "Salamat sa inyong negosyo!"
+    },
+    "messages": {
+      "orderNotFound": "Hindi nahanap ang order.",
+      "failedToLoad": "Nabigo sa pag-load ng datos ng pahina.",
+      "statusUpdated": "Na-update ang status ng order sa {{status}}.",
+      "notificationSent": "Na-send ang notification via {{method}}.",
+      "errorUpdatingStatus": "Error sa pag-update ng status.",
+      "customerContactMissing": "Nawawala ang contact information ng customer.",
+      "failedToSendNotification": "Nabigo sa pagpadala ng notification.",
+      "deleteConfirm": "Sigurado ba kayong gusto ninyong permanenteng burahin ang order #{{receiptNumber}}?",
+      "orderDeleted": "Matagumpay na nabura ang order #{{receiptNumber}}.",
+      "failedToDelete": "Nabigo sa pagbura ng order.",
+      "validPaymentRequired": "Pakiusap, maglagay ng wastong, positibong halaga ng bayad.",
+      "paymentRecorded": "Matagumpay na na-record ang bayad na {{currency}}{{amount}}.",
+      "failedToRecordPayment": "Nabigo sa pag-record ng bayad."
+    },
+    "notificationStatus": {
+      "yes": "Oo, via {{method}}",
+      "no": "Hindi",
+      "auto": "auto (mga log)"
+    }
+  },
+  "createOrder": {
+    "title": "Gumawa ng Bagong Order",
+    "backToDashboard": "Bumalik sa Dashboard",
+    "form": {
+      "loadingData": "Nilo-load ang Presyo at Mga Serbisyo...",
+      "setupRequired": "Kailangan ng Setup",
+      "noItemTypes": "Walang na-configure na uri ng item o serbisyo para sa inyong negosyo.",
+      "goToSettings": "Pumunta sa Settings para magdagdag ng mga serbisyo",
+      "customerInfo": {
+        "title": "Impormasyon ng Customer",
+        "existingCustomer": "Umiiral na Customer",
+        "newCustomer": "Bagong Customer",
+        "searchCustomer": "Hanapin ang Customer (Pangalan/Telepono)",
+        "searchPlaceholder": "Mag-type para maghanap...",
+        "selected": "Napili",
+        "fullName": "Buong Pangalan*",
+        "phoneNumber": "Numero ng Telepono*",
+        "emailAddress": "Email Address (Opsyonal)",
+        "address": "Address (Opsyonal)"
+      },
+      "items": {
+        "title": "Mga Damit",
+        "addItem": "Magdagdag ng Item"
+      },
+      "summary": {
+        "title": "Buod ng Order, Discount at Mga Petsa",
+        "subtotal": "Subtotal",
+        "discountType": "Uri ng Discount",
+        "noDiscount": "Walang Discount",
+        "percentage": "Porsyento (%)",
+        "fixedAmount": "Tukoy na Halaga",
+        "discountValue": "Halaga ng Discount",
+        "calculatedDiscount": "Na-calculate na Discount",
+        "finalTotal": "Huling Kabuuang Halaga",
+        "advancePaid": "Advance na Nabayad",
+        "balanceDue": "Balanseng Utang",
+        "expectedPickupDate": "Inaasahang Petsa ng Pagkuha*",
+        "expectedPickupTime": "Inaasahang Oras ng Pagkuha*",
+        "orderNotes": "Mga Tala ng Order (Opsyonal)"
+      },
+      "actions": {
+        "cancel": "Kanselahin",
+        "reviewOrder": "Suriin ang Order",
+        "reviewChanges": "Suriin ang Mga Pagbabago"
+      },
+      "validation": {
+        "customerNamePhoneRequired": "Bagong customer: Kailangan ng Pangalan at Telepono.",
+        "selectCustomerRequired": "Pakiusap, pumili ng umiiral na customer o gumawa ng bago.",
+        "itemsRequired": "Lahat ng item ay nangangailangan ng uri, serbisyo, at dami (minimum 1).",
+        "pickupDateRequired": "Kailangan ng wastong inaasahang petsa at oras ng pagkuha.",
+        "invalidDateTime": "Hindi wastong kombinasyon ng petsa/oras.",
+        "internalError": "Internal Error: Walang datos ng order para sa pagsusumite.",
+        "couldNotLoadData": "Hindi ma-load ang impormasyon ng presyo at serbisyo. Pakiusap, i-configure ito sa settings o subukan muli mamaya.",
+        "orderCreated": "Nagawa ang order! Receipt: {{receiptNumber}}",
+        "orderUpdated": "Na-update ang order! Receipt: {{receiptNumber}}",
+        "failedToCreate": "Nabigo sa paggawa ng order.",
+        "failedToSave": "Nabigo sa pag-save ng order."
+      },
+      "confirmModal": {
+        "titleNew": "Kumpirmahin ang Bagong Order",
+        "titleEdit": "Kumpirmahin ang Mga Pagbabago sa Order",
+        "reviewDetails": "Pakiusap, suriin ang lahat ng mga detalye:",
+        "customer": "Customer:",
+        "items": "Mga Item:",
+        "summary": "Buod:",
+        "name": "Pangalan:",
+        "phone": "Telepono:",
+        "email": "Email:",
+        "address": "Address:",
+        "service": "Serbisyo:",
+        "instructions": "Mga Tagubilin:",
+        "subtotal": "Subtotal:",
+        "discount": "Discount",
+        "finalTotal": "Huling Kabuuan:",
+        "advancePaid": "Advance na Nabayad:",
+        "balanceDue": "Balanseng Utang:",
+        "expectedPickup": "Inaasahang Pagkuha:",
+        "notes": "Mga Tala:",
+        "missing": "Nawawala",
+        "noItems": "Walang nadagdag na item.",
+        "isCorrect": "Tama ba ang lahat ng impormasyon?",
+        "edit": "I-edit",
+        "confirmCreate": "Kumpirmahin at Gumawa ng Order",
+        "confirmSave": "Kumpirmahin at I-save ang Mga Pagbabago"
+      }
+    }
+  },
+  "customers": {
+    "title": "Pamahalaan ang Mga Customer",
+    "addNewCustomer": "Magdagdag ng Bagong Customer",
+    "searchPlaceholder": "Maghanap ayon sa pangalan, telepono, o email...",
+    "table": {
+      "name": "Pangalan",
+      "phone": "Telepono",
+      "email": "Email",
+      "actions": "Mga Aksyon"
+    },
+    "actions": {
+      "viewDetails": "Tingnan ang Mga Detalye",
+      "editCustomer": "I-edit ang Customer",
+      "deleteCustomer": "Burahin ang Customer"
+    },
+    "messages": {
+      "failedToFetch": "Nabigo sa pagkuha ng mga customer.",
+      "noCustomersFound": "Walang nahanap na customer na tumugma sa \"{{searchTerm}}\".",
+      "noCustomersYet": "Wala pang nadagdag na customer.",
+      "addFirstCustomer": "Magdagdag ng unang customer!",
+      "deleteConfirm": "Sigurado ba kayong gusto ninyong burahin ang customer na \"{{customerName}}\"? Maaaring limitado ito kung may mga umiiral na order.",
+      "deleteSuccess": "Matagumpay na nabura ang customer na \"{{customerName}}\".",
+      "deleteFailed": "Nabigo sa pagbura ng customer na \"{{customerName}}\".",
+      "tryAgain": "Subukan Muli"
+    },
+    "pagination": {
+      "pageInfo": "Pahina {{currentPage}} ng {{totalPages}} (Kabuuan: {{totalCustomers}} na customer)",
+      "previous": "Nakaraan",
+      "next": "Susunod"
+    }
+  },
+  "customerForm": {
+    "addTitle": "Magdagdag ng Bagong Customer",
+    "editTitle": "I-edit ang Customer",
+    "backToCustomers": "Bumalik sa Mga Customer",
+    "form": {
+      "fullName": "Buong Pangalan",
+      "phoneNumber": "Numero ng Telepono",
+      "emailAddress": "Email Address (Opsyonal)",
+      "address": "Address (Opsyonal)",
+      "namePlaceholder": "Ilagay ang buong pangalan ng customer",
+      "phonePlaceholder": "hal., 555-123-4567",
+      "emailPlaceholder": "customer@example.com",
+      "addressPlaceholder": "123 Main St, Lungsod, Estado"
+    },
+    "actions": {
+      "cancel": "Kanselahin",
+      "saveChanges": "I-save ang Mga Pagbabago",
+      "createCustomer": "Gumawa ng Customer"
+    },
+    "validation": {
+      "namePhoneRequired": "Kailangan ng pangalan at numero ng telepono ng customer."
+    },
+    "messages": {
+      "fetchFailed": "Nabigo sa pagkuha ng datos ng customer para sa ID: {{id}}.",
+      "updateSuccess": "Matagumpay na na-update ang customer na \"{{name}}\"!",
+      "createSuccess": "Matagumpay na nagawa ang customer na \"{{name}}\"!",
+      "updateFailed": "Nabigo sa pag-update ng customer.",
+      "createFailed": "Nabigo sa paggawa ng customer."
+    }
+  },
+  "dailyPayments": {
+    "title": "Ulat ng Araw-araw na Bayad",
+    "selectDate": "Pumili ng Petsa ng Ulat",
+    "fetchReport": "Kunin ang Ulat",
+    "reportFor": "Ulat para sa: {{date}}",
+    "totalCollected": "Kabuuang Nakolektang Halaga",
+    "numberOfTransactions": "# ng Mga Transaksyon ng Bayad",
+    "detailedTransactions": "Mga Detalyadong Transaksyon:",
+    "table": {
+      "paymentTime": "Oras ng Bayad",
+      "receiptNumber": "Receipt #",
+      "customer": "Customer",
+      "amountPaid": "Halagang Nabayad",
+      "method": "Paraan",
+      "recordedBy": "Na-record ni"
+    },
+    "noTransactions": "Walang mga transaksyon ng bayad na na-record sa petsang ito.",
+    "error": "Nabigo sa pagkuha ng ulat ng bayad para sa {{date}}."
+  },
+  "inbox": {
+    "title": "Mga Mensahe ng Customer",
+    "refresh": "I-refresh",
+    "emptyTitle": "Walang laman ang inyong inbox.",
+    "emptyDescription": "Kapag nag-message ang mga customer sa numero ng inyong negosyo, ang kanilang mga mensahe ay maglalabas dito.",
+    "pagination": {
+      "pageInfo": "Pahina {{currentPage}} ng {{totalPages}} ({{totalMessages}} kabuuan)",
+      "previous": "Nakaraan",
+      "next": "Susunod"
+    },
+    "error": "Nabigo sa pagkuha ng mga mensahe."
+  },
+  "settings": {
+    "title": "Mga Setting ng Application",
+    "publicProfile": {
+      "title": "Public Directory Profile",
+      "description": "Ang impormasyong ito ay makikita ng publiko sa PressFlow Business Directory page.",
+      "businessName": "Public Business Name",
+      "businessNameHelper": "Ang pangalan ng negosyo ay na-set sa panahon ng signup at hindi maaaring mabago dito.",
+      "publicPhone": "Public Phone",
+      "publicEmail": "Public Email",
+      "city": "Lungsod",
+      "country": "Bansa",
+      "publicAddress": "Public Address",
+      "shortDescription": "Maikling Paglalarawan",
+      "descriptionPlaceholder": "Maikling bio tungkol sa inyong negosyo...",
+      "businessLogo": "Logo ng Negosyo",
+      "uploadImage": "Mag-upload ng Larawan",
+      "uploading": "Nag-u-upload...",
+      "listInDirectory": "Ilista ang aking negosyo sa public directory",
+      "saveProfile": "I-save ang Public Profile",
+      "loadError": "Nabigo sa pag-load ng public profile data.",
+      "saveSuccess": "Matagumpay na na-update ang public profile!",
+      "saveError": "Nabigo sa pag-save ng profile.",
+      "logoError": "Dapat ang image file ay wala pang 2MB.",
+      "logoUploadError": "Nabigo ang pag-upload ng logo. Pakisubukan muli."
+    },
+    "companyInfo": {
+      "title": "Impormasyon ng Kumpanya",
+      "companyName": "Pangalan ng Kumpanya",
+      "companyPhone": "Telepono ng Kumpanya",
+      "companyAddress": "Address ng Kumpanya",
+      "logoUrl": "Logo URL (para sa mga receipt/email)"
+    },
+    "notifications": {
+      "title": "Mga Template ng Notification",
+      "defaultSubject": "Default Email Subject (Pangkalahatan)",
+      "subjectHelper": "Mga Placeholder: {{customerName}}, {{receiptNumber}}, {{companyName}}",
+      "readyForPickupBody": "'Handa na para Kunin' Email/SMS Body",
+      "bodyHelper": "Mga Placeholder: {{customerName}}, {{receiptNumber}}, {{companyName}}. Gamitin ang \\n para sa mga bagong linya.",
+      "whatsappTemplates": "WhatsApp Template SID (Opsyonal)",
+      "whatsappDescription": "Para sa production WhatsApp notifications, dapat gumamit kayo ng mga pre-approved template mula sa Twilio. Ilagay ang mga Template SID dito.",
+      "orderReadySid": "'Order Ready' Template SID",
+      "orderReadyHelper": "hal., HX...",
+      "manualReminderSid": "'Manual Reminder' Template SID",
+      "manualReminderHelper": "hal., HX..."
+    },
+    "general": {
+      "title": "Mga Pangkalahatang Setting",
+      "currencySymbol": "Default Currency Symbol",
+      "notificationChannel": "Mas Gustong Notification Channel",
+      "channelHelper": "Susubukan ng sistema ang channel na ito una kung available ang contact info.",
+      "channels": {
+        "whatsapp": "WhatsApp / SMS Una",
+        "email": "Email Una",
+        "none": "I-disable ang Lahat ng Notification"
+      }
+    },
+    "actions": {
+      "saveAll": "I-save ang Lahat ng Setting",
+      "tryAgain": "Subukan Muli"
+    },
+    "messages": {
+      "loadError": "Nabigo sa pag-load ng mga setting. Pakisubukan muli.",
+      "saveSuccess": "Matagumpay na na-save ang mga setting!",
+      "saveError": "Nabigo sa pag-save ng mga setting. Pakisubukan muli.",
+      "unexpectedResponse": "Nakatanggap ng hindi inaasahang tugon mula sa server habang nag-se-save."
+    }
+  },
+  "manageUsers": {
+    "title": "Pamahalaan ang Staff at mga Admin",
+    "addNewUser": "Magdagdag ng Bagong User",
+    "table": {
+      "username": "Username",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Ginawa Noong",
+      "actions": "Mga Aksyon"
+    },
+    "roles": {
+      "admin": "Admin",
+      "staff": "Staff"
+    },
+    "status": {
+      "active": "Aktibo",
+      "disabled": "Na-disable"
+    },
+    "modal": {
+      "createTitle": "Gumawa ng Bagong User",
+      "editTitle": "I-edit ang User",
+      "username": "Username*",
+      "password": "Password*",
+      "passwordEdit": "Password (iwanang blangko para panatilihin ang kasalukuyan)",
+      "role": "Role*",
+      "userIsActive": "Aktibo ang User",
+      "cancel": "Kanselahin",
+      "saveChanges": "I-save ang Mga Pagbabago",
+      "createUser": "Gumawa ng User"
+    },
+    "actions": {
+      "deleteConfirm": "Sigurado ba kayong gusto ninyong burahin ang user na \"{{username}}\"? Ito ay hindi na mababalik at gumagana lamang kung wala silang mga kaugnay na order.",
+      "passwordChangeAlert": "Ang mga pagbabago sa password ay dapat hawakan sa pamamagitan ng 'Reset Password' feature para sa seguridad. Ang form na ito ay nag-a-update lamang ng role/status."
+    },
+    "messages": {
+      "fetchFailed": "Nabigo sa pagkuha ng mga user.",
+      "deleteFailed": "Nabigo sa pagbura ng user.",
+      "deleteSuccess": "Matagumpay na nabura ang user na \"{{username}}\".",
+      "updateSuccess": "Matagumpay na na-update ang user na \"{{username}}\".",
+      "createSuccess": "Matagumpay na nagawa ang user na \"{{username}}\".",
+      "updateFailed": "Nabigo sa pag-update ng user.",
+      "createFailed": "Nabigo sa paggawa ng user."
+    }
+  },
+  "pricing": {
+    "title": "Mga Serbisyo at Presyo",
+    "loadingText": "Nilo-load ang pricing configuration...",
+    "itemTypes": {
+      "title": "Pamahalaan ang Mga Uri ng Item",
+      "placeholder": "hal., Jacket",
+      "addItem": "Magdagdag ng Item",
+      "removeItem": "Tanggalin ang {{item}}"
+    },
+    "serviceTypes": {
+      "title": "Pamahalaan ang Mga Uri ng Serbisyo",
+      "placeholder": "hal., Alterations",
+      "addService": "Magdagdag ng Serbisyo"
+    },
+    "priceMatrix": {
+      "title": "Price Matrix",
+      "description": "Itakda ang presyo para sa bawat kombinasyon. Blangko o 0 ay nangangahulugang hindi inialok ang serbisyo para sa item na iyon.",
+      "itemType": "Uri ng Item",
+      "pricePlaceholder": "0.00"
+    },
+    "actions": {
+      "saveAll": "I-save ang Lahat ng Pagbabago sa Presyo at Serbisyo"
+    },
+    "messages": {
+      "loadError": "Nabigo sa pag-load ng pricing data. Pakisubukan muli.",
+      "saveSuccess": "Matagumpay na na-update ang mga serbisyo at presyo!",
+      "saveError": "Nabigo sa pag-save ng mga setting."
+    }
+  },
+    "contact": {
+      "title": "Makipag-ugnayan sa Amin",
+      "subtitle": "Gusto naming marinig mula sa iyo. Punan ang form sa ibaba o gamitin ang mga detalye na nakalaan.",
+      "form": {
+        "name": "Ang Iyong Pangalan",
+        "email": "Ang Iyong Email",
+        "message": "Mensahe",
+        "submit": "Ipadala ang Mensahe"
+      },
+      "details": {
+        "email": "Mag-email sa Amin",
+        "whatsapp": "Makipag-chat sa WhatsApp",
+        "address": "Ang Aming Lokasyon"
+      },
+      "messages": {
+        "success": "Salamat! Ang iyong mensahe ay naipadala na."
+      }
+    },
+  "landing": {
+    "headline": "Palakasin ang Inyong Pressing Business.",
+    "subheadline": "Mula sa pag-log ng order at pagsubaybay sa bayad hanggang sa mga notification ng customer, ang PressFlow ay ang all-in-one system para pamahalaan ang inyong laundry at dry cleaning operations nang walang kahirap-hirap."
+  },
+  "notifications": {
+    "newOrder": "Nakatanggap ng Bagong Order",
+    "orderReady": "Handa na ang Order para Kunin",
+    "paymentReceived": "Nakatanggap ng Bayad"
+  },
+  "auth": {
+    "loginError": "Hindi wastong username o password",
+    "logoutSuccess": "Matagumpay kayong nag-logout",
+    "profileUpdated": "Matagumpay na na-update ang profile",
+    "passwordChanged": "Matagumpay na nabago ang password"
+  },
+  "order": {
+    "newOrder": "Bagong Order",
+    "customerName": "Pangalan ng Customer",
+    "orderDetails": "Mga Detalye ng Order",
+    "totalAmount": "Kabuuang Halaga",
+    "status": "Status",
+    "statusReceived": "Natanggap",
+    "statusInProgress": "Ginagawa",
+    "statusReadyForPickup": "Handa na para Kunin",
+    "statusCompleted": "Tapos na",
+    "actions": "Mga Aksyon",
+    "markAsReady": "Markahan na Handa na para Kunin",
+    "viewDetails": "Tingnan ang Mga Detalye"
+  },
+  "customer": {
+    "addCustomer": "Magdagdag ng Customer",
+    "customerList": "Listahan ng Customer",
+    "searchCustomers": "Maghanap ng mga Customer"
+  },
+  "payment": {
+    "recordPayment": "I-record ang Bayad",
+    "paymentHistory": "Kasaysayan ng Bayad",
+    "amount": "Halaga",
+    "date": "Petsa",
+    "status": "Status"
+  },
+  "admin": {
+    "userManagement": "Pamamahala ng User",
+    "settings": "Mga Setting",
+    "notifications": "Mga Notification"
+  },
+  "buttons": {
+    "save": "I-save ang Mga Pagbabago",
+    "create": "Gumawa",
+    "cancel": "Kanselahin",
+    "next": "Susunod",
+    "back": "Bumalik",
+    "login": "Mag-login",
+    "confirm": "Kumpirmahin"
+  },
+  "common": {
+    "loading": "Nilo-load...",
+    "error": "May naganap na error",
+    "success": "Tagumpay",
+    "cancel": "Kanselahin",
+    "confirm": "Kumpirmahin",
+    "save": "I-save",
+    "edit": "I-edit",
+    "delete": "Burahin",
+    "view": "Tingnan",
+    "close": "Isara"
+  },
+  "public": {
+    "header": {
+      "home": "Home",
+      "features": "Mga Feature",
+      "pricing": "Presyo",
+      "login": "Login",
+      "getStarted": "Magsimula"
+    },
+    "footer": {
+      "allRightsReserved": "Lahat ng Karapatan ay Nakalaan",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Mga Tuntunin ng Serbisyo",
+      "contact": "Makipag-ugnayan"
+    },
+    "landing": {
+      "hero": {
+        "title": "Palakasin ang Inyong Laundry Business gamit ang",
+        "subtitle": "Ang all-in-one management system para sa order tracking, customer notifications, at payment handling. Mas kaunting oras sa pamamahala, mas maraming oras sa paglago.",
+        "getStartedFree": "Magsimula nang Libre",
+        "learnMore": "Matuto Pa"
+      },
+      "features": {
+        "title": "Lahat ng Kailangan Ninyo para Patakbuhin ang Inyong Shop",
+        "subtitle": "Mula sa drop-off hanggang pickup, saklaw kayo ng PressFlow.",
+        "orderManagement": {
+          "title": "Walang Kahirap-hirap na Order Management",
+          "description": "Mag-log ng mga order sa loob ng mga segundo. Subaybayan ang mga item, serbisyo, dami, at mga espesyal na tagubilin nang madali. Hindi na mawawala ang mga order."
+        },
+        "notifications": {
+          "title": "Automated Notifications",
+          "description": "Awtomatikong abisuhan ang mga customer sa pamamagitan ng Email o SMS/WhatsApp kapag handa na ang kanilang mga order para kunin, binabawasan ang mga tawag at pinapabuti ang kasiyahan."
+        },
+        "payments": {
+          "title": "Simpleng Payment Tracking",
+          "description": "Subaybayan ang mga bayad na may malinaw na view kung ano ang nabayad, ano ang utang, at mag-apply ng mga discount sa madaling paraan."
+        },
+        "customers": {
+          "title": "Customer Database",
+          "description": "Makipag-ugnayan sa inyong mga customer. Tingnan ang kanilang kasaysayan at contact information sa isang lugar."
+        },
+        "dashboard": {
+          "title": "Admin Dashboard",
+          "description": "Kumuha ng mataas na antas na overview ng inyong mga operasyon. Tingnan ang mga pangunahing metrics, mga order na lampas sa takdang araw, at pamahalaan ang lahat mula sa central hub."
+        },
+        "access": {
+          "title": "Desktop at Web Access",
+          "description": "Pamahalaan ang inyong negosyo kahit saan gamit ang aming web application, at magbigay ng matatag na desktop experience para sa inyong in-store staff."
+        }
+      },
+      "cta": {
+        "title": "Handa na Bang Modernisahin ang Inyong Negosyo?",
+        "subtitle": "Sumali sa maraming ibang laundry service na nagpapasimple ng kanilang workflow gamit ang PressFlow.",
+        "startTrial": "Simulan ang Inyong Libreng Trial"
+      }
+    },
+    "pricing": {
+      "title": "Hanapin ang Tamang Plan para sa Inyong Negosyo",
+      "subtitle": "Simple, transparent na presyo. Pumili ng plan na bagay sa inyong pangangailangan at simulan ang pag-streamline ng inyong mga operasyon ngayon.",
+      "mostPopular": "Pinakasikat",
+      "plans": {
+        "basic": {
+          "name": "Basic",
+          "price": "$29",
+          "frequency": "mo",
+          "features": [
+            "Hanggang 250 Order bawat buwan",
+            "2 Staff Account",
+            "Customer Management",
+            "Payment Tracking",
+            "Email Notifications"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "price": "$59",
+          "frequency": "mo",
+          "features": [
+            "Walang Limitasyon na Order",
+            "Hanggang 10 Staff Account",
+            "Lahat sa Basic",
+            "SMS Notifications (Twilio)",
+            "Basic Sales Reports",
+            "Admin Bell Notifications"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Custom",
+          "frequency": "makipag-ugnayan",
+          "features": [
+            "Lahat sa Pro",
+            "Walang Limitasyon na Staff Account",
+            "Custom Branding",
+            "Advanced Analytics",
+            "Priority Support",
+            "Onboarding Assistance"
+          ]
+        }
+      },
+      "choose": "Pumili",
+      "faq": {
+        "title": "Mga Madalas na Tanong",
+        "freeTrial": {
+          "question": "May libreng trial ba?",
+          "answer": "Oo! Maaari kayong mag-sign up para sa aming Pro plan at gamitin ito nang libre sa loob ng 14 na araw, walang kailangang credit card sa simula."
+        },
+        "changePlan": {
+          "question": "Maaari ba naming baguhin ang aming plan mamaya?",
+          "answer": "Tiyak. Madali ninyong ma-upgrade o ma-downgrade ang inyong plan mula sa inyong account settings anumang oras."
+        },
+        "smsRequirements": {
+          "question": "Ano ang mga requirement para sa SMS notifications?",
+          "answer": "Ang SMS feature ay naka-integrate sa Twilio. Kailangan ninyo ng sariling Twilio account at credentials. Mag-aapply ang standard Twilio messaging rates."
+        }
+      }
+    },
+    "features": {
+      "title": "Mga Feature na Nagpapalakas sa Inyong Negosyo",
+      "subtitle": "Tuklasin ang mga tool na dinisenyo para gawing mas simple, mas mabilis, at mas propesyonal ang pamamahala ng inyong pressing at laundry service.",
+      "orderManagement": {
+        "title": "Komprehensibong Order Management",
+        "description": "I-log ang bawat detalye ng order nang madali. Magdagdag ng maraming damit, tukuyin ang mga serbisyo tulad ng 'Dry Clean' o 'Iron Only', itakda ang mga dami, at magsama ng mga espesyal na tagubilin para sa mga delicate na damit. Bawat order ay nakakakuha ng natatanging receipt number para sa perpektong tracking."
+      },
+      "customerDatabase": {
+        "title": "Integrated Customer Database",
+        "description": "Makipag-ugnayan sa inyong mga kliyente. I-save ang contact information ng customer para sa mabilis na paggawa ng order at tingnan ang kanilang kumpletong kasaysayan anumang oras. Tumutulong ang aming sistema na magbigay ng personal na touch."
+      },
+      "paymentTracking": {
+        "title": "Flexible Payment at Discount Tracking",
+        "description": "Hawakan ang mga pananalapi nang malinaw. I-record ang mga advance payment, mag-apply ng porsyento o fixed-amount discount, at makita agad ang balanseng utang para sa anumang order. Awtomatikong sinusubaybayan ng sistema ang mga nabayad at hindi nabayad na status."
+      },
+      "notifications": {
+        "title": "Automated Customer Notifications",
+        "description": "Tumigil sa paggugugol ng oras sa telepono. Awtomatikong nagpapadala ang PressFlow ng email o SMS sa inyong customer sa sandaling markahan ang kanilang order na 'Handa na para Kunin', pinapabuti ang kanilang karanasan at nagliliberang oras para sa inyo."
+      },
+      "dateTracking": {
+        "title": "Date Tracking at Overdue Alerts",
+        "description": "Huwag nang mawawala ang track ng deadline. Itakda ang mga inaasahang petsa at oras ng pagkuha para sa bawat order. Kitang-kita ng admin dashboard ang mga order na lampas sa takdang araw, para makaaksyon agad."
+      },
+      "adminSettings": {
+        "title": "Customizable Admin Settings",
+        "description": "Gawing sarili ninyo ang application. Mula sa Admin Area, maaari ninyong i-customize ang company information para sa mga receipt, at i-modify ang mga email template na ipinapadala sa inyong mga customer para sa ganap na branded experience."
+      },
+      "receipts": {
+        "title": "Professional Printable Receipts",
+        "description": "Gumawa ng malinis, itemized na mga receipt para sa inyong mga customer sa isang click. Bawat receipt ay may kasamang kumpletong breakdown ng mga item, serbisyo, presyo, discount, at payment status, tulad ng modernong supermarket."
+      },
+      "cta": {
+        "title": "Tingnan Ito sa Aksyon",
+        "subtitle": "Handa na bang kontrolin ang inyong workflow? Simulan ang inyong libreng trial at maranasan ang pagkakaiba ngayon.",
+        "getStartedFree": "Magsimula nang Libre"
+      }
+    }
+  },
+  "signup": {
+    "title": "I-setup ang Inyong Negosyo",
+    "stepProgress": "Hakbang {{current}} ng {{total}}",
+    "finalStep": "Huling Hakbang: Verification",
+    "step1": {
+      "title": "Gumawa ng Inyong Admin Account",
+      "subtitle": "Ito ang magiging inyong personal login para sa pamamahala ng negosyo.",
+      "username": "Username*",
+      "email": "Email (para sa verification)*",
+      "password": "Password*",
+      "confirmPassword": "I-confirm ang Password*",
+      "nextButton": "Susunod: Company Info",
+      "errors": {
+        "usernameRequired": "Kailangan ng username at password.",
+        "emailInvalid": "Kailangan ng wastong email para sa verification.",
+        "passwordLength": "Dapat ang password ay hindi bababa sa 6 na karakter.",
+        "passwordMismatch": "Hindi tumugma ang mga password."
+      }
+    },
+    "step2": {
+      "title": "Sabihin Sa Amin ang Tungkol sa Inyong Negosyo",
+      "businessName": "Pangalan ng Negosyo*",
+      "businessAddress": "Address ng Negosyo",
+      "businessPhone": "Telepono ng Negosyo",
+      "currencySymbol": "Currency Symbol*",
+      "nextButton": "Susunod: Setup Services",
+      "backButton": "Bumalik",
+      "errors": {
+        "nameRequired": "Kailangan ng pangalan ng negosyo.",
+        "currencyRequired": "Kailangan ng currency symbol."
+      }
+    },
+    "step3": {
+      "title": "I-setup ang Inyong Mga Serbisyo at Presyo",
+      "subtitle": "Tukuyin kung ano ang nililinis ninyo at magkano ang presyo. Maaari ninyong baguhin ito mamaya sa settings.",
+      "itemTypes": {
+        "title": "Mga Uri ng Item",
+        "placeholder": "hal., Jacket, Bedding",
+        "addButton": "Magdagdag"
+      },
+      "serviceTypes": {
+        "title": "Mga Uri ng Serbisyo",
+        "placeholder": "hal., Alterations",
+        "addButton": "Magdagdag"
+      },
+      "pricingGrid": {
+        "header": "Item / Serbisyo"
+      },
+      "nextButton": "Susunod: Review at Tapusin",
+      "backButton": "Bumalik",
+      "errors": {
+        "itemTypesRequired": "Pakiusap, magdagdag ng hindi bababa sa isang Uri ng Item (hal., Shirt).",
+        "serviceTypesRequired": "Pakiusap, magdagdag ng hindi bababa sa isang Uri ng Serbisyo (hal., Wash).",
+        "noPricesConfirm": "Hindi pa kayo nagtakda ng mga presyo. Gagamitin ng sistema ang 0 para sa lahat ng serbisyo. Sigurado ba kayong gusto ninyong magpatuloy?"
+      }
+    },
+    "step4": {
+      "title": "I-review at Kumpirmahin",
+      "subtitle": "Pakiusap, kumpirmahin ang lahat ng mga detalye. Pagkatapos kumpirmahin, magpapadala ng verification code sa inyong email para tapusin ang inyong account.",
+      "adminUsername": "Admin Username:",
+      "adminEmail": "Admin Email:",
+      "businessName": "Pangalan ng Negosyo:",
+      "itemsServices": "Mga Item/Serbisyo na Na-define:",
+      "itemsServicesCount": "{{items}} na item, {{services}} na serbisyo, {{prices}} na presyong na-set.",
+      "confirmButton": "Kumpirmahin at Magpadala ng Code",
+      "backButton": "Bumalik"
+    },
+    "step5": {
+      "title": "I-verify ang Inyong Email",
+      "subtitle": "Na-send ang 6-digit code sa {{email}}. Mag-e-expire ito sa loob ng 15 minuto.",
+      "verificationCode": "Verification Code*",
+      "codePlaceholder": "123456",
+      "verifyButton": "I-verify at Gumawa ng Account",
+      "backButton": "Bumalik"
+    },
+    "success": {
+      "message": "Tagumpay! Nagawa ang account. Nire-redirect na kayo sa inyong dashboard."
+    },
+    "errors": {
+      "registrationFailed": "Nabigo sa pagsisimula ng registration process.",
+      "otpInvalid": "Pakiusap, maglagay ng wastong 6-digit code.",
+      "verificationFailed": "Nabigo ang verification. Pakisuri ang inyong code o bumalik."
+    },
+    "defaultItems": {
+      "shirt": "Shirt",
+      "trousers": "Pantalon",
+      "suit": "Suit",
+      "dress": "Dress"
+    },
+    "defaultServices": {
+      "wash": "Laba",
+      "ironOnly": "Plantsahan Lang",
+      "dryClean": "Dry Clean"
+    }
+  },
+  "navbar": {
+    "toggleSidebar": "I-toggle ang Sidebar",
+    "toggleDarkMode": "I-toggle ang Dark Mode",
+    "viewNotifications": "Tingnan ang Mga Notification",
+    "openUserMenu": "Buksan ang User Menu",
+    "notifications": {
+      "title": "Mga Notification",
+      "markAllRead": "Markahan lahat na nabasa",
+      "loading": "Nilo-load...",
+      "noNotifications": "Walang bagong notification.",
+      "recently": "Kamakailan"
+    },
+    "userMenu": {
+      "signedInAs": "Naka-sign in bilang ",
+      "role": "{{role}} role",
+      "myProfile": "Aking Profile",
+      "appSettings": "Mga Setting ng App",
+      "logout": "Mag-logout"
+    }
+  },
+  "profile": {
+    "notSet": "Hindi na-set",
+    "userDataNotAvailable": "Hindi available ang user data. Pakiusap, mag-login.",
+    "changeProfilePicture": "Baguhin ang profile picture",
+    "upload": "I-upload",
+    "cancel": "Kanselahin",
+    "uploading": "Nag-u-upload...",
+    "accountInformation": "Impormasyon ng Account",
+    "edit": "I-edit",
+    "username": "Username",
+    "role": "Role",
+    "saveProfile": "I-save ang Profile",
+    "changePassword": "Baguhin ang Password",
+    "currentPassword": "Kasalukuyang Password",
+    "newPassword": "Bagong Password",
+    "confirmNewPassword": "I-confirm ang Bagong Password",
+    "sendVerificationCode": "Magpadala ng Verification Code",
+    "sixDigitVerificationCode": "6-Digit Verification Code",
+    "back": "Bumalik",
+    "confirmAndChangePassword": "Kumpirmahin at Baguhin ang Password",
+    "verificationCodeInstruction": "Na-send ang verification code sa inyong naka-register na email. Ilagay ito sa ibaba para kumpirmahin ang pagbabago ng password.",
+    "profileUpdated": "Matagumpay na na-update ang profile!",
+    "profileUpdateFailed": "Nabigo sa pag-update ng profile.",
+    "fileTooLarge": "Masyadong malaki ang file (max 2MB).",
+    "invalidFileType": "Hindi wastong uri ng file (JPG, PNG, GIF lamang).",
+    "selectImageFile": "Pakiusap, pumili ng image file.",
+    "pictureUpdated": "Na-update ang profile picture!",
+    "unexpectedResponse": "Hindi inaasahang tugon mula sa server.",
+    "pictureUploadFailed": "Nabigo sa pag-upload ng profile picture.",
+    "passwordsDoNotMatch": "Hindi tumugma ang mga bagong password.",
+    "passwordTooShort": "Dapat ang bagong password ay hindi bababa sa 6 na karakter.",
+    "verificationCodeSent": "Na-send ang verification code sa inyong email.",
+    "failedToRequestOtp": "Nabigo sa pag-request ng OTP.",
+    "enterSixDigitCode": "Pakiusap, ilagay ang 6-digit code.",
+    "passwordChangedSuccessfully": "Matagumpay na nabago ang password!",
+    "verificationFailed": "Nabigo ang verification. Pakisuri ang inyong code o bumalik."
+  },
+  "notFound": {
+    "message": "Ay! Hindi umiiral ang pahina na hinahanap ninyo.",
+    "goBackToDashboard": "Bumalik sa Dashboard",
+    "contactSupport": "Kung sa tingin ninyo ito ay error, pakiusap, makipag-ugnayan sa support."
+  },
+  "filterControls": {
+    "searchReceipt": "Hanapin ang Receipt #",
+    "searchCustomerName": "Hanapin ang Pangalan ng Customer",
+    "searchCustomerPhone": "Hanapin ang Telepono ng Customer",
+    "orderStatus": "Status ng Order",
+    "paymentStatus": "Status ng Bayad",
+    "dueDate": "Takdang Petsa",
+    "serviceType": "Uri ng Serbisyo",
+    "hideAdvanced": "Itago ang Advanced",
+    "showAdvanced": "Ipakita ang Advanced Filters",
+    "reset": "I-reset",
+    "applyFilters": "I-apply ang Mga Filter",
+    "advancedDescription": "Maaaring magdagdag ng advanced filters (hal., ayon sa uri ng serbisyo, hanay ng petsa) dito.",
+    "placeholders": {
+      "customerName": "Juan Dela Cruz",
+      "customerPhone": "555-1234"
+    },
+    "statusOptions": {
+      "allStatuses": "Lahat ng Status",
+      "pending": "Naghihintay",
+      "processing": "Ginagawa",
+      "readyForPickup": "Handa na para Kunin",
+      "completed": "Tapos na",
+      "cancelled": "Nakansela"
+    },
+    "paymentOptions": {
+      "allPayments": "Lahat ng Bayad",
+      "paid": "Nabayad",
+      "unpaid": "Hindi Nabayad"
+    },
+    "overdueOptions": {
+      "anyDate": "Anumang Petsa",
+      "overdueOnly": "Lampas sa Takdang Araw Lamang"
+    },
+    "serviceOptions": {
+      "allServices": "Lahat ng Serbisyo",
+      "wash": "Laba",
+      "dryClean": "Dry Clean",
+      "iron": "Plantsahan"
+    }
+  }
+}

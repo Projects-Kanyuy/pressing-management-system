@@ -1,0 +1,351 @@
+{
+  "sidebar": {
+    "dashboard": "Tableau de Bord",
+    "newOrder": "Nouvelle Commande",
+    "customers": "Clients",
+    "payments": "Paiements",
+    "adminArea": "ZONE ADMIN",
+    "settings": "Paramètres"
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "totalOrders": "Commandes Totales",
+    "pendingProcessing": "En Attente/Traitement",
+    "readyForPickup": "Prêtes à Récupérer",
+    "overdueOrders": "Commandes en Retard",
+    "orderList": "Liste des Commandes"
+  },
+  "login": {
+    "title": "Connexion Employé",
+    "usernameLabel": "Nom d'utilisateur",
+    "passwordLabel": "Mot de passe",
+    "loginButton": "Se Connecter"
+  },
+  "landing": {
+      "headline": "Optimisez Votre Entreprise de Pressing.",
+      "subheadline": "De la saisie des commandes au suivi des paiements et aux notifications clients, PressFlow est le système tout-en-un pour gérer vos opérations de blanchisserie et de nettoyage à sec sans effort."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "generalSettings": "Paramètres Généraux",
+    "currencySymbol": "Symbole Monétaire",
+    "saveChanges": "Enregistrer les Modifications",
+    "profilePicture": "Photo de Profil",
+    "uploadNewPicture": "Télécharger une Nouvelle Photo"
+  },
+  "notifications": {
+    "newOrder": "Nouvelle Commande Reçue",
+    "orderReady": "Commande Prête à Récupérer",
+    "paymentReceived": "Paiement Reçu"
+  },
+  "auth": {
+    "loginError": "Nom d'utilisateur ou mot de passe invalide",
+    "logoutSuccess": "Vous avez été déconnecté avec succès",
+    "profileUpdated": "Profil mis à jour avec succès",
+    "passwordChanged": "Mot de passe changé avec succès"
+  },
+  "order": {
+    "newOrder": "Nouvelle Commande",
+    "customerName": "Nom du Client",
+    "orderDetails": "Détails de la Commande",
+    "totalAmount": "Montant Total",
+    "status": "Statut",
+    "actions": "Actions",
+    "markAsReady": "Marquer comme Prêt à Récupérer",
+    "viewDetails": "Voir les Détails"
+  },
+  "customer": {
+    "addCustomer": "Ajouter un Client",
+    "customerList": "Liste des Clients",
+    "customerName": "Nom du Client"
+  },
+  "payment": {
+    "paymentList": "Liste des Paiements",
+    "amount": "Montant",
+    "date": "Date",
+    "status": "Statut",
+    "actions": "Actions",
+    "markAsPaid": "Marquer comme Payé",
+    "viewDetails": "Voir les Détails"
+  },
+  "admin": {
+    "userManagement": "Gestion des Utilisateurs",
+    "roleManagement": "Gestion des Rôles",
+    "systemSettings": "Paramètres du Système"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Opération réussie",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier"
+  },
+   "buttons": {
+    "save": "Enregistrer les modifications",
+    "create": "Créer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "back": "Retour",
+    "login": "Connexion",
+    "confirm": "Confirmer"
+  },
+  "orderList": {
+    "orderList": "Liste des Commandes"
+  },
+ "customerList": {
+        "customerList": "Liste des Clients",
+        "searchCustomers": "Rechercher des Clients"
+    },
+  "public": {
+    "header": {
+      "home": "Accueil",
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "login": "Connexion",
+      "getStarted": "Commencer"
+    },
+    "footer": {
+      "allRightsReserved": "Tous droits réservés",
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d'utilisation",
+      "contact": "Contact"
+    },
+    "landing": {
+      "hero": {
+        "title": "Optimisez Votre Entreprise de Blanchisserie avec",
+        "subtitle": "Le système de gestion tout-en-un pour le suivi des commandes, les notifications clients et la gestion des paiements. Passez moins de temps à gérer, plus de temps à développer.",
+        "getStartedFree": "Commencer Gratuitement",
+        "learnMore": "En Savoir Plus"
+      },
+      "features": {
+        "title": "Tout Ce Dont Vous Avez Besoin Pour Gérer Votre Magasin",
+        "subtitle": "Du dépôt au retrait, PressFlow vous accompagne.",
+        "orderManagement": {
+          "title": "Gestion Simplifiée des Commandes",
+          "description": "Enregistrez les commandes en quelques secondes. Suivez les articles, services, quantités et instructions spéciales facilement. Ne perdez plus jamais une commande."
+        },
+        "notifications": {
+          "title": "Notifications Automatisées",
+          "description": "Notifiez automatiquement les clients par e-mail ou SMS/WhatsApp lorsque leurs commandes sont prêtes pour le retrait, réduisant les appels et améliorant la satisfaction."
+        },
+        "payments": {
+          "title": "Suivi Simplifié des Paiements",
+          "description": "Gardez une vue claire de ce qui est payé, ce qui est dû, et appliquez des remises à la volée."
+        },
+        "customers": {
+          "title": "Base de Données Clients",
+          "description": "Construisez une relation avec vos clients. Consultez leur historique et leurs informations de contact en un seul endroit."
+        },
+        "dashboard": {
+          "title": "Tableau de Bord Administrateur",
+          "description": "Obtenez une vue d'ensemble de vos opérations. Consultez les métriques clés, les commandes en retard et gérez tout depuis un hub central."
+        },
+        "access": {
+          "title": "Accès Bureau et Web",
+          "description": "Gérez votre entreprise de n'importe où avec notre application web, et offrez une expérience bureau stable pour votre personnel en magasin."
+        }
+      },
+      "cta": {
+        "title": "Prêt à Moderniser Votre Entreprise ?",
+        "subtitle": "Rejoignez des dizaines d'autres services de blanchisserie qui simplifient leur flux de travail avec PressFlow.",
+        "startTrial": "Commencer Votre Essai Gratuit"
+      }
+    },
+    "pricing": {
+      "title": "Trouvez le Plan Qui Convient à Votre Entreprise",
+      "subtitle": "Tarification simple et transparente. Choisissez le plan qui correspond à vos besoins et commencez à rationaliser vos opérations dès aujourd'hui.",
+      "mostPopular": "Le Plus Populaire",
+      "plans": {
+        "basic": {
+          "name": "Basique",
+          "price": "29€",
+          "frequency": "mois",
+          "features": [
+            "Jusqu'à 250 commandes par mois",
+            "2 comptes employés",
+            "Gestion des clients",
+            "Suivi des paiements",
+            "Notifications par e-mail"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "price": "59€",
+          "frequency": "mois",
+          "features": [
+            "Commandes illimitées",
+            "Jusqu'à 10 comptes employés",
+            "Tout ce qui est dans Basique",
+            "Notifications SMS (Twilio)",
+            "Rapports de vente de base",
+            "Notifications admin en temps réel"
+          ]
+        },
+        "enterprise": {
+          "name": "Entreprise",
+          "price": "Sur mesure",
+          "frequency": "nous contacter",
+          "features": [
+            "Tout ce qui est dans Pro",
+            "Comptes employés illimités",
+            "Image de marque personnalisée",
+            "Analyses avancées",
+            "Support prioritaire",
+            "Assistance à l'intégration"
+          ]
+        }
+      },
+      "choose": "Choisir",
+      "faq": {
+        "title": "Questions Fréquemment Posées",
+        "freeTrial": {
+          "question": "Y a-t-il un essai gratuit ?",
+          "answer": "Oui ! Vous pouvez vous inscrire à notre plan Pro et l'utiliser gratuitement pendant 14 jours, aucune carte de crédit requise au départ."
+        },
+        "changePlan": {
+          "question": "Puis-je changer de plan plus tard ?",
+          "answer": "Absolument. Vous pouvez facilement passer à un plan supérieur ou inférieur depuis les paramètres de votre compte à tout moment."
+        },
+        "smsRequirements": {
+          "question": "Quelles sont les exigences pour les notifications SMS ?",
+          "answer": "La fonctionnalité SMS s'intègre avec Twilio. Vous aurez besoin de votre propre compte Twilio et de vos identifiants. Les tarifs de messagerie standard de Twilio s'appliqueront."
+        }
+      }
+    },
+    "features": {
+      "title": "Fonctionnalités Qui Alimentent Votre Entreprise",
+      "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing plus simple, plus rapide et plus professionnelle.",
+      "orderManagement": {
+        "title": "Gestion Complète des Commandes",
+        "description": "Enregistrez chaque détail d'une commande facilement. Ajoutez plusieurs vêtements, spécifiez des services comme 'Nettoyage à sec' ou 'Repassage uniquement', définissez les quantités et incluez des instructions spéciales pour les vêtements délicats. Chaque commande reçoit un numéro de reçu unique pour un suivi parfait."
+      },
+      "customerDatabase": {
+        "title": "Base de Données Clients Intégrée",
+        "description": "Construisez une relation avec vos clients. Enregistrez les informations de contact des clients pour une création de commande rapide et consultez leur historique complet à tout moment. Notre système vous aide à apporter cette touche personnelle."
+      },
+      "paymentTracking": {
+        "title": "Suivi Flexible des Paiements et Remises",
+        "description": "Gérez les finances avec clarté. Enregistrez les paiements anticipés, appliquez des remises en pourcentage ou montant fixe, et voyez instantanément le solde dû pour toute commande. Le système suit automatiquement les statuts payés et non payés."
+      },
+      "notifications": {
+        "title": "Notifications Clients Automatisées",
+        "description": "Arrêtez de passer du temps au téléphone. PressFlow envoie automatiquement un e-mail ou un SMS à votre client au moment où sa commande est marquée 'Prête pour le retrait', améliorant son expérience et libérant votre temps."
+      },
+      "dateTracking": {
+        "title": "Suivi des Dates et Alertes de Retard",
+        "description": "Ne perdez jamais une échéance. Définissez des dates et heures de retrait prévues pour chaque commande. Le tableau de bord administrateur signale de manière proéminente toutes les commandes en retard, pour que vous puissiez agir immédiatement."
+      },
+      "adminSettings": {
+        "title": "Paramètres Administrateur Personnalisables",
+        "description": "Appropriez-vous l'application. Depuis la Zone Administrateur, vous pouvez personnaliser les informations de l'entreprise pour les reçus et modifier les modèles d'e-mails envoyés à vos clients pour une expérience entièrement personnalisée."
+      },
+      "receipts": {
+        "title": "Reçus Imprimables Professionnels",
+        "description": "Générez des reçus détaillés et propres pour vos clients d'un simple clic. Chaque reçu inclut une ventilation complète des articles, services, prix, remises et statut de paiement, comme dans un supermarché moderne."
+      },
+      "cta": {
+        "title": "Voyez-le en Action",
+        "subtitle": "Prêt à prendre le contrôle de votre flux de travail ? Commencez votre essai gratuit et découvrez la différence dès aujourd'hui.",
+        "getStartedFree": "Commencer Gratuitement"
+      }
+    }
+  },
+  "signup": {
+    "title": "Créer Votre Compte PressFlow",
+    "stepProgress": "Étape {{current}} sur {{total}}",
+    "finalStep": "Étape Finale",
+    "step1": {
+      "title": "Configuration Compte Administrateur",
+      "subtitle": "Créez votre compte administrateur principal pour gérer le système.",
+      "username": "Nom d'utilisateur",
+      "email": "Adresse E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "nextButton": "Suivant",
+      "errors": {
+        "usernameRequired": "Le nom d'utilisateur et le mot de passe sont requis",
+        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+        "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+      }
+    },
+    "step2": {
+      "title": "Informations Entreprise",
+      "businessName": "Nom de l'Entreprise",
+      "businessAddress": "Adresse de l'Entreprise",
+      "businessPhone": "Téléphone de l'Entreprise",
+      "currencySymbol": "Symbole Monétaire",
+      "backButton": "Retour",
+      "nextButton": "Suivant",
+      "errors": {
+        "nameRequired": "Le nom de l'entreprise est requis",
+        "currencyRequired": "Le symbole monétaire est requis"
+      }
+    },
+    "step3": {
+      "title": "Configuration Services et Tarifs",
+      "subtitle": "Configurez les articles que vous nettoyez et les services que vous offrez. Vous pourrez les modifier plus tard.",
+      "itemTypes": {
+        "title": "Types d'Articles (Ce que vous nettoyez)",
+        "placeholder": "ex. Veste, Jupe, Manteau",
+        "addButton": "Ajouter"
+      },
+      "serviceTypes": {
+        "title": "Types de Services (Comment vous nettoyez)",
+        "placeholder": "ex. Express, Lavage à la main",
+        "addButton": "Ajouter"
+      },
+      "pricingGrid": {
+        "header": "Article / Service"
+      },
+      "backButton": "Retour",
+      "nextButton": "Suivant",
+      "errors": {
+        "itemTypesRequired": "Veuillez ajouter au moins un type d'article",
+        "serviceTypesRequired": "Veuillez ajouter au moins un type de service",
+        "noPricesConfirm": "Vous n'avez défini aucun prix. Vous pourrez les définir plus tard dans la zone administrateur. Continuer ?"
+      }
+    },
+    "step4": {
+      "title": "Révision et Confirmation",
+      "subtitle": "Veuillez réviser vos informations avant de soumettre.",
+      "adminUsername": "Nom d'utilisateur Admin :",
+      "adminEmail": "E-mail Admin :",
+      "businessName": "Nom de l'Entreprise :",
+      "itemsServices": "Articles et Services :",
+      "itemsServicesCount": "{{items}} articles, {{services}} services, {{prices}} prix définis",
+      "backButton": "Retour",
+      "confirmButton": "Créer le Compte"
+    },
+    "step5": {
+      "title": "Vérification E-mail",
+      "subtitle": "Nous avons envoyé un code de vérification à 6 chiffres à {{email}}. Veuillez le saisir ci-dessous.",
+      "verificationCode": "Code de Vérification",
+      "codePlaceholder": "000000",
+      "backButton": "Retour",
+      "verifyButton": "Vérifier et Terminer"
+    },
+    "errors": {
+      "registrationFailed": "L'inscription a échoué. Veuillez réessayer.",
+      "otpInvalid": "Veuillez entrer un code à 6 chiffres valide",
+      "verificationFailed": "La vérification a échoué. Veuillez réessayer."
+    },
+    "success": {
+      "message": "Compte créé avec succès ! Bienvenue sur PressFlow !"
+    },
+    "defaultItems": {
+      "shirt": "Chemise",
+      "trousers": "Pantalon",
+      "suit": "Costume",
+      "dress": "Robe"
+    },
+    "defaultServices": {
+      "wash": "Lavage",
+      "ironOnly": "Repassage Seulement",
+      "dryClean": "Nettoyage à Sec"
+    }
+  }
+}

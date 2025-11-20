@@ -1,0 +1,1010 @@
+{
+  "sidebar": {
+    "navigation": {
+      "dashboard": "Dashboard",
+      "newOrder": "New Order",
+      "customers": "Customers",
+      "payments": "Payments",
+      "inbox": "Inbox"
+    },
+    "admin": {
+      "title": "Admin Area",
+      "settings": "Settings",
+      "manageStaff": "Manage Staff",
+      "servicesPricing": "Services & Pricing"
+    },
+        "closeSidebar": "Close sidebar"
+  },
+  "orderItemRow": {
+    "itemNumber": "Item #{{number}}",
+    "removeItem": "Remove item",
+    "removeItemAria": "Remove item {{number}}",
+    "itemType": "Item Type*",
+    "serviceType": "Service Type*",
+    "quantity": "Qty*",
+    "specialInstructions": "Special Instructions",
+    "linePrice": "Line Price",
+    "selectItem": "Select Item",
+    "selectService": "Select Service",
+    "instructionsPlaceholder": "e.g., No starch",
+    "placeholders": {
+      "selectItemType": "Select Item",
+      "selectServiceType": "Select Service",
+      "quantity": "1",
+      "specialInstructions": "e.g., No starch"
+    },
+    "accessibility": {
+      "itemType": "Select item type",
+      "serviceType": "Select service type",
+      "quantity": "Enter quantity",
+      "specialInstructions": "Special instructions for this item",
+      "linePrice": "Line price total",
+      "removeItem": "Remove item",
+      "removeItemWithNumber": "Remove item {{number}}"
+    }
+  },
+  "login": {
+    "title": "Staff Login",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "pageTitle": "Login",
+    "alreadyLoggedIn": "Already logged in. Redirecting...",
+    "copyright": "All rights reserved.",
+    "loginFailed": "Login failed. Please check your credentials."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalOrders": "Total Orders",
+    "pendingProcessing": "Pending/Processing",
+    "readyForPickup": "Ready for Pickup",
+    "overdueOrders": "Overdue Orders",
+    "orderList": "Order List",
+    "todaysSales": "Today's Sales",
+    "filters": "Filters",
+    "filtersHide": "(Hide)",
+    "filtersShow": "(Show)",
+    "createNewOrder": "Create New Order",
+    "noOrdersFound": "No orders found matching criteria.",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{currentPage}} of {{totalPages}} ({{totalOrders}} orders)",
+    "filterOrders": "Filter Orders",
+    "recordPayment": "Record Payment for Order #{{receiptNumber}}",
+    "paymentSuccess": "{{amount}} payment recorded for #{{receiptNumber}}.",
+    "paymentError": "Failed to record payment.",
+    "customer": "Customer",
+    "totalAmount": "Total Amount",
+    "currentlyPaid": "Currently Paid",
+    "balanceDue": "Balance Due",
+    "paymentAmountToAdd": "Payment Amount to Add",
+    "enterAmount": "Enter amount",
+    "submitPayment": "Submit Payment",
+    "cancel": "Cancel",
+    "paymentAmountRequired": "Please enter a payment amount.",
+    "validAmountRequired": "Valid positive amount required.",
+    "dailyPaymentsError": "Could not load daily sales data.",
+    "ordersError": "Failed to fetch orders. Please try again."
+  },
+  "orderTable": {
+    "noOrders": "No orders found.",
+    "noOrdersSubtext": "Try adjusting your filters or create a new order.",
+    "headers": {
+      "receiptNumber": "Receipt #",
+      "customer": "Customer",
+      "dropOff": "Drop-off",
+      "pickupDue": "Pickup Due",
+      "status": "Status",
+      "payment": "Payment",
+      "total": "Total",
+      "actions": "Actions"
+    },
+    "paymentStatus": {
+      "paid": "Paid",
+      "partiallyPaid": "Partially Paid",
+      "unpaid": "Unpaid"
+    },
+    "actions": {
+      "pay": "Pay",
+      "recordPayment": "Record Payment",
+      "viewDetails": "View Details",
+      "editOrder": "Edit Order"
+    },
+    "overdue": "Overdue"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "readyForPickup": "Ready for Pickup",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "orderDetails": {
+    "title": "Order Details",
+    "receiptNumber": "Receipt #",
+    "goBack": "Go back",
+    "refresh": "Refresh",
+    "printReceipt": "Print Receipt",
+    "editOrder": "Edit Order",
+    "orderOverdue": "Order Overdue!",
+    "expected": "Expected",
+    "orderInfo": {
+      "title": "Order Details",
+      "currentStatus": "Current Status",
+      "orderPlaced": "Order Placed",
+      "dropOff": "Drop-off",
+      "expectedPickup": "Expected Pickup",
+      "actualPickup": "Actual Pickup",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "finalTotal": "Final Total",
+      "advancePaid": "Advance Paid",
+      "balanceDue": "Balance Due",
+      "paymentStatus": "Payment Status",
+      "orderNotes": "Order Notes",
+      "processedBy": "Processed By",
+      "notificationSent": "Notification Sent"
+    },
+    "customer": {
+      "title": "Customer Information",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address"
+    },
+    "items": {
+      "title": "Items in Order",
+      "service": "Service",
+      "instructions": "Instructions",
+      "noItems": "No items found."
+    },
+    "actions": {
+      "title": "Order Actions",
+      "updateStatus": "Update Status:",
+      "recordPayment": "Record Payment",
+      "orderFullyPaid": "Order Fully Paid",
+      "sendNotification": "Send Notification",
+      "resendNotification": "Resend Notification",
+      "deleteOrder": "Delete This Order"
+    },
+    "paymentModal": {
+      "title": "Record Payment for Order #{{receiptNumber}}",
+      "totalAmount": "Total Amount:",
+      "currentlyPaid": "Currently Paid:",
+      "balanceDue": "Balance Due:",
+      "paymentAmount": "Payment Amount",
+      "paymentMethod": "Payment Method",
+      "confirmPayment": "Confirm Payment",
+      "cancel": "Cancel"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Credit/Debit Card",
+      "mobileMoney": "Mobile Money",
+      "other": "Other"
+    },
+    "paymentStatus": {
+      "paidInFull": "Paid in Full",
+      "unpaidPartial": "Unpaid / Partial"
+    },
+    "receipt": {
+      "qty": "QTY",
+      "itemService": "ITEM / SERVICE",
+      "price": "PRICE",
+      "subtotal": "Subtotal:",
+      "discount": "Discount:",
+      "total": "TOTAL:",
+      "advancePaid": "Advance Paid:",
+      "balanceDue": "BALANCE DUE:",
+      "orderNotes": "Order Notes:",
+      "thankYou": "Thank you for your business!"
+    },
+    "messages": {
+      "orderNotFound": "Order not found.",
+      "failedToLoad": "Failed to load page data.",
+      "statusUpdated": "Order status updated to {{status}}.",
+      "notificationSent": "Notification sent via {{method}}.",
+      "errorUpdatingStatus": "Error updating status.",
+      "customerContactMissing": "Customer contact information is missing.",
+      "failedToSendNotification": "Failed to send notification.",
+      "deleteConfirm": "Are you sure you want to permanently delete order #{{receiptNumber}}?",
+      "orderDeleted": "Order #{{receiptNumber}} deleted successfully.",
+      "failedToDelete": "Failed to delete order.",
+      "validPaymentRequired": "Please enter a valid, positive payment amount.",
+      "paymentRecorded": "Payment of {{currency}}{{amount}} recorded successfully.",
+      "failedToRecordPayment": "Failed to record payment."
+    },
+    "notificationStatus": {
+      "yes": "Yes, via {{method}}",
+      "no": "No",
+      "auto": "auto (logs)"
+    }
+  },
+  "createOrder": {
+    "title": "Create New Order",
+    "backToDashboard": "Back to Dashboard",
+    "form": {
+      "loadingData": "Loading Pricing & Services...",
+      "setupRequired": "Setup Required",
+      "noItemTypes": "No item types or services are configured for your business.",
+      "goToSettings": "Go to Settings to add services",
+      "customerInfo": {
+        "title": "Customer Information",
+        "existingCustomer": "Existing Customer",
+        "newCustomer": "New Customer",
+        "searchCustomer": "Search Customer (Name/Phone)",
+        "searchPlaceholder": "Type to search...",
+        "selected": "Selected",
+        "fullName": "Full Name*",
+        "phoneNumber": "Phone Number*",
+        "emailAddress": "Email Address (Optional)",
+        "address": "Address (Optional)"
+      },
+      "items": {
+        "title": "Clothing Items",
+        "addItem": "Add Item"
+      },
+      "summary": {
+        "title": "Order Summary, Discount & Dates",
+        "subtotal": "Subtotal",
+        "discountType": "Discount Type",
+        "noDiscount": "No Discount",
+        "percentage": "Percentage (%)",
+        "fixedAmount": "Fixed Amount",
+        "discountValue": "Discount Value",
+        "calculatedDiscount": "Calculated Discount",
+        "finalTotal": "Final Total Amount",
+        "advancePaid": "Advance Paid",
+        "balanceDue": "Balance Due",
+        "expectedPickupDate": "Expected Pickup Date*",
+        "expectedPickupTime": "Expected Pickup Time*",
+        "orderNotes": "Order Notes (Optional)"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "reviewOrder": "Review Order",
+        "reviewChanges": "Review Changes"
+      },
+      "validation": {
+        "customerNamePhoneRequired": "New customer: Name and Phone are required.",
+        "selectCustomerRequired": "Please select an existing customer or create new.",
+        "itemsRequired": "All items require type, service, and quantity (min 1).",
+        "pickupDateRequired": "Valid expected pickup date and time are required.",
+        "invalidDateTime": "Invalid date/time combination.",
+        "internalError": "Internal Error: No order data for submission.",
+        "couldNotLoadData": "Could not load pricing and service information. Please configure them in settings or try again later.",
+        "orderCreated": "Order created! Receipt: {{receiptNumber}}",
+        "orderUpdated": "Order updated! Receipt: {{receiptNumber}}",
+        "failedToCreate": "Failed to create order.",
+        "failedToSave": "Failed to save order."
+      },
+      "confirmModal": {
+        "titleNew": "Confirm New Order",
+        "titleEdit": "Confirm Order Changes",
+        "reviewDetails": "Please review all details:",
+        "customer": "Customer:",
+        "items": "Items:",
+        "summary": "Summary:",
+        "name": "Name:",
+        "phone": "Phone:",
+        "email": "Email:",
+        "address": "Address:",
+        "service": "Service:",
+        "instructions": "Instructions:",
+        "subtotal": "Subtotal:",
+        "discount": "Discount",
+        "finalTotal": "Final Total:",
+        "advancePaid": "Advance Paid:",
+        "balanceDue": "Balance Due:",
+        "expectedPickup": "Expected Pickup:",
+        "notes": "Notes:",
+        "missing": "Missing",
+        "noItems": "No items added.",
+        "isCorrect": "Is all information correct?",
+        "edit": "Edit",
+        "confirmCreate": "Confirm & Create Order",
+        "confirmSave": "Confirm & Save Changes"
+      }
+    }
+  },
+  "customers": {
+    "title": "Manage Customers",
+    "addNewCustomer": "Add New Customer",
+    "searchPlaceholder": "Search by name, phone, or email...",
+    "table": {
+      "name": "Name",
+      "phone": "Phone", 
+      "email": "Email",
+      "actions": "Actions"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "editCustomer": "Edit Customer",
+      "deleteCustomer": "Delete Customer"
+    },
+    "messages": {
+      "failedToFetch": "Failed to fetch customers.",
+      "noCustomersFound": "No customers found matching \"{{searchTerm}}\".",
+      "noCustomersYet": "No customers have been added yet.",
+      "addFirstCustomer": "Add the first customer!",
+      "deleteConfirm": "Are you sure you want to delete customer \"{{customerName}}\"? This may be restricted if they have existing orders.",
+      "deleteSuccess": "Customer \"{{customerName}}\" deleted successfully.",
+      "deleteFailed": "Failed to delete customer \"{{customerName}}\".",
+      "tryAgain": "Try Again"
+    },
+    "pagination": {
+      "pageInfo": "Page {{currentPage}} of {{totalPages}} (Total: {{totalCustomers}} customers)",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "customerForm": {
+    "addTitle": "Add New Customer",
+    "editTitle": "Edit Customer",
+    "backToCustomers": "Back to Customers",
+    "form": {
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number", 
+      "emailAddress": "Email Address (Optional)",
+      "address": "Address (Optional)",
+      "namePlaceholder": "Enter customer's full name",
+      "phonePlaceholder": "e.g., 555-123-4567",
+      "emailPlaceholder": "customer@example.com",
+      "addressPlaceholder": "123 Main St, City, State"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "createCustomer": "Create Customer"
+    },
+    "validation": {
+      "namePhoneRequired": "Customer name and phone number are required."
+    },
+    "messages": {
+      "fetchFailed": "Failed to fetch customer data for ID: {{id}}.",
+      "updateSuccess": "Customer \"{{name}}\" updated successfully!",
+      "createSuccess": "Customer \"{{name}}\" created successfully!",
+      "updateFailed": "Failed to update customer.",
+      "createFailed": "Failed to create customer."
+    }
+  },
+  "dailyPayments": {
+    "title": "Daily Payments Report",
+    "selectDate": "Select Report Date",
+    "fetchReport": "Fetch Report",
+    "reportFor": "Report for: {{date}}",
+    "totalCollected": "Total Amount Collected",
+    "numberOfTransactions": "# of Payment Transactions",
+    "detailedTransactions": "Detailed Transactions:",
+    "table": {
+      "paymentTime": "Payment Time",
+      "receiptNumber": "Receipt #",
+      "customer": "Customer",
+      "amountPaid": "Amount Paid",
+      "method": "Method",
+      "recordedBy": "Recorded By"
+    },
+    "noTransactions": "No payment transactions were recorded on this date.",
+    "error": "Failed to fetch payment report for {{date}}."
+  },
+  "inbox": {
+    "title": "Customer Messages",
+    "refresh": "Refresh",
+    "emptyTitle": "Your inbox is empty.",
+    "emptyDescription": "When customers message your business number, their messages will appear here.",
+    "pagination": {
+      "pageInfo": "Page {{currentPage}} of {{totalPages}} ({{totalMessages}} total)",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "error": "Failed to fetch messages."
+  },
+  "settings": {
+    "title": "Application Settings",
+    "publicProfile": {
+      "title": "Public Directory Profile",
+      "description": "This information will be visible to the public on the PressFlow Business Directory page.",
+      "businessName": "Public Business Name",
+      "businessNameHelper": "Business name is set during signup and cannot be changed here.",
+      "publicPhone": "Public Phone",
+      "publicEmail": "Public Email",
+      "city": "City",
+      "country": "Country",
+      "publicAddress": "Public Address",
+      "shortDescription": "Short Description",
+      "descriptionPlaceholder": "A short bio about your business...",
+      "businessLogo": "Business Logo",
+      "uploadImage": "Upload Image",
+      "uploading": "Uploading...",
+      "listInDirectory": "List my business in the public directory",
+      "saveProfile": "Save Public Profile",
+      "loadError": "Failed to load public profile data.",
+      "saveSuccess": "Public profile updated successfully!",
+      "saveError": "Failed to save profile.",
+      "logoError": "Image file must be under 2MB.",
+      "logoUploadError": "Logo upload failed. Please try again."
+    },
+    "companyInfo": {
+      "title": "Company Information",
+      "companyName": "Company Name",
+      "companyPhone": "Company Phone",
+      "companyAddress": "Company Address",
+      "logoUrl": "Logo URL (for receipts/emails)"
+    },
+    "notifications": {
+      "title": "Notification Templates",
+      "defaultSubject": "Default Email Subject (General)",
+      "subjectHelper": "Placeholders: {{customerName}}, {{receiptNumber}}, {{companyName}}",
+      "readyForPickupBody": "'Ready for Pickup' Email/SMS Body",
+      "bodyHelper": "Placeholders: {{customerName}}, {{receiptNumber}}, {{companyName}}. Use \\n for new lines.",
+      "whatsappTemplates": "WhatsApp Template SIDs (Optional)",
+      "whatsappDescription": "For production WhatsApp notifications, you must use pre-approved templates from Twilio. Enter the Template SIDs here.",
+      "orderReadySid": "'Order Ready' Template SID",
+      "orderReadyHelper": "e.g., HX...",
+      "manualReminderSid": "'Manual Reminder' Template SID",
+      "manualReminderHelper": "e.g., HX..."
+    },
+    "general": {
+      "title": "General Settings",
+      "currencySymbol": "Default Currency Symbol",
+      "notificationChannel": "Preferred Notification Channel",
+      "channelHelper": "The system will try this channel first if contact info is available.",
+      "channels": {
+        "whatsapp": "WhatsApp / SMS First",
+        "email": "Email First",
+        "none": "Disable All Notifications"
+      }
+    },
+    "actions": {
+      "saveAll": "Save All Settings",
+      "tryAgain": "Try Again"
+    },
+    "messages": {
+      "loadError": "Failed to load settings. Please try again.",
+      "saveSuccess": "Settings saved successfully!",
+      "saveError": "Failed to save settings. Please try again.",
+      "unexpectedResponse": "Received an unexpected response from the server when saving."
+    }
+  },
+  "manageUsers": {
+    "title": "Manage Staff & Admins",
+    "addNewUser": "Add New User",
+    "table": {
+      "username": "Username",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "roles": {
+      "admin": "Admin",
+      "staff": "Staff"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "modal": {
+      "createTitle": "Create New User",
+      "editTitle": "Edit User",
+      "username": "Username*",
+      "password": "Password*",
+      "passwordEdit": "Password (leave blank to keep unchanged)",
+      "role": "Role*",
+      "userIsActive": "User is Active",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "createUser": "Create User"
+    },
+    "actions": {
+      "deleteConfirm": "Are you sure you want to delete user \"{{username}}\"? This is irreversible and only works if they have no associated orders.",
+      "passwordChangeAlert": "Password changes should be handled via a 'Reset Password' feature for security. This form only updates role/status."
+    },
+    "messages": {
+      "fetchFailed": "Failed to fetch users.",
+      "deleteFailed": "Failed to delete user.",
+      "deleteSuccess": "User \"{{username}}\" deleted successfully.",
+      "updateSuccess": "User \"{{username}}\" updated successfully.",
+      "createSuccess": "User \"{{username}}\" created successfully.",
+      "updateFailed": "Failed to update user.",
+      "createFailed": "Échec de création de l'utilisateur."
+    }
+  },
+  "pricing": {
+    "title": "Services & Pricing",
+    "loadingText": "Loading pricing configuration...",
+    "itemTypes": {
+      "title": "Manage Item Types",
+      "placeholder": "e.g., Jacket",
+      "addItem": "Add Item",
+      "removeItem": "Remove {{item}}"
+    },
+    "serviceTypes": {
+      "title": "Manage Service Types",
+      "placeholder": "e.g., Alterations",
+      "addService": "Add Service"
+    },
+    "priceMatrix": {
+      "title": "Price Matrix",
+      "description": "Set the price for each combination. Blank or 0 means the service is not offered for that item.",
+      "itemType": "Item Type",
+      "pricePlaceholder": "0.00"
+    },
+    "actions": {
+      "saveAll": "Save All Pricing & Service Changes"
+    },
+    "messages": {
+      "loadError": "Failed to load pricing data. Please try again.",
+      "saveSuccess": "Services and pricing updated successfully!",
+      "saveError": "Failed to save settings."
+    }
+  },
+  "landing": {
+      "headline": "Streamline Your Pressing Business.",
+      "subheadline": "From order logging and payment tracking to customer notifications, PressFlow is the all-in-one system to manage your laundry and dry cleaning operations effortlessly."
+  },
+  "notifications": {
+    "newOrder": "New Order Received",
+    "orderReady": "Order Ready for Pickup",
+    "paymentReceived": "Payment Received"
+  },
+  "auth": {
+    "loginError": "Invalid username or password",
+    "logoutSuccess": "You have been logged out successfully",
+    "profileUpdated": "Profile updated successfully",
+    "passwordChanged": "Password changed successfully"
+  },
+  "order": {
+    "newOrder": "New Order",
+    "customerName": "Customer Name",
+    "orderDetails": "Order Details",
+    "totalAmount": "Total Amount",
+          "status": "Status",
+      "statusReceived": "Received",
+      "statusInProgress": "In Progress", 
+      "statusReadyForPickup": "Ready for Pickup",
+      "statusCompleted": "Completed",
+    "actions": "Actions",
+    "markAsReady": "Mark as Ready for Pickup",
+    "viewDetails": "View Details"
+  },
+  "customer": {
+    "addCustomer": "Add Customer",
+    "customerList": "Customer List",
+    "searchCustomers": "Search Customers"
+  },
+  "payment": {
+    "recordPayment": "Record Payment",
+    "paymentHistory": "Payment History",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status"
+  },
+  "admin": {
+    "userManagement": "User Management",
+    "settings": "Settings",
+    "notifications": "Notifications"
+  },
+  "buttons": {
+    "save": "Save Changes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "login": "Login",
+    "confirm": "Confirm"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "close": "Close"
+  },
+  "public": {
+    "header": {
+      "home": "Home",
+      "features": "Features",
+      "pricing": "Pricing",
+      "login": "Login",
+      "getStarted": "Get Started"
+    },
+    "footer": {
+      "allRightsReserved": "All Rights Reserved",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contact": "Contact"
+    },
+    "landing": {
+      "hero": {
+        "title": "Streamline Your Laundry Business with",
+        "subtitle": "The all-in-one management system for order tracking, customer notifications, and payment handling. Spend less time managing, more time growing.",
+        "getStartedFree": "Get Started for Free",
+        "learnMore": "Learn More"
+      },
+      "features": {
+        "title": "Everything You Need to Run Your Shop",
+        "subtitle": "From drop-off to pickup, PressFlow has you covered.",
+        "orderManagement": {
+          "title": "Effortless Order Management",
+          "description": "Log orders in seconds. Track items, services, quantities, and special instructions with ease. Never lose an order again."
+        },
+        "notifications": {
+          "title": "Automated Notifications",
+          "description": "Automatically notify customers via Email or SMS/WhatsApp when their orders are ready for pickup, reducing calls and improving satisfaction."
+        },
+        "payments": {
+          "title": "Simple Payment Tracking",
+          "description": "Keep track of payments with a clear view of what's paid, what's due, and apply discounts on the fly."
+        },
+        "customers": {
+          "title": "Customer Database",
+          "description": "Build a relationship with your customers. View their history and contact information all in one place."
+        },
+        "dashboard": {
+          "title": "Admin Dashboard",
+          "description": "Get a high-level overview of your operations. See key metrics, overdue orders, and manage everything from a central hub."
+        },
+        "access": {
+          "title": "Desktop & Web Access",
+          "description": "Manage your business from anywhere with our web application, and provide a stable desktop experience for your in-store staff."
+        }
+      },
+      "cta": {
+        "title": "Ready to Modernize Your Business?",
+        "subtitle": "Join dozens of other laundry services simplifying their workflow with PressFlow.",
+        "startTrial": "Start Your Free Trial"
+      }
+    },
+    "pricing": {
+      "title": "Choose Your Plan",
+      "subtitle": "Simple, transparent pricing. Choose the plan that fits your needs and start streamlining your operations today.",
+      "mostPopular": "Most Popular",
+      "localizing": "Loading Plans...",
+      "plans": {
+        "basic": {
+          "name": "Basic Plan",
+          "price": "$2",
+          "frequency": "mo",
+          "features": [
+            "Register and manage your clients manually",
+            "Generate receipts for every transaction",
+            "Only one user (you) can manage the platform",
+            "Includes a 1-month free trial before billing starts",
+            "Works on Android App and Laptop Installation"
+          ]
+        },
+        "starter": {
+          "name": "Starter Plan",
+          "price": "$10",
+          "frequency": "mo",
+          "features": [
+            "Get local traffic — connect instantly with people nearby who need laundry services",
+            "Offer home pickups and deliveries with client tracking",
+            "Register and manage customers easily",
+            "Communicate with clients directly through in-app messaging",
+            "Send bulk SMS and bulk emails to promote offers or reminders",
+            "Add up to 2 workers to help manage orders and deliveries",
+            "Real-time accountability: track all activities so staff can't cheat",
+            "View daily, weekly, or monthly sales in one click",
+            "Predict returning customers and send them promotions automatically",
+            "Works on both Android App and Laptop Installation for your office"
+          ]
+        },
+        "growth": {
+          "name": "Growth Plan",
+          "price": "$25",
+          "frequency": "mo",
+          "features": [
+            "Everything in Starter Plan",
+            "3× more customer traffic from your area",
+            "Priority listing in the PressMark directory",
+            "Add up to 5 workers, all managed under one account",
+            "Advanced analytics and performance dashboard",
+            "Automated reminders to clients for pickups and deliveries",
+            "Full support for Android and Laptop access"
+          ]
+        },
+        "pro": {
+          "name": "Pro Plan",
+          "price": "$50",
+          "frequency": "mo",
+          "features": [
+            "Everything in Starter and Growth Plans",
+            "6× more customer traffic and premium directory placement",
+            "Add up to 15 workers and monitor every transaction in real time",
+            "Prevent staff cheating with detailed activity tracking",
+            "One-click access to daily, weekly, and monthly sales reports",
+            "Smart prediction of returning customers with auto-promotion tools",
+            "Dedicated priority support line",
+            "Full Android App + Laptop Installation access"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Custom",
+          "frequency": "contact",
+          "features": [
+            "Everything in Pro",
+            "Unlimited Staff Accounts",
+            "Custom Branding",
+            "Advanced Analytics",
+            "Priority Support",
+            "Onboarding Assistance"
+          ]
+        }
+      },
+      "allPlansInclude": {
+        "title": "⚡ All Plans Include:",
+        "features": [
+          "Secure PressMark Dashboard (web, Android, and laptop versions)",
+          "Cloud-based data backup for clients and orders",
+          "Instant view of sales performance and staff activities",
+          "Built-in customer database and promotional tools",
+          "24/7 technical support and automatic updates"
+        ]
+      },
+      "choose": "Choose",
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "freeTrial": {
+          "question": "Is there a free trial?",
+          "answer": "Yes! You can sign up for our Pro plan and use it for free for 14 days, no credit card required upfront."
+        },
+        "changePlan": {
+          "question": "Can I change my plan later?",
+          "answer": "Absolutely. You can easily upgrade or downgrade your plan from your account settings at any time."
+        },
+        "smsRequirements": {
+          "question": "What are the requirements for SMS notifications?",
+          "answer": "The SMS feature integrates with Twilio. You will need your own Twilio account and credentials. Standard Twilio messaging rates will apply."
+        }
+      }
+    },
+    "features": {
+      "title": "Features That Power Your Business",
+      "subtitle": "Discover the tools designed to make managing your pressing and laundry service simpler, faster, and more professional.",
+      "orderManagement": {
+        "title": "Comprehensive Order Management",
+        "description": "Log every detail of an order with ease. Add multiple clothing items, specify services like 'Dry Clean' or 'Iron Only', set quantities, and include special instructions for delicate garments. Every order gets a unique receipt number for perfect tracking."
+      },
+      "customerDatabase": {
+        "title": "Integrated Customer Database",
+        "description": "Build a relationship with your clients. Save customer contact information for quick order creation and view their complete history at any time. Our system helps you provide that personal touch."
+      },
+      "paymentTracking": {
+        "title": "Flexible Payment & Discount Tracking",
+        "description": "Handle finances with clarity. Record advance payments, apply percentage or fixed-amount discounts, and instantly see the balance due for any order. The system automatically tracks paid and unpaid statuses."
+      },
+      "notifications": {
+        "title": "Automated Customer Notifications",
+        "description": "Stop spending time on the phone. PressFlow automatically sends an email or SMS to your customer the moment their order is marked 'Ready for Pickup', enhancing their experience and freeing up your time."
+      },
+      "dateTracking": {
+        "title": "Date Tracking & Overdue Alerts",
+        "description": "Never lose track of a deadline. Set expected pickup dates and times for every order. The admin dashboard prominently flags any orders that are overdue, so you can take action immediately."
+      },
+      "adminSettings": {
+        "title": "Customizable Admin Settings",
+        "description": "Make the application your own. From the Admin Area, you can customize company information for receipts, and modify the email templates sent to your customers for a fully branded experience."
+      },
+      "receipts": {
+        "title": "Professional Printable Receipts",
+        "description": "Generate clean, itemized receipts for your customers with a single click. Each receipt includes a full breakdown of items, services, prices, discounts, and payment status, just like a modern supermarket."
+      },
+      "cta": {
+        "title": "See It In Action",
+        "subtitle": "Ready to take control of your workflow? Start your free trial and experience the difference today.",
+        "getStartedFree": "Get Started for Free"
+      }
+    }
+  },
+  "signup": {
+    "title": "Set Up Your Business",
+    "stepProgress": "Step {{current}} of {{total}}",
+    "finalStep": "Final Step: Verification",
+    "step1": {
+      "title": "Create Your Admin Account",
+      "subtitle": "This will be your personal login for managing the business.",
+      "username": "Username*",
+      "email": "Email (for verification)*",
+      "password": "Password*",
+      "confirmPassword": "Confirm Password*",
+      "nextButton": "Next: Company Info",
+      "errors": {
+        "usernameRequired": "Username and password are required.",
+        "emailInvalid": "A valid email is required for verification.",
+        "passwordLength": "Password must be at least 6 characters.",
+        "passwordMismatch": "Passwords do not match."
+      }
+    },
+    "step2": {
+      "title": "Tell Us About Your Business",
+      "businessName": "Business Name*",
+      "businessAddress": "Business Address",
+      "businessPhone": "Business Phone",
+      "currencySymbol": "Currency Symbol*",
+      "nextButton": "Next: Setup Services",
+      "backButton": "Back",
+      "errors": {
+        "nameRequired": "Business name is required.",
+        "currencyRequired": "Currency symbol is required."
+      }
+    },
+    "step3": {
+      "title": "Setup Your Services & Pricing",
+      "subtitle": "Define what you clean and how much it costs. You can change this later in settings.",
+      "itemTypes": {
+        "title": "Item Types",
+        "placeholder": "e.g., Jacket, Bedding",
+        "addButton": "Add"
+      },
+      "serviceTypes": {
+        "title": "Service Types",
+        "placeholder": "e.g., Alterations",
+        "addButton": "Add"
+      },
+      "pricingGrid": {
+        "header": "Item / Service"
+      },
+      "nextButton": "Next: Review & Finish",
+      "backButton": "Back",
+      "errors": {
+        "itemTypesRequired": "Please add at least one Item Type (e.g., Shirt).",
+        "serviceTypesRequired": "Please add at least one Service Type (e.g., Wash).",
+        "noPricesConfirm": "You haven't set any prices. The system will use 0 for all services. Are you sure you want to continue?"
+      }
+    },
+    "step4": {
+      "title": "Review & Confirm",
+      "subtitle": "Please confirm all details. After confirming, a verification code will be sent to your email to finalize your account.",
+      "adminUsername": "Admin Username:",
+      "adminEmail": "Admin Email:",
+      "businessName": "Business Name:",
+      "itemsServices": "Items/Services Defined:",
+      "itemsServicesCount": "{{items}} items, {{services}} services, {{prices}} prices set.",
+      "confirmButton": "Confirm & Send Code",
+      "backButton": "Back"
+    },
+    "step5": {
+      "title": "Verify Your Email",
+      "subtitle": "A 6-digit code was sent to {{email}}. It expires in 15 minutes.",
+      "verificationCode": "Verification Code*",
+      "codePlaceholder": "123456",
+      "verifyButton": "Verify & Create Account",
+      "backButton": "Back"
+    },
+    "success": {
+      "message": "Success! Account created. You are now being redirected to your dashboard."
+    },
+    "errors": {
+      "registrationFailed": "Failed to start registration process.",
+      "otpInvalid": "Please enter a valid 6-digit code.",
+      "verificationFailed": "Verification failed. Please check your code or go back."
+    },
+    "defaultItems": {
+      "shirt": "Shirt",
+      "trousers": "Trousers", 
+      "suit": "Suit",
+      "dress": "Dress"
+    },
+    "defaultServices": {
+      "wash": "Wash",
+      "ironOnly": "Iron Only",
+      "dryClean": "Dry Clean"
+    }
+  },
+  "navbar": {
+    "toggleSidebar": "Toggle Sidebar",
+    "toggleDarkMode": "Toggle Dark Mode",
+    "viewNotifications": "View Notifications",
+    "openUserMenu": "Open User Menu",
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "loading": "Loading...",
+      "noNotifications": "No new notifications.",
+      "recently": "Recently"
+    },
+    "userMenu": {
+      "signedInAs": "Signed in as ",
+      "role": "{{role}} role",
+      "myProfile": "My Profile",
+      "appSettings": "App Settings",
+      "logout": "Logout"
+    }
+  },
+  "profile": {
+    "notSet": "Not set",
+    "userDataNotAvailable": "User data not available. Please log in.",
+    "changeProfilePicture": "Change profile picture",
+    "upload": "Upload",
+    "cancel": "Cancel",
+    "uploading": "Uploading...",
+    "accountInformation": "Account Information",
+    "edit": "Edit",
+    "username": "Username",
+    "role": "Role",
+    "saveProfile": "Save Profile",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "sendVerificationCode": "Send Verification Code",
+    "sixDigitVerificationCode": "6-Digit Verification Code",
+    "back": "Back",
+    "confirmAndChangePassword": "Confirm & Change Password",
+    "verificationCodeInstruction": "A verification code was sent to your registered email. Enter it below to confirm the password change.",
+    "profileUpdated": "Profile updated successfully!",
+    "profileUpdateFailed": "Failed to update profile.",
+    "fileTooLarge": "File is too large (max 2MB).",
+    "invalidFileType": "Invalid file type (JPG, PNG, GIF only).",
+    "selectImageFile": "Please select an image file.",
+    "pictureUpdated": "Profile picture updated!",
+    "unexpectedResponse": "Unexpected response from server.",
+    "pictureUploadFailed": "Failed to upload profile picture.",
+    "passwordsDoNotMatch": "New passwords do not match.",
+    "passwordTooShort": "New password must be at least 6 characters.",
+    "verificationCodeSent": "A verification code has been sent to your email.",
+    "failedToRequestOtp": "Failed to request OTP.",
+    "enterSixDigitCode": "Please enter the 6-digit code.",
+    "passwordChangedSuccessfully": "Password changed successfully!",
+    "verificationFailed": "Verification failed. Please check your code or go back."
+  },
+  "notFound": {
+    "message": "Oops! The page you're looking for doesn't exist.",
+    "goBackToDashboard": "Go Back to Dashboard",
+    "contactSupport": "If you think this is an error, please contact support."
+  },
+  "filterControls": {
+    "searchReceipt": "Search Receipt #",
+    "searchCustomerName": "Search Customer Name",
+    "searchCustomerPhone": "Search Customer Phone",
+    "orderStatus": "Order Status",
+    "paymentStatus": "Payment Status",
+    "dueDate": "Due Date",
+    "serviceType": "Service Type",
+    "hideAdvanced": "Hide Advanced",
+    "showAdvanced": "Show Advanced Filters",
+    "reset": "Reset",
+    "applyFilters": "Apply Filters",
+    "advancedDescription": "Advanced filters (e.g., by service type, date range) can be added here.",
+    "placeholders": {
+      "customerName": "John Doe",
+      "customerPhone": "555-1234"
+    },
+    "statusOptions": {
+      "allStatuses": "All Statuses",
+      "pending": "Pending",
+      "processing": "Processing",
+      "readyForPickup": "Ready for Pickup",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "paymentOptions": {
+      "allPayments": "All Payments",
+      "paid": "Paid",
+      "unpaid": "Unpaid"
+    },
+    "overdueOptions": {
+      "anyDate": "Any Date",
+      "overdueOnly": "Overdue Only"
+    },
+    "serviceOptions": {
+      "allServices": "All Services",
+      "wash": "Wash",
+      "dryClean": "Dry Clean",
+      "iron": "Iron"
+    }
+  }
+}
