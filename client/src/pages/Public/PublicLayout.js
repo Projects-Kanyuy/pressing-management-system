@@ -62,7 +62,7 @@ export const PublicHeader = () => {
                                 <Link to="/login" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">
                                     {t('public.header.login')}
                                 </Link>
-                                <Link to="/signup">
+                                <Link to="/pricing">
                                     <Button variant="primary" size="md">{t('public.header.getStarted')}</Button>
                                 </Link>
                             </>

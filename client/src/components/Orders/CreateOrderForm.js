@@ -11,6 +11,7 @@ import OrderItemRow from './OrderItemRow';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
 import Card from '../UI/Card';
+import { trackEvent } from '../../utils/pixel'; 
 import {
   createNewOrder,
   updateExistingOrder,
@@ -209,29 +210,47 @@ const currencySymbol = settings.defaultCurrencySymbol;
         setShowConfirmationModal(true);
     };
 
-    const handleConfirmAndCreateOrder = async () => {
-        if (!orderDataForReview) { setError(t('createOrder.form.validation.internalError')); setShowConfirmationModal(false); return; }
-        setIsLoading(true); setError(''); setShowConfirmationModal(false);
-        const payload = {
-            items: orderDataForReview.items, // This already has lowercase serviceType
-            expectedPickupDate: orderDataForReview.expectedPickupDate,
-            subTotalAmount: orderDataForReview.subTotalAmount, discountType: orderDataForReview.discountType,
-            discountValue: orderDataForReview.discountValue, amountPaid: orderDataForReview.amountPaid, notes: orderDataForReview.notes,
-        };
-        if (orderDataForReview.customerSelectionMode === 'existing' && orderDataForReview.customer.id) {
-            payload.customerId = orderDataForReview.customer.id;
-            payload.customerDetailsToUpdate = { name: orderDataForReview.customer.name, phone: orderDataForReview.customer.phone, email: orderDataForReview.customer.email, address: orderDataForReview.customer.address };
-        } else {
-            payload.customerName = orderDataForReview.customer.name; payload.customerPhone = orderDataForReview.customer.phone;
-            payload.customerEmail = orderDataForReview.customer.email; payload.customerAddress = orderDataForReview.customer.address;
-        }
-        try {
-            const response = isEditMode && initialOrderData?._id ? await updateExistingOrder(initialOrderData._id, payload) : await createNewOrder(payload);
-            alert(t(isEditMode ? 'createOrder.form.validation.orderUpdated' : 'createOrder.form.validation.orderCreated', { receiptNumber: response.data.receiptNumber }));
-            navigate(isEditMode ? `/app/orders/${response.data._id}` : '/app/dashboard');
-        } catch (err) { setError(err.response?.data?.message || t(isEditMode ? 'createOrder.form.validation.failedToSave' : 'createOrder.form.validation.failedToCreate'));
-        } finally { setIsLoading(false); }
+   const handleConfirmAndCreateOrder = async () => {
+    if (!orderDataForReview) { setError(t('createOrder.form.validation.internalError')); setShowConfirmationModal(false); return; }
+    setIsLoading(true); setError(''); setShowConfirmationModal(false);
+    const payload = {
+        items: orderDataForReview.items,
+        expectedPickupDate: orderDataForReview.expectedPickupDate,
+        subTotalAmount: orderDataForReview.subTotalAmount, discountType: orderDataForReview.discountType,
+        discountValue: orderDataForReview.discountValue, amountPaid: orderDataForReview.amountPaid, notes: orderDataForReview.notes,
     };
+    if (orderDataForReview.customerSelectionMode === 'existing' && orderDataForReview.customer.id) {
+        payload.customerId = orderDataForReview.customer.id;
+        payload.customerDetailsToUpdate = { name: orderDataForReview.customer.name, phone: orderDataForReview.customer.phone, email: orderDataForReview.customer.email, address: orderDataForReview.customer.address };
+    } else {
+        payload.customerName = orderDataForReview.customer.name; payload.customerPhone = orderDataForReview.customer.phone;
+        payload.customerEmail = orderDataForReview.customer.email; payload.customerAddress = orderDataForReview.customer.address;
+    }
+
+    try {
+        const response = isEditMode && initialOrderData?._id ? await updateExistingOrder(initialOrderData._id, payload) : await createNewOrder(payload);
+        if (isEditMode) {
+            trackEvent('CustomizeProduct', {
+                content_name: `Order Edited - #${response.data.receiptNumber}`,
+                content_ids: [response.data._id],
+                currency: operationalData.currencySymbol,
+            });
+        } else {
+            // Event for successfully creating a new order
+            trackEvent('Lead', {
+                content_name: `New Order Created - #${response.data.receiptNumber}`,
+                value: response.data.totalAmount, 
+                currency: operationalData.currencySymbol,
+            });
+        }
+        alert(t(isEditMode ? 'createOrder.form.validation.orderUpdated' : 'createOrder.form.validation.orderCreated', { receiptNumber: response.data.receiptNumber }));
+        navigate(isEditMode ? `/app/orders/${response.data._id}` : '/app/dashboard');
+    } catch (err) { 
+        setError(err.response?.data?.message || t(isEditMode ? 'createOrder.form.validation.failedToSave' : 'createOrder.form.validation.failedToCreate'));
+    } finally { 
+        setIsLoading(false); 
+    }
+};
     if (operationalData.loading) {
         return <div className="p-8 flex justify-center items-center"><Spinner size="lg" /><p className="ml-1 mt-2 text-sm text-apple-gray-500">{t('createOrder.form.loadingData')}</p></div>;
     }

@@ -5,6 +5,7 @@ import { fetchCustomers, deleteCustomerApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
+import { trackEvent } from '../../utils/pixel';
 import Spinner from '../../components/UI/Spinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { Users, PlusCircle, Search, Edit3, Trash2, Eye, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -69,8 +70,16 @@ const CustomerListPage = () => {
     // Effect to fetch data when debounced search term or page changes
     useEffect(() => {
         loadCustomers(debouncedSearchTerm, pagination.currentPage);
-    }, [debouncedSearchTerm, pagination.currentPage]); // The dependencies are simple and correct now
+        
+        // 2. ADD ViewContent EVENT ON PAGE LOAD/FILTER
+        if (pagination.currentPage === 1) { // Only track on the first page load/filter to avoid duplicates on pagination
+            trackEvent('ViewContent', {
+                content_name: 'Customer List',
+                content_category: 'Management',
+            });
+        }
 
+    }, [debouncedSearchTerm, pagination.currentPage]);
     // Timer for action messages
     useEffect(() => {
         let timer;

@@ -1,6 +1,7 @@
 // client/src/App.js
 import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import PixelTracker from "./components/PixelTracker";
 import { useAuth } from './contexts/AuthContext';
 import { DirectoryAuthProvider } from './contexts/DirectoryAuthContext'; // <-- IMPORT
 
@@ -63,12 +64,7 @@ const AdminRoute = ({ children }) => {
 function App() {
     return (
         <Router>
-            {/*
-                The DirectoryAuthProvider is placed here.
-                It wraps the Routes component, so it's created only once and its state
-                persists across all navigations. All routes defined inside <Routes>
-                will be descendants of this provider.
-            */}
+                <PixelTracker />
             <DirectoryAuthProvider>
                 <Suspense fallback={<div className="flex h-screen items-center justify-center"><Spinner size="lg" /></div>}>
                     <Routes>

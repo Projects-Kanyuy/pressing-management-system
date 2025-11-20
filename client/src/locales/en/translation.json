@@ -667,68 +667,86 @@
       }
     },
     "pricing": {
-      "title": "Find the Right Plan for Your Business",
-      "subtitle": "Simple, transparent pricing. Choose the plan that fits your needs and start streamlining your operations today.",
+      "title": "Choose Your Plan",
+      "subtitle": "Simple, transparent pricing for laundry businesses of all sizes.",
       "mostPopular": "Most Popular",
+      "choosePlan": "Choose Plan",
       "plans": {
         "basic": {
-          "name": "Basic",
-          "price": "$29",
-          "frequency": "mo",
+          "name": "Basic Plan",
+          "frequency": "month",
           "features": [
-            "Up to 250 Orders per month",
-            "2 Staff Accounts",
-             "Basic Reporting Dashboard",
-             "Customer Management",
-            "Printable Receipts",
-            "Payment Tracking",
-            "Email Notifications",
-            "Boosted Buisness Traffic"
+            "Register and manage your clients manually",
+            "Generate receipts for every transaction",
+            "Only one user (you) can manage the platform",
+            "Works on Android App and Laptop Installation",
+            "Includes a 1-month free trial before billing starts"
+          ]
+        },
+        "starter": {
+          "name": "Starter Plan",
+          "frequency": "month",
+          "features": [
+            "Get local traffic — connect instantly with people nearby",
+            "Offer home pickups and deliveries with client tracking",
+            "Register and manage customers easily",
+            "Communicate with clients via in-app messaging",
+            "Send bulk SMS and bulk emails for promotions",
+            "Add up to 2 workers to help manage orders",
+            "Real-time accountability to prevent staff cheating",
+            "View daily, weekly, or monthly sales reports",
+            "Predict returning customers & send auto-promotions"
+          ]
+        },
+        "growth": {
+          "name": "Growth Plan",
+          "frequency": "month",
+          "features": [
+            "Everything in the Starter Plan, plus:",
+            "3× more customer traffic from your area",
+            "Priority listing in the PressMark directory",
+            "Add up to 5 workers, all managed under one account",
+            "Advanced analytics and performance dashboard",
+            "Automated reminders to clients for pickups"
           ]
         },
         "pro": {
-          "name": "Pro",
-          "price": "$59",
-          "frequency": "mo",
+          "name": "Pro Plan",
+          "frequency": "month",
           "features": [
-            "Unlimited Orders",
-            "Up to 10 Staff Accounts",
-            "Everything in Basic",
-            "SMS Notifications (Twilio)",
-            "Basic Sales Reports",
-            "Admin Bell Notifications",
-            "Advanced Customer Insights",
-            "Priority Email Support"
-          ]
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Custom",
-          "frequency": "contact",
-          "features": [
-            "Everything in Pro",
-            "Unlimited Staff Accounts",
-            "Custom Branding",
-            "Advanced Analytics",
-            "Priority Support",
-            "Onboarding Assistance"
+            "Everything in Starter and Growth Plans, plus:",
+            "6× more customer traffic and premium placement",
+            "Add up to 15 workers and monitor every transaction",
+            "Prevent staff cheating with detailed activity tracking",
+            "One-click access to all sales reports",
+            "Smart prediction of returning customers with auto-promotion",
+            "Dedicated priority support line"
           ]
         }
       },
-      "choose": "Choose",
+      "allPlans": {
+        "title": "⚡ All Plans Include",
+        "features": [
+          "Secure PressMark Dashboard (web, Android, and laptop versions)",
+          "Cloud-based data backup for clients and orders",
+          "Instant view of sales performance and staff activities",
+          "Built-in customer database and promotional tools",
+          "24/7 technical support and automatic updates"
+        ]
+      },
       "faq": {
         "title": "Frequently Asked Questions",
         "freeTrial": {
           "question": "Is there a free trial?",
-          "answer": "Yes! You can sign up for our Pro plan and use it for free for 14 days, no credit card required upfront."
+          "answer": "Yes, our Basic Plan includes a 1-month free trial. You can test all the essential features before committing. No credit card is required to start the trial."
         },
         "changePlan": {
           "question": "Can I change my plan later?",
-          "answer": "Absolutely. You can easily upgrade or downgrade your plan from your account settings at any time."
+          "answer": "Absolutely. You can upgrade or downgrade your plan at any time directly from your account dashboard. The changes will be prorated."
         },
         "smsRequirements": {
-          "question": "What are the requirements for SMS notifications?",
-          "answer": "The SMS feature integrates with Twilio. You will need your own Twilio account and credentials. Standard Twilio messaging rates will apply."
+            "question": "What is required for sending SMS?",
+            "answer": "To send SMS notifications, you will need to connect your own third-party SMS gateway account (like Twilio, Vonage, etc.). We provide easy integration."
         }
       }
     },

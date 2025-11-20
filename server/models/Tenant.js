@@ -15,9 +15,9 @@ const tenantSchema = new mongoose.Schema({
         index: true,
     },
     plan: {
-        type: String,
-        enum: ['trial', 'basic', 'pro', 'enterprise'],
-        default: 'trial',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Plan',
+      required: true,
     },
     isActive: {
         type: Boolean,

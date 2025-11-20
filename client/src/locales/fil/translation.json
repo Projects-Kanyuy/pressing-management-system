@@ -684,67 +684,92 @@
         "startTrial": "Simulan ang Inyong Libreng Trial"
       }
     },
+  "public": {
     "pricing": {
-      "title": "Hanapin ang Tamang Plan para sa Inyong Negosyo",
-      "subtitle": "Simple, transparent na presyo. Pumili ng plan na bagay sa inyong pangangailangan at simulan ang pag-streamline ng inyong mga operasyon ngayon.",
+      "title": "Piliin ang Iyong Plano",
+      "subtitle": "Simple at malinaw na presyo para sa mga laundry business ng lahat ng laki.",
       "mostPopular": "Pinakasikat",
+      "choosePlan": "Piliin ang Plano",
       "plans": {
         "basic": {
-          "name": "Basic",
-          "price": "$29",
-          "frequency": "mo",
+          "name": "Basic Plan",
+          "frequency": "buwan",
           "features": [
-            "Hanggang 250 Order bawat buwan",
-            "2 Staff Account",
-            "Customer Management",
-            "Payment Tracking",
-            "Email Notifications"
+            "Manu-manong magrehistro at mamahala ng mga kliyente",
+            "Gumawa ng mga resibo para sa bawat transaksyon",
+            "Isang user lang (ikaw) ang makakagamit ng platform",
+            "Gumagana sa Android App at Laptop Installation",
+            "May kasamang 1-buwang libreng trial bago magsimula ang bayaran"
+          ]
+        },
+        "starter": {
+          "name": "Starter Plan",
+          "frequency": "buwan",
+          "features": [
+            "Maka-akit ng mga customer sa malapit — kumonekta agad",
+            "Mag-alok ng home pickup at delivery na may client tracking",
+            "Madaling magrehistro at mamahala ng mga customer",
+            "Direktang makipag-usap sa mga kliyente gamit ang in-app messaging",
+            "Magpadala ng bulk SMS at bulk email para sa mga promo",
+            "Magdagdag ng hanggang 2 staff para sa orders at deliveries",
+            "Real-time na accountability para maiwasan ang pandaraya ng staff",
+            "Tingnan ang arawan, lingguhan, o buwanang benta sa isang click",
+            "Hulaan kung sinong customer ang babalik at bigyan sila ng auto-promotions"
+          ]
+        },
+        "growth": {
+          "name": "Growth Plan",
+          "frequency": "buwan",
+          "features": [
+            "Lahat ng nasa Starter Plan, at dagdag pa:",
+            "3x mas maraming customer traffic mula sa iyong lugar",
+            "Priority listing sa direktoryo ng PressMark",
+            "Magdagdag ng hanggang 5 staff sa iisang account",
+            "Advanced analytics at performance dashboard",
+            "Mga automated na paalala sa kliyente para sa mga pickup"
           ]
         },
         "pro": {
-          "name": "Pro",
-          "price": "$59",
-          "frequency": "mo",
+          "name": "Pro Plan",
+          "frequency": "buwan",
           "features": [
-            "Walang Limitasyon na Order",
-            "Hanggang 10 Staff Account",
-            "Lahat sa Basic",
-            "SMS Notifications (Twilio)",
-            "Basic Sales Reports",
-            "Admin Bell Notifications"
-          ]
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Custom",
-          "frequency": "makipag-ugnayan",
-          "features": [
-            "Lahat sa Pro",
-            "Walang Limitasyon na Staff Account",
-            "Custom Branding",
-            "Advanced Analytics",
-            "Priority Support",
-            "Onboarding Assistance"
+            "Lahat ng nasa Starter at Growth Plans, at dagdag pa:",
+            "6x mas maraming customer traffic at premium placement",
+            "Magdagdag ng hanggang 15 staff at i-monitor ang bawat transaksyon",
+            "Iwasan ang pandaraya ng staff gamit ang detalyadong activity tracking",
+            "One-click access sa lahat ng sales reports",
+            "Smart prediction ng mga babalik na customer na may auto-promotion",
+            "Nakalaang priority support line"
           ]
         }
       },
-      "choose": "Pumili",
+      "allPlans": {
+        "title": "⚡ Lahat ng Plano ay May Kasamang",
+        "features": [
+          "Secure na PressMark Dashboard (web, Android, at laptop versions)",
+          "Cloud-based data backup para sa mga kliyente at order",
+          "Agad na makita ang sales performance at mga aktibidad ng staff",
+          "Built-in na customer database at mga tool para sa promosyon",
+          "24/7 technical support at mga automatic update"
+        ]
+      },
       "faq": {
-        "title": "Mga Madalas na Tanong",
+        "title": "Mga Madalas Itanong (FAQ)",
         "freeTrial": {
-          "question": "May libreng trial ba?",
-          "answer": "Oo! Maaari kayong mag-sign up para sa aming Pro plan at gamitin ito nang libre sa loob ng 14 na araw, walang kailangang credit card sa simula."
+          "question": "Mayroon bang libreng trial?",
+          "answer": "Oo, ang aming Basic Plan ay may kasamang 1-buwang libreng trial. Maaari mong subukan ang lahat ng mahahalagang feature bago mag-commit. Hindi kailangan ng credit card para simulan ang trial."
         },
         "changePlan": {
-          "question": "Maaari ba naming baguhin ang aming plan mamaya?",
-          "answer": "Tiyak. Madali ninyong ma-upgrade o ma-downgrade ang inyong plan mula sa inyong account settings anumang oras."
+          "question": "Maaari ko bang palitan ang aking plano?",
+          "answer": "Oo naman. Maaari kang mag-upgrade o mag-downgrade ng iyong plano anumang oras mula sa iyong account dashboard. Ang mga pagbabago ay magiging pro-rated."
         },
         "smsRequirements": {
-          "question": "Ano ang mga requirement para sa SMS notifications?",
-          "answer": "Ang SMS feature ay naka-integrate sa Twilio. Kailangan ninyo ng sariling Twilio account at credentials. Mag-aapply ang standard Twilio messaging rates."
+          "question": "Ano ang kailangan para makapagpadala ng SMS?",
+          "answer": "Para makapagpadala ng mga SMS notification, kailangan mong ikonekta ang iyong sariling third-party SMS gateway account (tulad ng Twilio, Vonage, atbp.). Nagbibigay kami ng madaling integrasyon."
         }
       }
-    },
+    }
+  },
     "features": {
       "title": "Mga Feature na Nagpapalakas sa Inyong Negosyo",
       "subtitle": "Tuklasin ang mga tool na dinisenyo para gawing mas simple, mas mabilis, at mas propesyonal ang pamamahala ng inyong pressing at laundry service.",
