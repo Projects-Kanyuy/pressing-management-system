@@ -629,7 +629,7 @@
       "hero": {
         "title": "Streamline Your Laundry Business with",
         "subtitle": "The all-in-one management system for order tracking, customer notifications, and payment handling. Spend less time managing, more time growing.",
-        "getStartedFree": "Get Started for Free",
+        "getStartedFree": "Get Started ",
         "learnMore": "Learn More"
       },
       "features": {
@@ -663,7 +663,7 @@
       "cta": {
         "title": "Ready to Modernize Your Business?",
         "subtitle": "Join dozens of other laundry services simplifying their workflow with PressFlow.",
-        "startTrial": "Start Your Free Trial"
+        "startTrial": "Start Now"
       }
     },
     "pricing": {
@@ -805,7 +805,7 @@
       "cta": {
         "title": "See It In Action",
         "subtitle": "Ready to take control of your workflow? Start your free trial and experience the difference today.",
-        "getStartedFree": "Get Started for Free"
+        "getStartedFree": "Get Started"
       }
     }
   },

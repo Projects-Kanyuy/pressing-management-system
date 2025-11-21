@@ -155,66 +155,110 @@
       }
     },
     "pricing": {
-      "title": "Trouvez le Plan Qui Convient à Votre Entreprise",
-      "subtitle": "Tarification simple et transparente. Choisissez le plan qui correspond à vos besoins et commencez à rationaliser vos opérations dès aujourd'hui.",
-      "mostPopular": "Le Plus Populaire",
-      "plans": {
-        "basic": {
-          "name": "Basique",
-          "price": "29€",
-          "frequency": "mois",
-          "features": [
-            "Jusqu'à 250 commandes par mois",
-            "2 comptes employés",
-            "Gestion des clients",
-            "Suivi des paiements",
-            "Notifications par e-mail"
-          ]
-        },
-        "pro": {
-          "name": "Pro",
-          "price": "59€",
-          "frequency": "mois",
-          "features": [
-            "Commandes illimitées",
-            "Jusqu'à 10 comptes employés",
-            "Tout ce qui est dans Basique",
-            "Notifications SMS (Twilio)",
-            "Rapports de vente de base",
-            "Notifications admin en temps réel"
-          ]
-        },
-        "enterprise": {
-          "name": "Entreprise",
-          "price": "Sur mesure",
-          "frequency": "nous contacter",
-          "features": [
-            "Tout ce qui est dans Pro",
-            "Comptes employés illimités",
-            "Image de marque personnalisée",
-            "Analyses avancées",
-            "Support prioritaire",
-            "Assistance à l'intégration"
-          ]
-        }
-      },
-      "choose": "Choisir",
-      "faq": {
-        "title": "Questions Fréquemment Posées",
-        "freeTrial": {
-          "question": "Y a-t-il un essai gratuit ?",
-          "answer": "Oui ! Vous pouvez vous inscrire à notre plan Pro et l'utiliser gratuitement pendant 14 jours, aucune carte de crédit requise au départ."
-        },
-        "changePlan": {
-          "question": "Puis-je changer de plan plus tard ?",
-          "answer": "Absolument. Vous pouvez facilement passer à un plan supérieur ou inférieur depuis les paramètres de votre compte à tout moment."
-        },
-        "smsRequirements": {
-          "question": "Quelles sont les exigences pour les notifications SMS ?",
-          "answer": "La fonctionnalité SMS s'intègre avec Twilio. Vous aurez besoin de votre propre compte Twilio et de vos identifiants. Les tarifs de messagerie standard de Twilio s'appliqueront."
-        }
-      }
+  "title": "Choisissez votre forfait",
+  "subtitle": "Une tarification simple et transparente. Choisissez le forfait adapté à vos besoins et commencez dès aujourd'hui à optimiser vos opérations.",
+  "mostPopular": "Le plus populaire",
+  "localizing": "Chargement des forfaits...",
+  "plans": {
+    "basic": {
+      "name": "Forfait Basique",
+      "price": "2 $",
+      "frequency": "mois",
+      "features": [
+        "Enregistrez et gérez vos clients manuellement",
+        "Générez des reçus pour chaque transaction",
+        "Un seul utilisateur (vous) peut gérer la plateforme",
+        "Inclut un essai gratuit d'un mois avant le début de la facturation",
+        "Fonctionne sur l'application Android et sur ordinateur portable"
+      ]
     },
+    "starter": {
+      "name": "Forfait Démarrage",
+      "price": "10 $",
+      "frequency": "mois",
+      "features": [
+        "Obtenez du trafic local — connectez-vous instantanément avec les personnes à proximité ayant besoin de services de blanchisserie",
+        "Proposez le ramassage et la livraison à domicile avec suivi client",
+        "Enregistrez et gérez facilement les clients",
+        "Communiquez directement avec les clients via la messagerie intégrée",
+        "Envoyez des SMS et e-mails groupés pour promouvoir des offres ou des rappels",
+        "Ajoutez jusqu'à 2 employés pour aider à gérer les commandes et les livraisons",
+        "Responsabilité en temps réel : suivez toutes les activités pour éviter les fraudes du personnel",
+        "Consultez les ventes quotidiennes, hebdomadaires ou mensuelles en un clic",
+        "Prédisez le retour des clients et envoyez-leur automatiquement des promotions",
+        "Fonctionne sur l'application Android et sur ordinateur portable pour votre bureau"
+      ]
+    },
+    "growth": {
+      "name": "Forfait Croissance",
+      "price": "25 $",
+      "frequency": "mois",
+      "features": [
+        "Tout ce qui est inclus dans le forfait Démarrage",
+        "3x plus de trafic client depuis votre zone",
+        "Liste prioritaire dans l'annuaire PressMark",
+        "Ajoutez jusqu'à 5 employés, tous gérés sous un seul compte",
+        "Tableau de bord avancé d'analyse et de performance",
+        "Rappels automatisés aux clients pour les ramassages et les livraisons",
+        "Support complet pour l'accès Android et ordinateur portable"
+      ]
+    },
+    "pro": {
+      "name": "Forfait Pro",
+      "price": "50 $",
+      "frequency": "mois",
+      "features": [
+        "Tout ce qui est inclus dans les forfaits Démarrage et Croissance",
+        "6x plus de trafic client et placement premium dans l'annuaire",
+        "Ajoutez jusqu'à 15 employés et surveillez chaque transaction en temps réel",
+        "Empêchez la fraude du personnel grâce au suivi détaillé des activités",
+        "Accès en un clic aux rapports de ventes quotidiens, hebdomadaires et mensuels",
+        "Prédiction intelligente des clients récurrents avec outils de promotion automatique",
+        "Ligne de support prioritaire dédiée",
+        "Accès complet Application Android + Installation sur ordinateur portable"
+      ]
+    },
+    "enterprise": {
+      "name": "Entreprise",
+      "price": "Sur mesure",
+      "frequency": "contact",
+      "features": [
+        "Tout ce qui est inclus dans Pro",
+        "Comptes employés illimités",
+        "Marque personnalisée (White label)",
+        "Analyses avancées",
+        "Support prioritaire",
+        "Assistance à l'intégration"
+      ]
+    }
+  },
+  "allPlansInclude": {
+    "title": "⚡ Tous les forfaits incluent :",
+    "features": [
+      "Tableau de bord sécurisé PressMark (versions web, Android et portable)",
+      "Sauvegarde des données clients et commandes sur le cloud",
+      "Vue instantanée des performances de vente et des activités du personnel",
+      "Base de données clients intégrée et outils promotionnels",
+      "Support technique 24/7 et mises à jour automatiques"
+    ]
+  },
+  "choose": "Choisir",
+  "faq": {
+    "title": "Foire Aux Questions",
+    "freeTrial": {
+      "question": "Y a-t-il un essai gratuit ?",
+      "answer": "Oui ! Vous pouvez vous inscrire à notre forfait Pro et l'utiliser gratuitement pendant 14 jours, sans carte de crédit requise au départ."
+    },
+    "changePlan": {
+      "question": "Puis-je changer mon forfait plus tard ?",
+      "answer": "Absolument. Vous pouvez facilement mettre à niveau ou rétrograder votre forfait depuis les paramètres de votre compte à tout moment."
+    },
+    "smsRequirements": {
+      "question": "Quelles sont les exigences pour les notifications SMS ?",
+      "answer": "La fonctionnalité SMS s'intègre à Twilio. Vous aurez besoin de votre propre compte et identifiants Twilio. Les tarifs standard de messagerie Twilio s'appliqueront."
+    }
+  }
+},
     "features": {
       "title": "Fonctionnalités Qui Alimentent Votre Entreprise",
       "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing plus simple, plus rapide et plus professionnelle.",
