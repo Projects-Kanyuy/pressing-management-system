@@ -22,156 +22,147 @@ connectDB();
 // --- DEFINE THE DEFAULT SUBSCRIPTION PLANS WITH REGIONAL PRICING ---
 const defaultPlans = [
     {
-        name: 'Trial',
-        prices: [
-            { currency: 'USD', amount: 0 },
-        ],
-        features: ['Up to 50 Orders', '1 Staff Account', 'Basic Features for 14 Days'],
-        limits: { maxStaff: 1, maxOrdersPerMonth: 100 },
-        isActive: true,
-        isFeatured: false,
-    },
-    {
         name: 'Basic',
         prices: [
             // Major International
-            { currency: 'USD', amount: 2 },
-            { currency: 'EUR', amount: 1.85 },
-            { currency: 'GBP', amount: 1.60 },
-            { currency: 'CAD', amount: 2.70 },
+            { currency: 'USD', amount: 29 },
+            { currency: 'EUR', amount: 27 },
+            { currency: 'GBP', amount: 23 },
+            { currency: 'CAD', amount: 39 },
             // CEMAC Zone (Central Africa)
-            { currency: 'XAF', amount: 1200 },
+            { currency: 'XAF', amount: 18000 },
             // UEMOA Zone (West Africa)
-            { currency: 'XOF', amount: 1200 },
+            { currency: 'XOF', amount: 18000 },
             // Other Key African Currencies
-            { currency: 'NGN', amount: 1700 }, // Nigeria
-            { currency: 'GHS', amount: 24 },  // Ghana
-            { currency: 'KES', amount: 260 }, // Kenya
-            { currency: 'ZAR', amount: 37 },  // South Africa
-            { currency: 'ZWL', amount: 0 },   // Zimbabwe (Set to 0 or a high number, as it's volatile)
+            { currency: 'NGN', amount: 25000 }, // Nigeria
+            { currency: 'GHS', amount: 350 },  // Ghana
+            { currency: 'KES', amount: 3800 }, // Kenya
+            { currency: 'ZAR', amount: 550 },  // South Africa
+            { currency: 'ZWL', amount: 0 },   // Zimbabwe
+            { currency: 'PHP', amount: 110 }, // Philippines
         ],
         features: [
             'Register and manage your clients manually',
             'Generate receipts for every transaction',
-            'Only one user (you) can manage the platform',
-            'Includes a 1-month free trial before billing starts',
-            'Works on Android App and Laptop Installation'
+            '1 user account',
+            'Works on Android & Laptop',
+            'Includes a 1-month free trial'
         ],
-        limits: { maxStaff: 1, maxOrdersPerMonth: 1000 },
+        limits: {
+            maxStaff: 1, // Only the owner
+            // No hard order limit for simplicity, can be enforced in code if needed
+        },
         isActive: true,
         isFeatured: false,
     },
     {
         name: 'Starter',
         prices: [
-            // Major International
-            { currency: 'USD', amount: 10 },
-            { currency: 'EUR', amount: 9.25 },
-            { currency: 'GBP', amount: 8 },
-            { currency: 'CAD', amount: 13.50 },
+             // Major International
+            { currency: 'USD', amount: 29 },
+            { currency: 'EUR', amount: 27 },
+            { currency: 'GBP', amount: 23 },
+            { currency: 'CAD', amount: 39 },
             // CEMAC Zone (Central Africa)
-            { currency: 'XAF', amount: 6000 },
+            { currency: 'XAF', amount: 18000 },
             // UEMOA Zone (West Africa)
-            { currency: 'XOF', amount: 6000 },
+            { currency: 'XOF', amount: 18000 },
             // Other Key African Currencies
-            { currency: 'NGN', amount: 8500 }, // Nigeria
-            { currency: 'GHS', amount: 120 },  // Ghana
-            { currency: 'KES', amount: 1300 }, // Kenya
-            { currency: 'ZAR', amount: 185 },  // South Africa
-            { currency: 'ZWL', amount: 0 },
+            { currency: 'NGN', amount: 25000 }, // Nigeria
+            { currency: 'GHS', amount: 350 },  // Ghana
+            { currency: 'KES', amount: 3800 }, // Kenya
+            { currency: 'ZAR', amount: 550 },  // South Africa
+            { currency: 'ZWL', amount: 0 },   // Zimbabwe
+             // Asia
+            { currency: 'PHP', amount: 560 }, // Philippines
         ],
         features: [
-            'Get local traffic — connect instantly with people nearby who need laundry services',
-            'Offer home pickups and deliveries with client tracking',
-            'Register and manage customers easily',
-            'Communicate with clients directly through in-app messaging',
-            'Send bulk SMS and bulk emails to promote offers or reminders',
-            'Add up to 2 workers to help manage orders and deliveries',
-            'Real-time accountability: track all activities so staff can\'t cheat',
-            'View daily, weekly, or monthly sales in one click',
-            'Predict returning customers and send them promotions automatically',
-            'Works on both Android App and Laptop Installation for your office'
+            'Get local traffic',
+            'Home pickups & deliveries with tracking',
+            'In-app messaging with clients',
+            'Bulk SMS & email promotions',
+            'Up to 2 worker accounts',
+            'Real-time activity tracking',
+            'Daily, weekly, monthly sales reports',
+            'Automated customer retention tools'
         ],
-        limits: { maxStaff: 2, maxOrdersPerMonth: 5000 },
+        limits: {
+            maxStaff: 2,
+        },
         isActive: true,
         isFeatured: false,
     },
     {
         name: 'Growth',
         prices: [
-            // Major International
-            { currency: 'USD', amount: 25 },
-            { currency: 'EUR', amount: 23 },
-            { currency: 'GBP', amount: 20 },
-            { currency: 'CAD', amount: 34 },
+   // Major International
+            { currency: 'USD', amount: 29 },
+            { currency: 'EUR', amount: 27 },
+            { currency: 'GBP', amount: 23 },
+            { currency: 'CAD', amount: 39 },
             // CEMAC Zone (Central Africa)
-            { currency: 'XAF', amount: 15000 },
+            { currency: 'XAF', amount: 18000 },
             // UEMOA Zone (West Africa)
-            { currency: 'XOF', amount: 15000 },
+            { currency: 'XOF', amount: 18000 },
             // Other Key African Currencies
-            { currency: 'NGN', amount: 21250 }, // Nigeria
-            { currency: 'GHS', amount: 300 },  // Ghana
-            { currency: 'KES', amount: 3250 }, // Kenya
-            { currency: 'ZAR', amount: 462 },  // South Africa
-            { currency: 'ZWL', amount: 0 },
+            { currency: 'NGN', amount: 25000 }, // Nigeria
+            { currency: 'GHS', amount: 350 },  // Ghana
+            { currency: 'KES', amount: 3800 }, // Kenya
+            { currency: 'ZAR', amount: 550 },  // South Africa
+            { currency: 'ZWL', amount: 0 },   // Zimbabwe
+             // Asia
+            { currency: 'PHP', amount: 1400 }, // Philippines
         ],
         features: [
             'Everything in Starter Plan',
-            '3× more customer traffic from your area',
-            'Priority listing in the PressMark directory',
-            'Add up to 5 workers, all managed under one account',
-            'Advanced analytics and performance dashboard',
-            'Automated reminders to clients for pickups and deliveries',
-            'Full support for Android and Laptop access'
+            '3x more customer traffic',
+            'Priority directory listing',
+            'Up to 5 worker accounts',
+            'Advanced analytics dashboard',
+            'Automated client reminders'
         ],
-        limits: { maxStaff: 5, maxOrdersPerMonth: 15000 },
+        limits: {
+            maxStaff: 5,
+        },
         isActive: true,
-        isFeatured: true,
+        isFeatured: true, // This is the most popular plan
     },
     {
         name: 'Pro',
         prices: [
             // Major International
-            { currency: 'USD', amount: 50 },
-            { currency: 'EUR', amount: 46 },
-            { currency: 'GBP', amount: 40 },
-            { currency: 'CAD', amount: 68 },
+            { currency: 'USD', amount: 29 },
+            { currency: 'EUR', amount: 27 },
+            { currency: 'GBP', amount: 23 },
+            { currency: 'CAD', amount: 39 },
             // CEMAC Zone (Central Africa)
-            { currency: 'XAF', amount: 30000 },
+            { currency: 'XAF', amount: 18000 },
             // UEMOA Zone (West Africa)
-            { currency: 'XOF', amount: 30000 },
+            { currency: 'XOF', amount: 18000 },
             // Other Key African Currencies
-            { currency: 'NGN', amount: 42500 }, // Nigeria
-            { currency: 'GHS', amount: 600 },  // Ghana
-            { currency: 'KES', amount: 6500 }, // Kenya
-            { currency: 'ZAR', amount: 925 },  // South Africa
-            { currency: 'ZWL', amount: 0 },
+            { currency: 'NGN', amount: 25000 }, // Nigeria
+            { currency: 'GHS', amount: 350 },  // Ghana
+            { currency: 'KES', amount: 3800 }, // Kenya
+            { currency: 'ZAR', amount: 550 },  // South Africa
+            { currency: 'ZWL', amount: 0 },   // Zimbabwe
+            // Asia
+            { currency: 'PHP', amount: 2800 }, // Philippines
         ],
         features: [
-            'Everything in Starter and Growth Plans',
-            '6× more customer traffic and premium directory placement',
-            'Add up to 15 workers and monitor every transaction in real time',
-            'Prevent staff cheating with detailed activity tracking',
-            'One-click access to daily, weekly, and monthly sales reports',
-            'Smart prediction of returning customers with auto-promotion tools',
-            'Dedicated priority support line',
-            'Full Android App + Laptop Installation access'
+            'Everything in Growth Plan',
+            '6x more customer traffic & premium placement',
+            'Up to 15 worker accounts',
+            'Detailed activity tracking to prevent fraud',
+            'One-click access to all sales reports',
+            'Dedicated priority support'
         ],
-        limits: { maxStaff: 15, maxOrdersPerMonth: 1000000 },
-        isActive: true,
-        isFeatured: false,
-    },
-    {
-        name: 'Enterprise',
-        prices: [
-            { currency: 'USD', amount: 0 }, // Represents "Contact Us"
-        ],
-        features: ['Everything in Pro', 'Unlimited Staff Accounts', 'Custom Branding', 'Advanced Analytics', 'Priority Support'],
+        limits: {
+            maxStaff: 15,
+        },
         isActive: true,
         isFeatured: false,
     },
 ];
-
 
 const importData = async () => {
     try {

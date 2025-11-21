@@ -1,6 +1,7 @@
 // client/src/pages/Customers/CustomerFormPage.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { trackEvent } from '../../utils/pixel';
 import { useTranslation } from 'react-i18next';
 import {
     fetchCustomerById,
@@ -63,6 +64,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -82,8 +84,15 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
             } else {
                 const { data: newCustomer } = await createNewCustomer(formData);
                 setSuccess(t('customerForm.messages.createSuccess', { name: newCustomer.name }));
-                // Optionally navigate to customer list or details after creation
-                setTimeout(() => navigate('/customers'), 1500); // Redirect after a short delay
+                
+                // --- META PIXEL EVENT: CUSTOMER CREATED ---
+                trackEvent('CompleteRegistration', {
+                    content_name: 'New Customer Created',
+                    status: 'registered', // Custom status to indicate completion
+                });
+                // ------------------------------------------
+
+                setTimeout(() => navigate('/app/customers'), 1500);
             }
         } catch (err) {
             const errorMessage = isEditMode 
@@ -93,7 +102,7 @@ const CustomerFormPage = ({ mode }) => { // mode will be 'create' or 'edit'
             console.error("Customer Form Submit Error:", err);
         } finally {
             setSaving(false);
-            if (!isEditMode && !error) { // Clear form only on successful creation
+            if (!isEditMode && !error) {  // Clear form only on successful creation
                  // setFormData({ name: '', phone: '', email: '', address: '' }); // Or let redirect handle it
             }
             setTimeout(() => { setSuccess(''); setError(''); }, 4000);

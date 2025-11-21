@@ -730,17 +730,29 @@
             "Full Android App + Laptop Installation access"
           ]
         },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Custom",
-          "frequency": "contact",
+        "growth": {
+          "name": "Growth Plan",
+          "frequency": "month",
           "features": [
-            "Everything in Pro",
-            "Unlimited Staff Accounts",
-            "Custom Branding",
-            "Advanced Analytics",
-            "Priority Support",
-            "Onboarding Assistance"
+            "Everything in the Starter Plan, plus:",
+            "3× more customer traffic from your area",
+            "Priority listing in the PressMark directory",
+            "Add up to 5 workers, all managed under one account",
+            "Advanced analytics and performance dashboard",
+            "Automated reminders to clients for pickups"
+          ]
+        },
+        "pro": {
+          "name": "Pro Plan",
+          "frequency": "month",
+          "features": [
+            "Everything in Starter and Growth Plans, plus:",
+            "6× more customer traffic and premium placement",
+            "Add up to 15 workers and monitor every transaction",
+            "Prevent staff cheating with detailed activity tracking",
+            "One-click access to all sales reports",
+            "Smart prediction of returning customers with auto-promotion",
+            "Dedicated priority support line"
           ]
         }
       },
@@ -759,15 +771,15 @@
         "title": "Frequently Asked Questions",
         "freeTrial": {
           "question": "Is there a free trial?",
-          "answer": "Yes! You can sign up for our Pro plan and use it for free for 14 days, no credit card required upfront."
+          "answer": "Yes, our Basic Plan includes a 1-month free trial. You can test all the essential features before committing. No credit card is required to start the trial."
         },
         "changePlan": {
           "question": "Can I change my plan later?",
-          "answer": "Absolutely. You can easily upgrade or downgrade your plan from your account settings at any time."
+          "answer": "Absolutely. You can upgrade or downgrade your plan at any time directly from your account dashboard. The changes will be prorated."
         },
         "smsRequirements": {
-          "question": "What are the requirements for SMS notifications?",
-          "answer": "The SMS feature integrates with Twilio. You will need your own Twilio account and credentials. Standard Twilio messaging rates will apply."
+            "question": "What is required for sending SMS?",
+            "answer": "To send SMS notifications, you will need to connect your own third-party SMS gateway account (like Twilio, Vonage, etc.). We provide easy integration."
         }
       }
     },

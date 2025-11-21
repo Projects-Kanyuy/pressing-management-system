@@ -5,6 +5,7 @@ import { fetchCustomerById, fetchOrders } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Spinner from '../../components/UI/Spinner';
+import { trackEvent } from '../../utils/pixel';
 import OrderTable from '../../components/Dashboard/OrderTable'; // Reusing OrderTable
 import { User, ArrowLeft, Edit3, Mail, Phone, MapPin, AlertTriangle } from 'lucide-react'; // Removed ListOrdered as OrderTable handles it
 
@@ -60,8 +61,15 @@ const CustomerDetailsPage = () => {
     useEffect(() => {
         loadCustomerDetails();
         loadCustomerOrders();
-    }, [loadCustomerDetails, loadCustomerOrders]); // These callbacks are stable due to their own dependency arrays
+        
+        // 2. ADD ViewContent EVENT ON PAGE LOAD
+        trackEvent('ViewContent', {
+            content_name: 'Customer Details',
+            content_category: 'Profile',
+            content_ids: [customerId], // Track which customer was viewed
+        });
 
+    }, [loadCustomerDetails, loadCustomerOrders, customerId]); 
     if (loadingCustomer && !customer && !error) { // Show main loader only if no error yet and customer not loaded
         return <div className="flex justify-center items-center h-64"><Spinner size="lg" /></div>;
     }

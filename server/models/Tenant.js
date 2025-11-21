@@ -14,6 +14,11 @@ const tenantSchema = new mongoose.Schema({
         unique: true, // MUST be unique
         index: true,
     },
+    plan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Plan',
+      required: true,
+    },
     isActive: {
         type: Boolean,
         default: true,
