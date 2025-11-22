@@ -684,111 +684,92 @@
         "startTrial": "Simulan ang Inyong Libreng Trial"
       }
     },
-"pricing": {
-  "title": "Piliin ang Iyong Plan",
-  "subtitle": "Simple at malinaw na presyo. Piliin ang plan na akma sa iyong pangangailangan at simulan na ang pagpapagaan ng iyong operasyon ngayon.",
-  "mostPopular": "Pinakasikat",
-  "localizing": "Naglo-load ng mga Plan...",
-  "plans": {
-    "basic": {
-      "name": "Basic Plan",
-      "price": "$2",
-      "frequency": "buwan",
-      "features": [
-        "I-rehistro at pamahalaan ang iyong mga kliyente nang mano-mano",
-        "Gumawa ng resibo para sa bawat transaksyon",
-        "Isang user lang (ikaw) ang pwedeng mamahala ng platform",
-        "Kasama ang 1 buwang libreng pagsubok bago magsimula ang singilan",
-        "Gumagana sa Android App at Laptop Installation"
-      ]
-    },
-    "starter": {
-      "name": "Starter Plan",
-      "price": "$10",
-      "frequency": "buwan",
-      "features": [
-        "Makakuha ng lokal na traffic — kumonekta agad sa mga tao sa paligid na nangangailangan ng laundry services",
-        "Mag-alok ng home pickups at deliveries na may client tracking",
-        "Madaling i-rehistro at pamahalaan ang mga customer",
-        "Direktang makipag-usap sa mga kliyente gamit ang in-app messaging",
-        "Magpadala ng bulk SMS at emails para sa promosyon o paalala",
-        "Magdagdag ng hanggang 2 tauhan para tumulong sa orders at deliveries",
-        "Real-time na pananagutan: i-track ang lahat ng aktibidad para hindi makapandaraya ang staff",
-        "Makita ang daily, weekly, o monthly sales sa isang click",
-        "Ma-predict ang mga babalik na customer at padalhan sila ng promo nang kusa",
-        "Gumagana pareho sa Android App at Laptop Installation para sa iyong opisina"
-      ]
-    },
-    "growth": {
-      "name": "Growth Plan",
-      "price": "$25",
-      "frequency": "buwan",
-      "features": [
-        "Lahat ng nasa Starter Plan",
-        "3× mas maraming customer traffic mula sa iyong lugar",
-        "Priority listing sa PressMark directory",
-        "Magdagdag ng hanggang 5 tauhan, na pinamamahalaan sa iisang account",
-        "Advanced analytics at performance dashboard",
-        "Automated na paalala sa mga kliyente para sa pickups at deliveries",
-        "Buong suporta para sa Android at Laptop access"
-      ]
-    },
-    "pro": {
-      "name": "Pro Plan",
-      "price": "$50",
-      "frequency": "buwan",
-      "features": [
-        "Lahat ng nasa Starter at Growth Plans",
-        "6× mas maraming customer traffic at premium directory placement",
-        "Magdagdag ng hanggang 15 tauhan at bantayan ang bawat transaksyon real-time",
-        "Iwasan ang pandaraya ng staff gamit ang detalyadong activity tracking",
-        "One-click access sa daily, weekly, at monthly sales reports",
-        "Smart prediction ng mga suki gamit ang auto-promotion tools",
-        "Dedicated priority support line",
-        "Buong access sa Android App + Laptop Installation"
-      ]
-    },
-    "enterprise": {
-      "name": "Enterprise",
-      "price": "Custom",
-      "frequency": "contact",
-      "features": [
-        "Lahat ng nasa Pro",
-        "Unlimited na Staff Accounts",
-        "Custom Branding",
-        "Advanced Analytics",
-        "Priority Support",
-        "Tulong sa Onboarding"
-      ]
+  "public": {
+    "pricing": {
+      "title": "Piliin ang Iyong Plano",
+      "subtitle": "Simple at malinaw na presyo para sa mga laundry business ng lahat ng laki.",
+      "mostPopular": "Pinakasikat",
+      "choosePlan": "Piliin ang Plano",
+      "plans": {
+        "basic": {
+          "name": "Basic Plan",
+          "frequency": "buwan",
+          "features": [
+            "Manu-manong magrehistro at mamahala ng mga kliyente",
+            "Gumawa ng mga resibo para sa bawat transaksyon",
+            "Isang user lang (ikaw) ang makakagamit ng platform",
+            "Gumagana sa Android App at Laptop Installation",
+            "May kasamang 1-buwang libreng trial bago magsimula ang bayaran"
+          ]
+        },
+        "starter": {
+          "name": "Starter Plan",
+          "frequency": "buwan",
+          "features": [
+            "Maka-akit ng mga customer sa malapit — kumonekta agad",
+            "Mag-alok ng home pickup at delivery na may client tracking",
+            "Madaling magrehistro at mamahala ng mga customer",
+            "Direktang makipag-usap sa mga kliyente gamit ang in-app messaging",
+            "Magpadala ng bulk SMS at bulk email para sa mga promo",
+            "Magdagdag ng hanggang 2 staff para sa orders at deliveries",
+            "Real-time na accountability para maiwasan ang pandaraya ng staff",
+            "Tingnan ang arawan, lingguhan, o buwanang benta sa isang click",
+            "Hulaan kung sinong customer ang babalik at bigyan sila ng auto-promotions"
+          ]
+        },
+        "growth": {
+          "name": "Growth Plan",
+          "frequency": "buwan",
+          "features": [
+            "Lahat ng nasa Starter Plan, at dagdag pa:",
+            "3x mas maraming customer traffic mula sa iyong lugar",
+            "Priority listing sa direktoryo ng PressMark",
+            "Magdagdag ng hanggang 5 staff sa iisang account",
+            "Advanced analytics at performance dashboard",
+            "Mga automated na paalala sa kliyente para sa mga pickup"
+          ]
+        },
+        "pro": {
+          "name": "Pro Plan",
+          "frequency": "buwan",
+          "features": [
+            "Lahat ng nasa Starter at Growth Plans, at dagdag pa:",
+            "6x mas maraming customer traffic at premium placement",
+            "Magdagdag ng hanggang 15 staff at i-monitor ang bawat transaksyon",
+            "Iwasan ang pandaraya ng staff gamit ang detalyadong activity tracking",
+            "One-click access sa lahat ng sales reports",
+            "Smart prediction ng mga babalik na customer na may auto-promotion",
+            "Nakalaang priority support line"
+          ]
+        }
+      },
+      "allPlans": {
+        "title": "⚡ Lahat ng Plano ay May Kasamang",
+        "features": [
+          "Secure na PressMark Dashboard (web, Android, at laptop versions)",
+          "Cloud-based data backup para sa mga kliyente at order",
+          "Agad na makita ang sales performance at mga aktibidad ng staff",
+          "Built-in na customer database at mga tool para sa promosyon",
+          "24/7 technical support at mga automatic update"
+        ]
+      },
+      "faq": {
+        "title": "Mga Madalas Itanong (FAQ)",
+        "freeTrial": {
+          "question": "Mayroon bang libreng trial?",
+          "answer": "Oo, ang aming Basic Plan ay may kasamang 1-buwang libreng trial. Maaari mong subukan ang lahat ng mahahalagang feature bago mag-commit. Hindi kailangan ng credit card para simulan ang trial."
+        },
+        "changePlan": {
+          "question": "Maaari ko bang palitan ang aking plano?",
+          "answer": "Oo naman. Maaari kang mag-upgrade o mag-downgrade ng iyong plano anumang oras mula sa iyong account dashboard. Ang mga pagbabago ay magiging pro-rated."
+        },
+        "smsRequirements": {
+          "question": "Ano ang kailangan para makapagpadala ng SMS?",
+          "answer": "Para makapagpadala ng mga SMS notification, kailangan mong ikonekta ang iyong sariling third-party SMS gateway account (tulad ng Twilio, Vonage, atbp.). Nagbibigay kami ng madaling integrasyon."
+        }
+      }
     }
   },
-  "allPlansInclude": {
-    "title": "⚡ Lahat ng Plans ay Mayroon Nito:",
-    "features": [
-      "Secure PressMark Dashboard (web, Android, at laptop versions)",
-      "Cloud-based data backup para sa mga kliyente at orders",
-      "Instant na view ng sales performance at staff activities",
-      "Built-in na customer database at promotional tools",
-      "24/7 technical support at automatic updates"
-    ]
-  },
-  "choose": "Piliin",
-  "faq": {
-    "title": "Mga Madalas Itanong (FAQ)",
-    "freeTrial": {
-      "question": "Mayroon bang free trial?",
-      "answer": "Oo! Pwede kang mag-sign up sa aming Pro plan at gamitin ito nang libre sa loob ng 14 na araw, hindi kailangan ng credit card sa simula."
-    },
-    "changePlan": {
-      "question": "Pwede ko bang palitan ang aking plan sa huli?",
-      "answer": "Syempre. Madali kang makakapag-upgrade o downgrade ng iyong plan mula sa account settings anumang oras."
-    },
-    "smsRequirements": {
-      "question": "Ano ang mga kailangan para sa SMS notifications?",
-      "answer": "Ang SMS feature ay naka-integrate sa Twilio. Kakailanganin mo ng sarili mong Twilio account at credentials. Ang standard Twilio messaging rates ay a-aplay."
-    }
-  }
-},
     "features": {
       "title": "Mga Feature na Nagpapalakas sa Inyong Negosyo",
       "subtitle": "Tuklasin ang mga tool na dinisenyo para gawing mas simple, mas mabilis, at mas propesyonal ang pamamahala ng inyong pressing at laundry service.",

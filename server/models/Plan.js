@@ -7,7 +7,7 @@ const planSchema = mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      enum: ['Trial', 'Basic', 'Pro', 'Enterprise'],
+       enum: ['Basic', 'Starter', 'Growth', 'Pro'],
     },
     // The 'price' field will now store regional prices
     prices: [

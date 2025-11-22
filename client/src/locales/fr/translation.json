@@ -692,6 +692,7 @@
       }
     },
     "public": {
+    "public": {
     "pricing": {
   "title": "Choisissez votre forfait",
   "subtitle": "Une tarification simple et transparente. Choisissez le forfait adapté à vos besoins et commencez dès aujourd'hui à optimiser vos opérations.",
@@ -1033,5 +1034,6 @@
       "iron": "Repassage"
     }
   }
+}
 }
 }
