@@ -1,7 +1,7 @@
 // client/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'https://api.pressmark.site';
+const API_URL = 'https://api.pressmark.site/api';
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
 
 const api = axios.create({
