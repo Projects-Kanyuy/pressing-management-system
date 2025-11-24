@@ -94,6 +94,10 @@ Resources:
             ResponsePagePath: /index.html
             ResponseCode: 200
             ErrorCachingMinTTL: 0
+          - ErrorCode: 403
+            ResponsePagePath: /index.html
+            ResponseCode: 200
+            ErrorCachingMinTTL: 0
 
   # --- Bucket Policy to allow CloudFront via OAC ---
   ClientBucketPolicy:
