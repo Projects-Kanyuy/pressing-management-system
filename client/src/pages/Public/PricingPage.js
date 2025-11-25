@@ -43,7 +43,6 @@ const PricingCard = ({ plan, location, isFeatured = false, t }) => {
     }).format(priceToShow.amount);
   };
 
-  // ***** THIS IS THE FIX *****
   const planKey = plan.name.split(' ')[0].toLowerCase();
 
   return (
@@ -79,7 +78,7 @@ const PricingCard = ({ plan, location, isFeatured = false, t }) => {
 
 const PricingPage = () => {
   const { t } = useTranslation();
-  const { location, loading: isLocalizationLoading } = useLocalization();
+  const { location } = useLocalization();
 
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -117,12 +116,12 @@ const PricingPage = () => {
     return <div className="text-center text-xl text-apple-red py-20">{error}</div>;
   }
   
-  // No need to manually find plans, we can just map the sorted array
   const orderedPlans = plans.filter(p => ['Basic', 'Starter', 'Growth', 'Pro'].includes(p.name));
 
   return (
     <div className="bg-apple-gray-50 dark:bg-apple-gray-950 min-h-screen">
       <main>
+        {/* --- Header Section --- */}
         <section className="py-16 sm:py-20 text-center">
           <div className="container mx-auto px-4 sm:px-6">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-apple-gray-900 dark:text-white mb-4">
@@ -134,6 +133,7 @@ const PricingPage = () => {
           </div>
         </section>
 
+        {/* --- Pricing Cards Section --- */}
         <section className="pb-16 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto items-stretch">
@@ -147,40 +147,24 @@ const PricingPage = () => {
                 />
               ))}
             </div>
-
-            {/* --- All Plans Include Section --- */}
-            <div className="mt-16 sm:mt-20 md:mt-24 max-w-5xl mx-auto">
-              <div className="text-center mb-8 sm:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-apple-gray-900 dark:text-white mb-3 sm:mb-4">
-                  {t('public.pricing.allPlansInclude.title')}
-                </h2>
-              </div>
-              <div className="bg-white dark:bg-apple-gray-800/50 rounded-2xl p-6 sm:p-8 md:p-10 shadow-lg border border-apple-gray-100 dark:border-apple-gray-700">
-                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {t('public.pricing.allPlansInclude.features', {
-                    returnObjects: true,
-                  }).map((feature, i) => (
-                    <CheckListItem key={i}>{feature}</CheckListItem>
-                  ))}
-                </ul>
-              </div>
-            </div>
           </div>
         </section>
 
+        {/* --- "All Plans Include" Section (Fixed Key) --- */}
         <section className="py-16 sm:py-20 bg-white dark:bg-apple-gray-900">
           <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
             <h2 className="text-3xl font-bold text-center mb-10 dark:text-white">
-              {t('public.pricing.allPlans.title')}
+              {t('public.pricing.allPlansInclude.title')}
             </h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                {t('public.pricing.allPlans.features', {returnObjects: true, defaultValue: []}).map((feature, i) => (
+                {t('public.pricing.allPlansInclude.features', {returnObjects: true, defaultValue: []}).map((feature, i) => (
                     <AllPlansCheckItem key={i}>{feature}</AllPlansCheckItem>
                 ))}
             </ul>
           </div>
         </section>
 
+        {/* --- FAQ Section --- */}
         <section className="py-16 sm:py-20 bg-apple-gray-50 dark:bg-apple-gray-950">
           <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
             <h2 className="text-3xl font-bold text-center mb-10 dark:text-white">{t('public.pricing.faq.title')}</h2>

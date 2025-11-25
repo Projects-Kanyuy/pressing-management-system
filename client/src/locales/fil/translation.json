@@ -89,15 +89,19 @@
     "paymentAmountRequired": "Pakiusap, maglagay ng halaga ng bayad.",
     "validAmountRequired": "Kailangan ng wastong positibong halaga.",
     "dailyPaymentsError": "Hindi ma-load ang datos ng araw-araw na benta.",
-    "ordersError": "Nabigo sa pag-kuha ng mga order. Pakisubukan muli."
+    "ordersError": "Nabigo sa pag-kuha ng mga order. Pakisubukan muli.",
+    "statusReceived": "Natanggap",
+    "statusInProgress": "Ginagawa",
+    "statusReadyForPickup": "Handa na para Kunin",
+    "statusCompleted": "Tapos na"
   },
   "orderTable": {
     "noOrders": "Walang nahanap na order.",
     "noOrdersSubtext": "Subukan na i-adjust ang inyong mga filter o gumawa ng bagong order.",
     "headers": {
-      "receiptNumber": "Receipt #",
+      "receiptNumber": "Resibo #",
       "customer": "Customer",
-      "dropOff": "Drop-off",
+      "dropOff": "Pag-iwan",
       "pickupDue": "Takdang Kunin",
       "status": "Status",
       "payment": "Bayad",
@@ -115,7 +119,7 @@
       "viewDetails": "Tingnan ang Mga Detalye",
       "editOrder": "I-edit ang Order"
     },
-    "overdue": "Lampas sa Takdang Araw"
+    "overdue": "Lampas sa Oras"
   },
   "orderStatus": {
     "pending": "Naghihintay",
@@ -126,10 +130,10 @@
   },
   "orderDetails": {
     "title": "Mga Detalye ng Order",
-    "receiptNumber": "Receipt #",
+    "receiptNumber": "Resibo #",
     "goBack": "Bumalik",
     "refresh": "I-refresh",
-    "printReceipt": "I-print ang Receipt",
+    "printReceipt": "I-print ang Resibo",
     "editOrder": "I-edit ang Order",
     "orderOverdue": "Order ay Lampas sa Takdang Araw!",
     "expected": "Inaasahan",
@@ -137,7 +141,7 @@
       "title": "Mga Detalye ng Order",
       "currentStatus": "Kasalukuyang Status",
       "orderPlaced": "Order na Nailagay",
-      "dropOff": "Drop-off",
+      "dropOff": "Pag-iwan",
       "expectedPickup": "Inaasahang Pagkuha",
       "actualPickup": "Totoong Pagkuha",
       "subtotal": "Subtotal",
@@ -202,7 +206,7 @@
       "advancePaid": "Advance na Nabayad:",
       "balanceDue": "BALANSENG UTANG:",
       "orderNotes": "Mga Tala ng Order:",
-      "thankYou": "Salamat sa inyong negosyo!"
+      "thankYou": "Salamat sa inyong pagtangkilik!"
     },
     "messages": {
       "orderNotFound": "Hindi nahanap ang order.",
@@ -278,8 +282,8 @@
         "invalidDateTime": "Hindi wastong kombinasyon ng petsa/oras.",
         "internalError": "Internal Error: Walang datos ng order para sa pagsusumite.",
         "couldNotLoadData": "Hindi ma-load ang impormasyon ng presyo at serbisyo. Pakiusap, i-configure ito sa settings o subukan muli mamaya.",
-        "orderCreated": "Nagawa ang order! Receipt: {{receiptNumber}}",
-        "orderUpdated": "Na-update ang order! Receipt: {{receiptNumber}}",
+        "orderCreated": "Nagawa ang order! Resibo: {{receiptNumber}}",
+        "orderUpdated": "Na-update ang order! Resibo: {{receiptNumber}}",
         "failedToCreate": "Nabigo sa paggawa ng order.",
         "failedToSave": "Nabigo sa pag-save ng order."
       },
@@ -383,7 +387,7 @@
     "detailedTransactions": "Mga Detalyadong Transaksyon:",
     "table": {
       "paymentTime": "Oras ng Bayad",
-      "receiptNumber": "Receipt #",
+      "receiptNumber": "Resibo #",
       "customer": "Customer",
       "amountPaid": "Halagang Nabayad",
       "method": "Paraan",
@@ -434,7 +438,7 @@
       "companyName": "Pangalan ng Kumpanya",
       "companyPhone": "Telepono ng Kumpanya",
       "companyAddress": "Address ng Kumpanya",
-      "logoUrl": "Logo URL (para sa mga receipt/email)"
+      "logoUrl": "Logo URL (para sa mga resibo/email)"
     },
     "notifications": {
       "title": "Mga Template ng Notification",
@@ -544,24 +548,24 @@
       "saveError": "Nabigo sa pag-save ng mga setting."
     }
   },
-    "contact": {
-      "title": "Makipag-ugnayan sa Amin",
-      "subtitle": "Gusto naming marinig mula sa iyo. Punan ang form sa ibaba o gamitin ang mga detalye na nakalaan.",
-      "form": {
-        "name": "Ang Iyong Pangalan",
-        "email": "Ang Iyong Email",
-        "message": "Mensahe",
-        "submit": "Ipadala ang Mensahe"
-      },
-      "details": {
-        "email": "Mag-email sa Amin",
-        "whatsapp": "Makipag-chat sa WhatsApp",
-        "address": "Ang Aming Lokasyon"
-      },
-      "messages": {
-        "success": "Salamat! Ang iyong mensahe ay naipadala na."
-      }
+  "contact": {
+    "title": "Makipag-ugnayan sa Amin",
+    "subtitle": "Gusto naming marinig mula sa iyo. Punan ang form sa ibaba o gamitin ang mga detalye na nakalaan.",
+    "form": {
+      "name": "Ang Iyong Pangalan",
+      "email": "Ang Iyong Email",
+      "message": "Mensahe",
+      "submit": "Ipadala ang Mensahe"
     },
+    "details": {
+      "email": "Mag-email sa Amin",
+      "whatsapp": "Makipag-chat sa WhatsApp",
+      "address": "Ang Aming Lokasyon"
+    },
+    "messages": {
+      "success": "Salamat! Ang iyong mensahe ay naipadala na."
+    }
+  },
   "landing": {
     "headline": "Palakasin ang Inyong Pressing Business.",
     "subheadline": "Mula sa pag-log ng order at pagsubaybay sa bayad hanggang sa mga notification ng customer, ang PressFlow ay ang all-in-one system para pamahalaan ang inyong laundry at dry cleaning operations nang walang kahirap-hirap."
@@ -629,6 +633,13 @@
     "view": "Tingnan",
     "close": "Isara"
   },
+  "orderList": {
+    "orderList": "Listahan ng Mga Order"
+  },
+  "customerList": {
+    "customerList": "Listahan ng Customer",
+    "searchCustomers": "Maghanap ng mga Customer"
+  },
   "public": {
     "header": {
       "home": "Home",
@@ -684,12 +695,11 @@
         "startTrial": "Simulan ang Inyong Libreng Trial"
       }
     },
-  "public": {
     "pricing": {
       "title": "Piliin ang Iyong Plano",
       "subtitle": "Simple at malinaw na presyo para sa mga laundry business ng lahat ng laki.",
       "mostPopular": "Pinakasikat",
-      "choosePlan": "Piliin ang Plano",
+      "localizing": "Nilo-load ang mga plano...",
       "plans": {
         "basic": {
           "name": "Basic Plan",
@@ -741,9 +751,22 @@
             "Smart prediction ng mga babalik na customer na may auto-promotion",
             "Nakalaang priority support line"
           ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Custom",
+          "frequency": "contact",
+          "features": [
+            "Lahat ng nasa Pro",
+            "Unlimited na Staff Accounts",
+            "Custom Branding (White label)",
+            "Advanced Analytics",
+            "Priority Support",
+            "Tulong sa Onboarding"
+          ]
         }
       },
-      "allPlans": {
+      "allPlansInclude": {
         "title": "⚡ Lahat ng Plano ay May Kasamang",
         "features": [
           "Secure na PressMark Dashboard (web, Android, at laptop versions)",
@@ -753,6 +776,7 @@
           "24/7 technical support at mga automatic update"
         ]
       },
+      "choose": "Piliin",
       "faq": {
         "title": "Mga Madalas Itanong (FAQ)",
         "freeTrial": {
@@ -768,8 +792,7 @@
           "answer": "Para makapagpadala ng mga SMS notification, kailangan mong ikonekta ang iyong sariling third-party SMS gateway account (tulad ng Twilio, Vonage, atbp.). Nagbibigay kami ng madaling integrasyon."
         }
       }
-    }
-  },
+    },
     "features": {
       "title": "Mga Feature na Nagpapalakas sa Inyong Negosyo",
       "subtitle": "Tuklasin ang mga tool na dinisenyo para gawing mas simple, mas mabilis, at mas propesyonal ang pamamahala ng inyong pressing at laundry service.",
@@ -795,7 +818,7 @@
       },
       "adminSettings": {
         "title": "Customizable Admin Settings",
-        "description": "Gawing sarili ninyo ang application. Mula sa Admin Area, maaari ninyong i-customize ang company information para sa mga receipt, at i-modify ang mga email template na ipinapadala sa inyong mga customer para sa ganap na branded experience."
+        "description": "Gawing sarili ninyo ang application. Mula sa Admin Area, maaari ninyong i-customize ang company information para sa mga resibo, at i-modify ang mga email template na ipinapadala sa inyong mga customer para sa ganap na branded experience."
       },
       "receipts": {
         "title": "Professional Printable Receipts",
@@ -966,7 +989,7 @@
     "contactSupport": "Kung sa tingin ninyo ito ay error, pakiusap, makipag-ugnayan sa support."
   },
   "filterControls": {
-    "searchReceipt": "Hanapin ang Receipt #",
+    "searchReceipt": "Hanapin ang Resibo #",
     "searchCustomerName": "Hanapin ang Pangalan ng Customer",
     "searchCustomerPhone": "Hanapin ang Telepono ng Customer",
     "orderStatus": "Status ng Order",

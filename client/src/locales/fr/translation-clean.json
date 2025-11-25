@@ -259,44 +259,44 @@
     }
   }
 },
-    "features": {
-      "title": "Fonctionnalités Qui Alimentent Votre Entreprise",
-      "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing plus simple, plus rapide et plus professionnelle.",
-      "orderManagement": {
-        "title": "Gestion Complète des Commandes",
-        "description": "Enregistrez chaque détail d'une commande facilement. Ajoutez plusieurs vêtements, spécifiez des services comme 'Nettoyage à sec' ou 'Repassage uniquement', définissez les quantités et incluez des instructions spéciales pour les vêtements délicats. Chaque commande reçoit un numéro de reçu unique pour un suivi parfait."
-      },
-      "customerDatabase": {
-        "title": "Base de Données Clients Intégrée",
-        "description": "Construisez une relation avec vos clients. Enregistrez les informations de contact des clients pour une création de commande rapide et consultez leur historique complet à tout moment. Notre système vous aide à apporter cette touche personnelle."
-      },
-      "paymentTracking": {
-        "title": "Suivi Flexible des Paiements et Remises",
-        "description": "Gérez les finances avec clarté. Enregistrez les paiements anticipés, appliquez des remises en pourcentage ou montant fixe, et voyez instantanément le solde dû pour toute commande. Le système suit automatiquement les statuts payés et non payés."
-      },
-      "notifications": {
-        "title": "Notifications Clients Automatisées",
-        "description": "Arrêtez de passer du temps au téléphone. PressFlow envoie automatiquement un e-mail ou un SMS à votre client au moment où sa commande est marquée 'Prête pour le retrait', améliorant son expérience et libérant votre temps."
-      },
-      "dateTracking": {
-        "title": "Suivi des Dates et Alertes de Retard",
-        "description": "Ne perdez jamais une échéance. Définissez des dates et heures de retrait prévues pour chaque commande. Le tableau de bord administrateur signale de manière proéminente toutes les commandes en retard, pour que vous puissiez agir immédiatement."
-      },
-      "adminSettings": {
-        "title": "Paramètres Administrateur Personnalisables",
-        "description": "Appropriez-vous l'application. Depuis la Zone Administrateur, vous pouvez personnaliser les informations de l'entreprise pour les reçus et modifier les modèles d'e-mails envoyés à vos clients pour une expérience entièrement personnalisée."
-      },
-      "receipts": {
-        "title": "Reçus Imprimables Professionnels",
-        "description": "Générez des reçus détaillés et propres pour vos clients d'un simple clic. Chaque reçu inclut une ventilation complète des articles, services, prix, remises et statut de paiement, comme dans un supermarché moderne."
-      },
-      "cta": {
-        "title": "Voyez-le en Action",
-        "subtitle": "Prêt à prendre le contrôle de votre flux de travail ? Commencez votre essai gratuit et découvrez la différence dès aujourd'hui.",
-        "getStartedFree": "Commencer Gratuitement"
-      }
+  "features": {
+    "title": "Des Fonctionnalités qui Propulsent Votre Entreprise",
+    "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing et de blanchisserie plus simple, plus rapide et plus professionnelle.",
+    "orderManagement": {
+      "title": "Gestion Complète des Commandes",
+      "description": "Enregistrez chaque détail d’une commande en toute simplicité. Ajoutez plusieurs articles, spécifiez les services comme « Nettoyage à sec » ou « Repassage uniquement », définissez les quantités, et incluez des instructions spéciales pour les vêtements délicats. Chaque commande reçoit un numéro de reçu unique pour un suivi parfait."
+    },
+    "customerDatabase": {
+      "title": "Base de Données Clients Intégrée",
+      "description": "Renforcez votre relation avec vos clients. Enregistrez leurs informations pour créer des commandes rapidement et consultez leur historique complet à tout moment. Le système vous aide à offrir une expérience personnalisée."
+    },
+    "paymentTracking": {
+      "title": "Suivi Flexible des Paiements et Réductions",
+      "description": "Gérez vos finances en toute clarté. Enregistrez les acomptes, appliquez des remises en pourcentage ou fixes, et visualisez instantanément le solde dû pour chaque commande. Le système suit automatiquement les paiements réglés et non réglés."
+    },
+    "notifications": {
+      "title": "Notifications Automatisées aux Clients",
+      "description": "Gagnez du temps au quotidien. PressFlow envoie automatiquement un email ou SMS à votre client dès que sa commande est marquée « Prête pour le Retrait », améliorant leur expérience et vous libérant du temps."
+    },
+    "dateTracking": {
+      "title": "Suivi des Dates & Alertes de Retard",
+      "description": "Ne perdez jamais une échéance. Définissez pour chaque commande une date et une heure prévues de retrait. Le tableau de bord admin met en évidence toutes les commandes en retard afin que vous puissiez agir rapidement."
+    },
+    "adminSettings": {
+      "title": "Paramètres Admin Personnalisables",
+      "description": "Personnalisez l’application selon vos besoins. Depuis l’espace Admin, vous pouvez modifier les informations de l’entreprise pour les reçus et ajuster les modèles d’email envoyés à vos clients pour une expérience totalement conforme à votre marque."
+    },
+    "receipts": {
+      "title": "Reçus Professionnels Imprimables",
+      "description": "Générez des reçus propres et détaillés en un seul clic. Chaque reçu inclut le détail des articles, services, prix, réductions et statut de paiement, tout comme dans un supermarché moderne."
+    },
+    "cta": {
+      "title": "Découvrez-le en Action",
+      "subtitle": "Prêt à prendre le contrôle de votre workflow ? Commencez votre essai gratuit et constatez la différence dès aujourd’hui.",
+      "getStartedFree": "Commencer"
     }
-  },
+  }
+},
   "signup": {
     "title": "Créer Votre Compte PressFlow",
     "stepProgress": "Étape {{current}} sur {{total}}",

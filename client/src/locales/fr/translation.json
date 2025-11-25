@@ -43,6 +43,21 @@
       "removeItemWithNumber": "Supprimer l'article {{number}}"
     }
   },
+  "login": {
+    "title": "Connexion Personnel",
+    "usernameLabel": "Nom d'utilisateur",
+    "usernamePlaceholder": "Entrez votre nom d'utilisateur",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "loginButton": "Se connecter",
+    "loggingIn": "Connexion en cours...",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "pageTitle": "Connexion",
+    "alreadyLoggedIn": "Déjà connecté. Redirection...",
+    "copyright": "Tous droits réservés.",
+    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants."
+  },
   "dashboard": {
     "title": "Tableau de Bord",
     "totalOrders": "Commandes Totales",
@@ -534,41 +549,26 @@
     }
   },
   "contact": {
-      "title": "Get In Touch",
-      "subtitle": "We'd love to hear from you. Please fill out the form below or use the details provided.",
-      "form": {
-        "name": "Your Name",
-        "email": "Your Email",
-        "message": "Message",
-        "submit": "Send Message"
-      },
-      "details": {
-        "email": "Email Us",
-        "whatsapp": "Chat on WhatsApp",
-        "address": "Our Location"
-      },
-      "messages": {
-        "success": "Thank you! Your message has been sent."
-      }
+    "title": "Contactez-nous",
+    "subtitle": "Nous serions ravis de vous entendre. Veuillez remplir le formulaire ci-dessous ou utiliser les coordonnées fournies.",
+    "form": {
+      "name": "Votre Nom",
+      "email": "Votre Email",
+      "message": "Message",
+      "submit": "Envoyer le Message"
     },
-  "login": {
-    "title": "Connexion Employé",
-    "usernameLabel": "Nom d'utilisateur",
-    "passwordLabel": "Mot de passe",
-    "loginButton": "Se Connecter",
-    "usernamePlaceholder": "ex., admin ou employé",
-    "passwordPlaceholder": "••••••••",
-    "loggingIn": "Connexion en cours...",
-    "showPassword": "Afficher le mot de passe",
-    "hidePassword": "Masquer le mot de passe",
-    "pageTitle": "Connexion",
-    "alreadyLoggedIn": "Déjà connecté. Redirection en cours...",
-    "copyright": "Tous droits réservés.",
-    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants."
+    "details": {
+      "email": "Envoyez-nous un Email",
+      "whatsapp": "Discuter sur WhatsApp",
+      "address": "Notre Adresse"
+    },
+    "messages": {
+      "success": "Merci ! Votre message a été envoyé."
+    }
   },
   "landing": {
-      "headline": "Optimisez Votre Entreprise de Pressing.",
-      "subheadline": "De la saisie des commandes au suivi des paiements et aux notifications clients, PressMark est le système tout-en-un pour gérer vos opérations de blanchisserie et de nettoyage à sec sans effort."
+    "headline": "Optimisez Votre Entreprise de Pressing.",
+    "subheadline": "De la saisie des commandes au suivi des paiements et aux notifications clients, PressFlow est le système tout-en-un pour gérer vos opérations de blanchisserie et de nettoyage à sec sans effort."
   },
   "notifications": {
     "newOrder": "Nouvelle Commande Reçue",
@@ -618,9 +618,11 @@
     "confirm": "Confirmer",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "view": "Voir",
+    "close": "Fermer"
   },
-   "buttons": {
+  "buttons": {
     "save": "Enregistrer les modifications",
     "create": "Créer",
     "cancel": "Annuler",
@@ -632,10 +634,10 @@
   "orderList": {
     "orderList": "Liste des Commandes"
   },
- "customerList": {
-        "customerList": "Liste des Clients",
-        "searchCustomers": "Rechercher des Clients"
-    },
+  "customerList": {
+    "customerList": "Liste des Clients",
+    "searchCustomers": "Rechercher des Clients"
+  },
   "public": {
     "header": {
       "home": "Accueil",
@@ -691,233 +693,231 @@
         "startTrial": "Commencer Votre Essai Gratuit"
       }
     },
-    "public": {
-    "public": {
     "pricing": {
-  "title": "Choisissez votre forfait",
-  "subtitle": "Une tarification simple et transparente. Choisissez le forfait adapté à vos besoins et commencez dès aujourd'hui à optimiser vos opérations.",
-  "mostPopular": "Le plus populaire",
-  "localizing": "Chargement des forfaits...",
-  "plans": {
-    "basic": {
-      "name": "Forfait Basique",
-      "price": "2 $",
-      "frequency": "mois",
-      "features": [
-        "Enregistrez et gérez vos clients manuellement",
-        "Générez des reçus pour chaque transaction",
-        "Un seul utilisateur (vous) peut gérer la plateforme",
-        "Inclut un essai gratuit d'un mois avant le début de la facturation",
-        "Fonctionne sur l'application Android et sur ordinateur portable"
-      ]
+      "title": "Choisissez votre forfait",
+      "subtitle": "Une tarification simple et transparente. Choisissez le forfait adapté à vos besoins et commencez dès aujourd'hui à optimiser vos opérations.",
+      "mostPopular": "Le plus populaire",
+      "localizing": "Chargement des forfaits...",
+      "plans": {
+        "basic": {
+          "name": "Forfait Basique",
+          "price": "2 $",
+          "frequency": "mois",
+          "features": [
+            "Enregistrez et gérez vos clients manuellement",
+            "Générez des reçus pour chaque transaction",
+            "Un seul utilisateur (vous) peut gérer la plateforme",
+            "Inclut un essai gratuit d'un mois avant le début de la facturation",
+            "Fonctionne sur l'application Android et sur ordinateur portable"
+          ]
+        },
+        "starter": {
+          "name": "Forfait Démarrage",
+          "price": "10 $",
+          "frequency": "mois",
+          "features": [
+            "Obtenez du trafic local — connectez-vous instantanément avec les personnes à proximité ayant besoin de services de blanchisserie",
+            "Proposez le ramassage et la livraison à domicile avec suivi client",
+            "Enregistrez et gérez facilement les clients",
+            "Communiquez directement avec les clients via la messagerie intégrée",
+            "Envoyez des SMS et e-mails groupés pour promouvoir des offres ou des rappels",
+            "Ajoutez jusqu'à 2 employés pour aider à gérer les commandes et les livraisons",
+            "Responsabilité en temps réel : suivez toutes les activités pour éviter les fraudes du personnel",
+            "Consultez les ventes quotidiennes, hebdomadaires ou mensuelles en un clic",
+            "Prédisez le retour des clients et envoyez-leur automatiquement des promotions",
+            "Fonctionne sur l'application Android et sur ordinateur portable pour votre bureau"
+          ]
+        },
+        "growth": {
+          "name": "Forfait Croissance",
+          "price": "25 $",
+          "frequency": "mois",
+          "features": [
+            "Tout ce qui est inclus dans le forfait Démarrage",
+            "3x plus de trafic client depuis votre zone",
+            "Liste prioritaire dans l'annuaire PressMark",
+            "Ajoutez jusqu'à 5 employés, tous gérés sous un seul compte",
+            "Tableau de bord avancé d'analyse et de performance",
+            "Rappels automatisés aux clients pour les ramassages et les livraisons",
+            "Support complet pour l'accès Android et ordinateur portable"
+          ]
+        },
+        "pro": {
+          "name": "Forfait Pro",
+          "price": "50 $",
+          "frequency": "mois",
+          "features": [
+            "Tout ce qui est inclus dans les forfaits Démarrage et Croissance",
+            "6x plus de trafic client et placement premium dans l'annuaire",
+            "Ajoutez jusqu'à 15 employés et surveillez chaque transaction en temps réel",
+            "Empêchez la fraude du personnel grâce au suivi détaillé des activités",
+            "Accès en un clic aux rapports de ventes quotidiens, hebdomadaires et mensuels",
+            "Prédiction intelligente des clients récurrents avec outils de promotion automatique",
+            "Ligne de support prioritaire dédiée",
+            "Accès complet Application Android + Installation sur ordinateur portable"
+          ]
+        },
+        "enterprise": {
+          "name": "Entreprise",
+          "price": "Sur mesure",
+          "frequency": "contact",
+          "features": [
+            "Tout ce qui est inclus dans Pro",
+            "Comptes employés illimités",
+            "Marque personnalisée (White label)",
+            "Analyses avancées",
+            "Support prioritaire",
+            "Assistance à l'intégration"
+          ]
+        }
+      },
+      "allPlansInclude": {
+        "title": "⚡ Tous les forfaits incluent :",
+        "features": [
+          "Tableau de bord sécurisé PressMark (versions web, Android et portable)",
+          "Sauvegarde des données clients et commandes sur le cloud",
+          "Vue instantanée des performances de vente et des activités du personnel",
+          "Base de données clients intégrée et outils promotionnels",
+          "Support technique 24/7 et mises à jour automatiques"
+        ]
+      },
+      "choose": "Choisir",
+      "faq": {
+        "title": "Foire Aux Questions",
+        "freeTrial": {
+          "question": "Y a-t-il un essai gratuit ?",
+          "answer": "Oui ! Vous pouvez vous inscrire à notre forfait Pro et l'utiliser gratuitement pendant 14 jours, sans carte de crédit requise au départ."
+        },
+        "changePlan": {
+          "question": "Puis-je changer mon forfait plus tard ?",
+          "answer": "Absolument. Vous pouvez facilement mettre à niveau ou rétrograder votre forfait depuis les paramètres de votre compte à tout moment."
+        },
+        "smsRequirements": {
+          "question": "Quelles sont les exigences pour les notifications SMS ?",
+          "answer": "La fonctionnalité SMS s'intègre à Twilio. Vous aurez besoin de votre propre compte et identifiants Twilio. Les tarifs standard de messagerie Twilio s'appliqueront."
+        }
+      }
     },
-    "starter": {
-      "name": "Forfait Démarrage",
-      "price": "10 $",
-      "frequency": "mois",
-      "features": [
-        "Obtenez du trafic local — connectez-vous instantanément avec les personnes à proximité ayant besoin de services de blanchisserie",
-        "Proposez le ramassage et la livraison à domicile avec suivi client",
-        "Enregistrez et gérez facilement les clients",
-        "Communiquez directement avec les clients via la messagerie intégrée",
-        "Envoyez des SMS et e-mails groupés pour promouvoir des offres ou des rappels",
-        "Ajoutez jusqu'à 2 employés pour aider à gérer les commandes et les livraisons",
-        "Responsabilité en temps réel : suivez toutes les activités pour éviter les fraudes du personnel",
-        "Consultez les ventes quotidiennes, hebdomadaires ou mensuelles en un clic",
-        "Prédisez le retour des clients et envoyez-leur automatiquement des promotions",
-        "Fonctionne sur l'application Android et sur ordinateur portable pour votre bureau"
-      ]
-    },
-    "growth": {
-      "name": "Forfait Croissance",
-      "price": "25 $",
-      "frequency": "mois",
-      "features": [
-        "Tout ce qui est inclus dans le forfait Démarrage",
-        "3x plus de trafic client depuis votre zone",
-        "Liste prioritaire dans l'annuaire PressMark",
-        "Ajoutez jusqu'à 5 employés, tous gérés sous un seul compte",
-        "Tableau de bord avancé d'analyse et de performance",
-        "Rappels automatisés aux clients pour les ramassages et les livraisons",
-        "Support complet pour l'accès Android et ordinateur portable"
-      ]
-    },
-    "pro": {
-      "name": "Forfait Pro",
-      "price": "50 $",
-      "frequency": "mois",
-      "features": [
-        "Tout ce qui est inclus dans les forfaits Démarrage et Croissance",
-        "6x plus de trafic client et placement premium dans l'annuaire",
-        "Ajoutez jusqu'à 15 employés et surveillez chaque transaction en temps réel",
-        "Empêchez la fraude du personnel grâce au suivi détaillé des activités",
-        "Accès en un clic aux rapports de ventes quotidiens, hebdomadaires et mensuels",
-        "Prédiction intelligente des clients récurrents avec outils de promotion automatique",
-        "Ligne de support prioritaire dédiée",
-        "Accès complet Application Android + Installation sur ordinateur portable"
-      ]
-    },
-    "enterprise": {
-      "name": "Entreprise",
-      "price": "Sur mesure",
-      "frequency": "contact",
-      "features": [
-        "Tout ce qui est inclus dans Pro",
-        "Comptes employés illimités",
-        "Marque personnalisée (White label)",
-        "Analyses avancées",
-        "Support prioritaire",
-        "Assistance à l'intégration"
-      ]
-    }
-  },
-  "allPlansInclude": {
-    "title": "⚡ Tous les forfaits incluent :",
-    "features": [
-      "Tableau de bord sécurisé PressMark (versions web, Android et portable)",
-      "Sauvegarde des données clients et commandes sur le cloud",
-      "Vue instantanée des performances de vente et des activités du personnel",
-      "Base de données clients intégrée et outils promotionnels",
-      "Support technique 24/7 et mises à jour automatiques"
-    ]
-  },
-  "choose": "Choisir",
-  "faq": {
-    "title": "Foire Aux Questions",
-    "freeTrial": {
-      "question": "Y a-t-il un essai gratuit ?",
-      "answer": "Oui ! Vous pouvez vous inscrire à notre forfait Pro et l'utiliser gratuitement pendant 14 jours, sans carte de crédit requise au départ."
-    },
-    "changePlan": {
-      "question": "Puis-je changer mon forfait plus tard ?",
-      "answer": "Absolument. Vous pouvez facilement mettre à niveau ou rétrograder votre forfait depuis les paramètres de votre compte à tout moment."
-    },
-    "smsRequirements": {
-      "question": "Quelles sont les exigences pour les notifications SMS ?",
-      "answer": "La fonctionnalité SMS s'intègre à Twilio. Vous aurez besoin de votre propre compte et identifiants Twilio. Les tarifs standard de messagerie Twilio s'appliqueront."
-    }
-  }
-},
     "features": {
-      "title": "Fonctionnalités Qui Alimentent Votre Entreprise",
-      "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing plus simple, plus rapide et plus professionnelle.",
+      "title": "Des Fonctionnalités qui Propulsent Votre Entreprise",
+      "subtitle": "Découvrez les outils conçus pour rendre la gestion de votre service de pressing et de blanchisserie plus simple, plus rapide et plus professionnelle.",
       "orderManagement": {
         "title": "Gestion Complète des Commandes",
-        "description": "Enregistrez chaque détail d'une commande facilement. Ajoutez plusieurs vêtements, spécifiez des services comme 'Nettoyage à sec' ou 'Repassage uniquement', définissez les quantités et incluez des instructions spéciales pour les vêtements délicats. Chaque commande reçoit un numéro de reçu unique pour un suivi parfait."
+        "description": "Enregistrez chaque détail d’une commande facilement. Ajoutez plusieurs vêtements, spécifiez les services comme « Nettoyage à sec » ou « Repassage uniquement », définissez les quantités et ajoutez des instructions spéciales pour les articles délicats. Chaque commande reçoit un numéro de reçu unique pour un suivi parfait."
       },
       "customerDatabase": {
         "title": "Base de Données Clients Intégrée",
-        "description": "Construisez une relation avec vos clients. Enregistrez les informations de contact des clients pour une création de commande rapide et consultez leur historique complet à tout moment. Notre système vous aide à apporter cette touche personnelle."
+        "description": "Renforcez vos relations clients. Enregistrez les informations de contact pour créer une commande rapidement et consultez leur historique complet à tout moment. Notre système vous aide à offrir cette touche personnelle."
       },
       "paymentTracking": {
-        "title": "Suivi Flexible des Paiements et Remises",
-        "description": "Gérez les finances avec clarté. Enregistrez les paiements anticipés, appliquez des remises en pourcentage ou montant fixe, et voyez instantanément le solde dû pour toute commande. Le système suit automatiquement les statuts payés et non payés."
+        "title": "Suivi Flexible des Paiements et Réductions",
+        "description": "Gérez vos finances en toute clarté. Enregistrez les acomptes, appliquez des remises en pourcentage ou fixes, et voyez instantanément le solde restant pour chaque commande. Le système suit automatiquement les commandes payées et non payées."
       },
       "notifications": {
-        "title": "Notifications Clients Automatisées",
-        "description": "Arrêtez de passer du temps au téléphone. PressFlow envoie automatiquement un e-mail ou un SMS à votre client au moment où sa commande est marquée 'Prête pour le retrait', améliorant son expérience et libérant votre temps."
+        "title": "Notifications Automatiques aux Clients",
+        "description": "Gagnez du temps précieux. PressFlow envoie automatiquement un email ou un SMS à votre client dès que sa commande est marquée « Prête pour le Retrait », améliorant leur expérience tout en vous libérant du temps."
       },
       "dateTracking": {
-        "title": "Suivi des Dates et Alertes de Retard",
-        "description": "Ne perdez jamais une échéance. Définissez des dates et heures de retrait prévues pour chaque commande. Le tableau de bord administrateur signale de manière proéminente toutes les commandes en retard, pour que vous puissiez agir immédiatement."
+        "title": "Suivi des Dates & Alertes de Retard",
+        "description": "Ne manquez jamais une échéance. Définissez les dates et heures de retrait prévues pour chaque commande. Le tableau de bord admin signale clairement les commandes en retard afin que vous puissiez agir immédiatement."
       },
       "adminSettings": {
-        "title": "Paramètres Administrateur Personnalisables",
-        "description": "Appropriez-vous l'application. Depuis la Zone Administrateur, vous pouvez personnaliser les informations de l'entreprise pour les reçus et modifier les modèles d'e-mails envoyés à vos clients pour une expérience entièrement personnalisée."
+        "title": "Paramètres Admin Personnalisables",
+        "description": "Personnalisez l’application selon vos besoins. Depuis l’Espace Admin, modifiez les informations de l’entreprise pour les reçus et ajustez les modèles d’email envoyés à vos clients pour une expérience totalement cohérente avec votre marque."
       },
       "receipts": {
-        "title": "Reçus Imprimables Professionnels",
-        "description": "Générez des reçus détaillés et propres pour vos clients d'un simple clic. Chaque reçu inclut une ventilation complète des articles, services, prix, remises et statut de paiement, comme dans un supermarché moderne."
+        "title": "Reçus Professionnels Imprimables",
+        "description": "Générez des reçus propres et détaillés en un seul clic. Chaque reçu inclut la liste des articles, services, prix, réductions et le statut de paiement, comme dans un supermarché moderne."
       },
       "cta": {
-        "title": "Voyez-le en Action",
-        "subtitle": "Prêt à prendre le contrôle de votre flux de travail ? Commencez votre essai gratuit et découvrez la différence dès aujourd'hui.",
-        "getStartedFree": "Commencer Gratuitement"
+        "title": "Découvrez-le en Action",
+        "subtitle": "Prêt à prendre le contrôle de votre workflow ? Commencez votre essai gratuit et découvrez la différence dès aujourd’hui.",
+        "getStartedFree": "Commencer"
       }
     }
   },
   "signup": {
-    "title": "Créer Votre Compte PressMark",
+    "title": "Configurez Votre Entreprise",
     "stepProgress": "Étape {{current}} sur {{total}}",
-    "finalStep": "Étape Finale",
+    "finalStep": "Étape Finale : Vérification",
     "step1": {
-      "title": "Configuration Compte Administrateur",
-      "subtitle": "Créez votre compte administrateur principal pour gérer le système.",
-      "username": "Nom d'utilisateur",
-      "email": "Adresse E-mail",
-      "password": "Mot de passe",
-      "confirmPassword": "Confirmer le mot de passe",
-      "nextButton": "Suivant",
+      "title": "Créez Votre Compte Admin",
+      "subtitle": "Ce sera votre identifiant personnel pour gérer l'entreprise.",
+      "username": "Nom d'utilisateur*",
+      "email": "Email (pour vérification)*",
+      "password": "Mot de passe*",
+      "confirmPassword": "Confirmer le mot de passe*",
+      "nextButton": "Suivant : Infos Entreprise",
       "errors": {
-        "usernameRequired": "Le nom d'utilisateur et le mot de passe sont requis",
-        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
-        "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
-        "passwordMismatch": "Les mots de passe ne correspondent pas"
+        "usernameRequired": "Le nom d'utilisateur et le mot de passe sont requis.",
+        "emailInvalid": "Un email valide est requis pour la vérification.",
+        "passwordLength": "Le mot de passe doit contenir au moins 6 caractères.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
       }
     },
     "step2": {
-      "title": "Informations Entreprise",
-      "businessName": "Nom de l'Entreprise",
+      "title": "Parlez-nous de Votre Entreprise",
+      "businessName": "Nom de l'Entreprise*",
       "businessAddress": "Adresse de l'Entreprise",
       "businessPhone": "Téléphone de l'Entreprise",
-      "currencySymbol": "Symbole Monétaire",
+      "currencySymbol": "Symbole Monétaire*",
+      "nextButton": "Suivant : Configurer Services",
       "backButton": "Retour",
-      "nextButton": "Suivant",
       "errors": {
-        "nameRequired": "Le nom de l'entreprise est requis",
-        "currencyRequired": "Le symbole monétaire est requis"
+        "nameRequired": "Le nom de l'entreprise est requis.",
+        "currencyRequired": "Le symbole monétaire est requis."
       }
     },
     "step3": {
-      "title": "Configuration Services et Tarifs",
-      "subtitle": "Configurez les articles que vous nettoyez et les services que vous offrez. Vous pourrez les modifier plus tard.",
+      "title": "Configurer Vos Services & Tarifs",
+      "subtitle": "Définissez ce que vous nettoyez et combien cela coûte. Vous pourrez modifier cela plus tard.",
       "itemTypes": {
-        "title": "Types d'Articles (Ce que vous nettoyez)",
-        "placeholder": "ex. Veste, Jupe, Manteau",
+        "title": "Types d'Articles",
+        "placeholder": "ex: Veste, Couette",
         "addButton": "Ajouter"
       },
       "serviceTypes": {
-        "title": "Types de Services (Comment vous nettoyez)",
-        "placeholder": "ex. Express, Lavage à la main",
+        "title": "Types de Services",
+        "placeholder": "ex: Retouches",
         "addButton": "Ajouter"
       },
       "pricingGrid": {
         "header": "Article / Service"
       },
+      "nextButton": "Suivant : Révision & Fin",
       "backButton": "Retour",
-      "nextButton": "Suivant",
       "errors": {
-        "itemTypesRequired": "Veuillez ajouter au moins un type d'article",
-        "serviceTypesRequired": "Veuillez ajouter au moins un type de service",
-        "noPricesConfirm": "Vous n'avez défini aucun prix. Vous pourrez les définir plus tard dans la zone administrateur. Continuer ?"
+        "itemTypesRequired": "Veuillez ajouter au moins un Type d'Article (ex: Chemise).",
+        "serviceTypesRequired": "Veuillez ajouter au moins un Type de Service (ex: Lavage).",
+        "noPricesConfirm": "Vous n'avez défini aucun prix. Le système utilisera 0 pour tous les services. Voulez-vous continuer ?"
       }
     },
     "step4": {
-      "title": "Révision et Confirmation",
-      "subtitle": "Veuillez réviser vos informations avant de soumettre.",
+      "title": "Révision & Confirmation",
+      "subtitle": "Veuillez confirmer tous les détails. Après confirmation, un code de vérification sera envoyé à votre email pour finaliser votre compte.",
       "adminUsername": "Nom d'utilisateur Admin :",
-      "adminEmail": "E-mail Admin :",
+      "adminEmail": "Email Admin :",
       "businessName": "Nom de l'Entreprise :",
-      "itemsServices": "Articles et Services :",
-      "itemsServicesCount": "{{items}} articles, {{services}} services, {{prices}} prix définis",
-      "backButton": "Retour",
-      "confirmButton": "Créer le Compte"
+      "itemsServices": "Articles/Services Définis :",
+      "itemsServicesCount": "{{items}} articles, {{services}} services, {{prices}} prix définis.",
+      "confirmButton": "Confirmer & Envoyer Code",
+      "backButton": "Retour"
     },
     "step5": {
-      "title": "Vérification E-mail",
-      "subtitle": "Nous avons envoyé un code de vérification à 6 chiffres à {{email}}. Veuillez le saisir ci-dessous.",
-      "verificationCode": "Code de Vérification",
-      "codePlaceholder": "000000",
-      "backButton": "Retour",
-      "verifyButton": "Vérifier et Terminer"
-    },
-    "errors": {
-      "registrationFailed": "L'inscription a échoué. Veuillez réessayer.",
-      "otpInvalid": "Veuillez entrer un code à 6 chiffres valide",
-      "verificationFailed": "La vérification a échoué. Veuillez réessayer."
+      "title": "Vérifiez Votre Email",
+      "subtitle": "Un code à 6 chiffres a été envoyé à {{email}}. Il expire dans 15 minutes.",
+      "verificationCode": "Code de Vérification*",
+      "codePlaceholder": "123456",
+      "verifyButton": "Vérifier & Créer Compte",
+      "backButton": "Retour"
     },
     "success": {
-      "message": "Compte créé avec succès ! Bienvenue sur PressMark !"
+      "message": "Succès ! Compte créé. Vous êtes maintenant redirigé vers votre tableau de bord."
+    },
+    "errors": {
+      "registrationFailed": "Échec du démarrage du processus d'inscription.",
+      "otpInvalid": "Veuillez entrer un code valide à 6 chiffres.",
+      "verificationFailed": "La vérification a échoué. Veuillez vérifier votre code ou revenir en arrière."
     },
     "defaultItems": {
       "shirt": "Chemise",
@@ -970,7 +970,7 @@
     "sendVerificationCode": "Envoyer le Code de Vérification",
     "sixDigitVerificationCode": "Code de Vérification à 6 Chiffres",
     "back": "Retour",
-    "confirmAndChangePassword": "Confirmer et Changer le Mot de Passe",
+    "confirmAndChangePassword": "Confirmer & Changer le Mot de Passe",
     "verificationCodeInstruction": "Un code de vérification a été envoyé à votre email enregistré. Saisissez-le ci-dessous pour confirmer le changement de mot de passe.",
     "profileUpdated": "Profil mis à jour avec succès !",
     "profileUpdateFailed": "Échec de la mise à jour du profil.",
@@ -994,21 +994,21 @@
     "contactSupport": "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support."
   },
   "filterControls": {
-    "searchReceipt": "Rechercher Reçu #",
+    "searchReceipt": "Rechercher N° Reçu",
     "searchCustomerName": "Rechercher Nom Client",
-    "searchCustomerPhone": "Rechercher Téléphone Client",
+    "searchCustomerPhone": "Rechercher Tél Client",
     "orderStatus": "Statut de Commande",
     "paymentStatus": "Statut de Paiement",
     "dueDate": "Date d'Échéance",
     "serviceType": "Type de Service",
-    "hideAdvanced": "Masquer les Avancés",
-    "showAdvanced": "Afficher les Filtres Avancés",
+    "hideAdvanced": "Masquer Avancés",
+    "showAdvanced": "Afficher Filtres Avancés",
     "reset": "Réinitialiser",
-    "applyFilters": "Appliquer les Filtres",
+    "applyFilters": "Appliquer Filtres",
     "advancedDescription": "Des filtres avancés (ex: par type de service, plage de dates) peuvent être ajoutés ici.",
     "placeholders": {
       "customerName": "Jean Dupont",
-      "customerPhone": "555-1234"
+      "customerPhone": "06 12 34 56 78"
     },
     "statusOptions": {
       "allStatuses": "Tous les Statuts",
@@ -1034,6 +1034,4 @@
       "iron": "Repassage"
     }
   }
-}
-}
 }
