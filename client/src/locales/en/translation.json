@@ -632,6 +632,9 @@
         "getStartedFree": "Get Started ",
         "learnMore": "Learn More"
       },
+      "banner": {
+        "promo": "Pay for 1 month — Recieve 1 month FREE Bonus !"
+      },
       "features": {
         "title": "Everything You Need to Run Your Shop",
         "subtitle": "From drop-off to pickup, PressFlow has you covered.",
@@ -728,31 +731,6 @@
             "Smart prediction of returning customers with auto-promotion tools",
             "Dedicated priority support line",
             "Full Android App + Laptop Installation access"
-          ]
-        },
-        "growth": {
-          "name": "Growth Plan",
-          "frequency": "month",
-          "features": [
-            "Everything in the Starter Plan, plus:",
-            "3× more customer traffic from your area",
-            "Priority listing in the PressMark directory",
-            "Add up to 5 workers, all managed under one account",
-            "Advanced analytics and performance dashboard",
-            "Automated reminders to clients for pickups"
-          ]
-        },
-        "pro": {
-          "name": "Pro Plan",
-          "frequency": "month",
-          "features": [
-            "Everything in Starter and Growth Plans, plus:",
-            "6× more customer traffic and premium placement",
-            "Add up to 15 workers and monitor every transaction",
-            "Prevent staff cheating with detailed activity tracking",
-            "One-click access to all sales reports",
-            "Smart prediction of returning customers with auto-promotion",
-            "Dedicated priority support line"
           ]
         }
       },

@@ -1,5 +1,7 @@
 // client/src/App.js
 import React, { Suspense, lazy } from 'react';
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import PixelTracker from "./components/PixelTracker";
 import { useAuth } from './contexts/AuthContext';
@@ -62,6 +64,15 @@ const AdminRoute = ({ children }) => {
 
 
 function App() {
+
+    React.useEffect(() => {
+        AOS.init({
+            duration: 900,
+            offset: 100,
+            once: false,     
+            mirror: true     
+        });
+    }, []);
     return (
         <Router>
                 <PixelTracker />
