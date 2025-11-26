@@ -74,7 +74,7 @@ const initiateRegistration = asyncHandler(async (req, res) => {
         
         const transaction_id = `PRESSFLOW-SUB-${pendingUser._id}-${crypto.randomBytes(4).toString('hex')}`;
         pendingUser.signupData.transactionId = transaction_id;
-        const redirectUrl = `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}`;
+        const redirectUrl = `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}&email=${pendingUser.email}`;
 
 // --- ADD THIS LOG for definitive proof ---
         console.log(`[Payment Flow] Sending this redirect_url to AccountPe: ${redirectUrl}`);
