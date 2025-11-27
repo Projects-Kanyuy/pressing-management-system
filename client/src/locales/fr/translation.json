@@ -638,6 +638,49 @@
     "customerList": "Liste des Clients",
     "searchCustomers": "Rechercher des Clients"
   },
+  "directory": {
+    "brand": "Annuaire PressMark",
+    "nav": {
+      "findService": "Trouver un service",
+      "getSoftware": "Obtenir le logiciel"
+    },
+    "footer": {
+      "aboutTitle": "Annuaire PressMark",
+      "aboutText": "Notre mission est de vous connecter à des services de pressing et de blanchisserie fiables et de haute qualité dans votre région, alimentés par la technologie moderne.",
+      "quickLinks": "Liens rapides",
+      "searchDirectory": "Rechercher dans l’annuaire",
+      "getSoftware": "Obtenir le logiciel",
+      "features": "Fonctionnalités du logiciel",
+      "resources": "Ressources",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d’utilisation",
+      "contact": "Nous contacter",
+      "rights": "Tous droits réservés.",
+      "adminPortal": "Portail administrateur"
+    }
+  },
+  "directoryPage": {
+    "hero": {
+      "title": "Trouvez le service de pressing idéal",
+      "subtitle": "Parcourez notre annuaire des services professionnels de blanchisserie et de nettoyage à sec."
+    },
+    "search": {
+      "businessPlaceholder": "Rechercher par nom d’entreprise...",
+      "cityPlaceholder": "Filtrer par ville..."
+    },
+    "states": {
+      "error": "Échec du chargement de l’annuaire.",
+      "emptyTitle": "Aucune entreprise trouvée",
+      "emptySubtitle": "Nous n’avons trouvé aucune entreprise correspondant à vos critères. Essayez une autre recherche."
+    },
+    "businessCard": {
+      "defaultDescription": "Services professionnels de pressing, de blanchisserie et de nettoyage à sec.",
+      "viewDetails": "Voir les détails",
+      "contact": "Contacter",
+      "whatsappMessage": "Bonjour {{name}}, je vous ai trouvé sur PressMark et je souhaite me renseigner sur vos services.",
+      "noLocation": "N/D"
+    }
+  },
   "public": {
     "header": {
       "home": "Accueil",
@@ -647,6 +690,24 @@
       "getStarted": "Commencer",
       "add": "Ajouter votre"
     },
+    "contact": {
+  "title": "Nous contacter",
+  "subtitle": "Vous avez des questions ou besoin d’assistance ? Envoyez-nous un message et nous vous répondrons rapidement.",
+  "form": {
+    "name": "Votre nom",
+    "email": "Votre adresse e-mail",
+    "message": "Votre message",
+    "submit": "Envoyer le message"
+  },
+  "details": {
+    "email": "E-mail",
+    "whatsapp": "WhatsApp",
+    "address": "Adresse"
+  },
+  "messages": {
+    "success": "Votre message a été envoyé avec succès ! Nous vous contacterons très bientôt."
+  }
+},
     "footer": {
       "allRightsReserved": "Tous droits réservés",
       "privacyPolicy": "Politique de confidentialité",

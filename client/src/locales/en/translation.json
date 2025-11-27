@@ -15,6 +15,49 @@
     },
         "closeSidebar": "Close sidebar"
   },
+  "directory": {
+    "brand": "PressMark Directory",
+    "nav": {
+      "findService": "Find a Service",
+      "getSoftware": "Get The Software"
+    },
+    "footer": {
+      "aboutTitle": "PressMark Directory",
+      "aboutText": "Our mission is to connect you with reliable, high-quality pressing and laundry services in your area that are powered by modern technology.",
+      "quickLinks": "Quick Links",
+      "searchDirectory": "Search Directory",
+      "getSoftware": "Get The Software",
+      "features": "Software Features",
+      "resources": "Resources",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact Us",
+      "rights": "All Rights Reserved.",
+      "adminPortal": "Admin Portal"
+    }
+  },
+  "directoryPage": {
+    "hero": {
+      "title": "Find Your Perfect Pressing Service",
+      "subtitle": "Browse our directory of professional laundry and dry cleaning businesses."
+    },
+    "search": {
+      "businessPlaceholder": "Search by business name...",
+      "cityPlaceholder": "Filter by city..."
+    },
+    "states": {
+      "error": "Failed to load directory.",
+      "emptyTitle": "No Businesses Found",
+      "emptySubtitle": "We couldn't find any listings matching your criteria. Try a different search."
+    },
+    "businessCard": {
+      "defaultDescription": "Professional pressing, laundry, and dry cleaning services.",
+      "viewDetails": "View Details",
+      "contact": "Contact",
+      "whatsappMessage": "Hello {{name}}, I found you on PressMark and would like to inquire about your services.",
+      "noLocation": "N/A"
+    }
+  },
   "orderItemRow": {
     "itemNumber": "Item #{{number}}",
     "removeItem": "Remove item",
@@ -620,6 +663,24 @@
       "add": "Add Your Buisness",
       "getStarted": "Get Started"
     },
+    "contact": {
+  "title": "Contact Us",
+  "subtitle": "Have questions or need support? Send us a message and we’ll get back to you shortly.",
+  "form": {
+    "name": "Your Name",
+    "email": "Your Email",
+    "message": "Your Message",
+    "submit": "Send Message"
+  },
+  "details": {
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "address": "Address"
+  },
+  "messages": {
+    "success": "Your message has been sent successfully! We will contact you shortly."
+  }
+},
     "footer": {
       "allRightsReserved": "All Rights Reserved",
       "privacyPolicy": "Privacy Policy",

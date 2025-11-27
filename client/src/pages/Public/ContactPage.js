@@ -25,7 +25,7 @@ const ContactPage = () => {
         try {
             await sendContactFormApi(formData);
             
-            const phoneNumber = "+237679323584".replace(/\D/g, '');
+            const phoneNumber = "+237674772569".replace(/\D/g, '');
             const whatsappMessage = `New Contact Form Message:\n\nName: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`;
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
             window.open(whatsappUrl, '_blank');
@@ -73,8 +73,8 @@ const ContactPage = () => {
                             <Mail size={24} className="text-apple-blue mt-1 flex-shrink-0" />
                             <div>
                                 <h3 className="text-xl font-semibold">{t('public.contact.details.email')}</h3>
-                                <a href="mailto:ojongagbor87@gmail.com" className="text-apple-gray-600 dark:text-apple-gray-400 hover:underline">
-                                    ojongagbor87@gmail.com
+                                <a href="mailto:\ kanyuymarketing31@gmail.com" className="text-apple-gray-600 dark:text-apple-gray-400 hover:underline">
+                                    kanyuymarketing31@gmail.com
                                 </a>
                             </div>
                         </div>
@@ -82,8 +82,8 @@ const ContactPage = () => {
                             <Phone size={24} className="text-apple-blue mt-1 flex-shrink-0" />
                             <div>
                                 <h3 className="text-xl font-semibold">{t('public.contact.details.whatsapp')}</h3>
-                                <a href={`https://wa.me/237679323584`} target="_blank" rel="noopener noreferrer" className="text-apple-gray-600 dark:text-apple-gray-400 hover:underline">
-                                    +237 679 323 584
+                                <a href={`https://wa.me/237674772569`} target="_blank" rel="noopener noreferrer" className="text-apple-gray-600 dark:text-apple-gray-400 hover:underline">
+                                    +237 674 772 569
                                 </a>
                             </div>
                         </div>
@@ -91,7 +91,7 @@ const ContactPage = () => {
                             <MapPin size={24} className="text-apple-blue mt-1 flex-shrink-0" />
                             <div>
                                 <h3 className="text-xl font-semibold">{t('public.contact.details.address')}</h3>
-                                <p className="text-apple-gray-600 dark:text-apple-gray-400">Douala & Yaoundé, Cameroon</p>
+                                <p className="text-apple-gray-600 dark:text-apple-gray-400">Douala, Cameroon</p>
                             </div>
                         </div>
                     </div>
