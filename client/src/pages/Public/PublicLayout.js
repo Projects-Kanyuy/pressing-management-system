@@ -40,14 +40,15 @@ export const PublicHeader = () => {
         <>
             <header className="sticky top-0 bg-white/80 dark:bg-apple-gray-900/80 backdrop-blur-md z-50 shadow-apple-sm">
                 <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <Link to="/" className="flex items-center space-x-2">
+                    <Link to="/directory" className="flex items-center space-x-2">
                     <img src="/logo.png" alt="PressFlow Logo" className="h-8 w-auto" />
                     <span className="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100">PressFlow</span>
                 </Link>
                     
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex space-x-6 items-center">
-                        <Link to="/" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.home')}</Link>
+                        <Link to="/directory" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.home')}</Link>
+                       < Link to="/add-your-buisness" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.add')}</Link>
                         <Link to="/features" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.features')}</Link>
                         <Link to="/pricing" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.pricing')}</Link>
                     </div>
@@ -106,7 +107,7 @@ export const PublicHeader = () => {
                             {/* Navigation Links */}
                             <div className="flex-1 px-6 py-6 space-y-4">
                                 <Link 
-                                    to="/" 
+                                    to="/directory" 
                                     className="block px-4 py-3 text-lg font-medium text-apple-gray-700 dark:text-apple-gray-300 hover:text-apple-blue hover:bg-apple-gray-50 dark:hover:bg-apple-gray-800 rounded-lg transition-all"
                                     onClick={closeMobileMenu}
                                 >

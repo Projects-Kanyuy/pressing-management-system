@@ -613,10 +613,11 @@
   },
   "public": {
     "header": {
-      "home": "Home",
+      "home": "Directory",
       "features": "Features",
       "pricing": "Pricing",
       "login": "Login",
+      "add": "Add Your Buisness",
       "getStarted": "Get Started"
     },
     "footer": {

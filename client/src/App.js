@@ -81,7 +81,8 @@ function App() {
                     <Routes>
                         {/* --- 1. SaaS MARKETING & PUBLIC ROUTES --- */}
                         <Route element={<PublicLayout />}>
-                            <Route path="/" element={<LandingPage />} />
+                            <Route path="/" element={<DirectoryPage />} />
+                            <Route path="/add-your-buisness" element={<LandingPage />} />
                             <Route path="/features" element={<FeaturesPage />} />
                             <Route path="/pricing" element={<PricingPage />} />
                             <Route path="/verify-payment" element={<VerifyPaymentPage />} />    

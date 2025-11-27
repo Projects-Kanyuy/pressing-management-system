@@ -62,7 +62,7 @@ const LoginPage = () => {
             {/* Back to Home Button */}
             <div className="absolute top-6 left-6">
                 <Link 
-                    to="/" 
+                    to="/directory" 
                     className="flex items-center space-x-2 text-apple-gray-600 dark:text-apple-gray-400 hover:text-apple-blue dark:hover:text-apple-blue transition-colors"
                 >
                     <ArrowLeft size={20} />

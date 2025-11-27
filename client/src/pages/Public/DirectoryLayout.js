@@ -29,7 +29,7 @@ export const DirectoryHeader = () => {
                 {/* Main navigation for the directory site */}
                 <div className="hidden md:flex space-x-8 items-center">
                     <Link to="/directory" className={getLinkClass('/directory')}>Find a Service</Link>
-                    <Link to="/" className={getLinkClass('/')}>Get The Software</Link>
+                    <Link to="/add-your-buisness" className={getLinkClass('/add your buisness')}>Get The Software</Link>
                     {/* <Link to="/about" className={getLinkClass('/about')}>About</Link> */}
                 </div>
 
