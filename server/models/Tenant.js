@@ -70,7 +70,7 @@ const tenantSchema = new mongoose.Schema({
     subscriptionStatus: {
       type: String,
       required: true,
-      enum: ['active', 'trialing', 'past_due', 'canceled'],
+      enum: ['active', 'trialing', 'past_due', 'canceled', 'trial'],
       default: 'trialing',
     },
     trialEndsAt: {

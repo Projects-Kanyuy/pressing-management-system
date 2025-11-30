@@ -6,60 +6,132 @@ import Tenant from '../models/Tenant.js';
 import Plan from '../models/Plan.js';
 import PendingUser from '../models/PendingUser.js';
 import crypto from 'crypto';
+import { COUNTRY_TO_CURRENCY } from '../utils/currencyMap.js';
 
 // @desc    Initiate a PAID subscription for a NEW user AFTER OTP verification
 // @route   POST /api/subscriptions/initiate
 // @access  Public
 const initiateSubscription = asyncHandler(async (req, res) => {
-    // --- THIS IS THE UPDATE ---
-    // We now require the OTP to be sent along with the email.
-    const { email, otp } = req.body;
+    const registrationData = req.body;
+    const { adminUser, companyInfo, plan: planName } = registrationData;
 
-    const pendingUser = await PendingUser.findOne({ email });
-    if (!pendingUser) {
-        res.status(404);
-        throw new Error('Registration process not found. Please start over.');
+    // --- 1. Validation ---
+    if (!adminUser?.email || !/^\S+@\S+\.\S+$/.test(adminUser.email)) { 
+        res.status(400); 
+        throw new Error('A valid email address is required.'); 
+    }
+    if (!companyInfo?.name || !adminUser?.username || !adminUser?.password) { 
+        res.status(400); 
+        throw new Error('Business name, admin username, and password are required.'); 
+    }
+    
+    const userExists = await User.findOne({ email: adminUser.email.toLowerCase() });
+    if (userExists) { 
+        res.status(400); 
+        throw new Error('A user with this email already exists.'); 
     }
 
-    // --- NEW SECURITY CHECK ---
-    // Verify the OTP one last time before creating a payment link.
-    const isMatch = await pendingUser.matchOtp(otp);
-    if (!isMatch) {
-        res.status(400);
-        throw new Error('Invalid verification code.');
-    }
+    // --- 2. Clean up old pending attempts ---
+    await PendingUser.deleteOne({ email: adminUser.email.toLowerCase() });
 
-    // Now we can safely proceed, knowing the email is verified.
-    const planName = pendingUser.signupData.plan;
+    // --- 3. Generate OTP & Create Pending User ---
+    const nanoid = customAlphabet('1234567890', 6);
+    const otp = nanoid();
+
+    const pendingUser = new PendingUser({
+        email: adminUser.email.toLowerCase(),
+        otpHash: otp,
+        signupData: registrationData,
+    });
+    
+    // --- 4. LOGIC: TRIAL ACCOUNT (No Payment) ---
+    // If the plan is missing OR explicitly 'Trial', skip payment.
+    if (!planName || planName.toLowerCase() === 'trial') {
+        // Ensure plan name is consistent for finalize step
+        pendingUser.signupData.plan = 'Trial'; 
+        await pendingUser.save();
+        
+        try {
+            await sendOtpEmail(adminUser.email, otp);
+        } catch (emailError) {
+            console.error(`FAILED to send OTP email:`, emailError);
+            throw new Error("Could not send verification email.");
+        }
+
+        res.status(200).json({ 
+            message: `A verification code has been sent to ${adminUser.email}.`,
+            paymentRequired: false
+        });
+        return; // Stop here, do not create payment link
+    } 
+
+    // --- 5. LOGIC: PAID ACCOUNT (Smart Payment) ---
+    
+    // A. Get the Plan from DB
     const plan = await Plan.findOne({ name: planName });
-
-    if (!plan || plan.name === 'Trial' || plan.name === 'Enterprise') {
+    if (!plan) {
         res.status(400);
-        throw new Error('Invalid plan selected for payment.');
+        throw new Error('Invalid plan selected.');
     }
 
-    const priceDetails = plan.prices.find(p => p.currency === 'USD'); // Defaulting to USD for now
-    if (!priceDetails || priceDetails.amount <= 0) {
-        res.status(500);
-        throw new Error(`Pricing for ${plan.name} is not configured.`);
+    // B. Detect Country & Currency
+    // Use the countryCode sent from frontend (PhoneInput), default to 'CM'
+    const userCountryCode = companyInfo.countryCode || 'CM'; 
+    const targetCurrency = COUNTRY_TO_CURRENCY[userCountryCode] || 'USD';
+
+    console.log(`[Init Reg] Country: ${userCountryCode}, Currency: ${targetCurrency}`);
+
+    // C. Find Price in DB
+    let finalPriceDetails = plan.prices.find(p => p.currency === targetCurrency);
+
+    // D. Fallback to USD if specific currency price is missing
+    if (!finalPriceDetails) {
+        console.log(`[Init Reg] No price for ${targetCurrency}. Using USD.`);
+        finalPriceDetails = plan.prices.find(p => p.currency === 'USD');
     }
 
+    // E. Safety Check
+    if (!finalPriceDetails || finalPriceDetails.amount <= 0) {
+        throw new Error(`Pricing for ${plan.name} is not configured for ${targetCurrency} or USD.`);
+    }
+    
+    // F. Generate Transaction ID & Redirect URL
     const transaction_id = `PRESSFLOW-SUB-${pendingUser._id}-${crypto.randomBytes(4).toString('hex')}`;
     pendingUser.signupData.transactionId = transaction_id;
-    await pendingUser.save();
+    
+    // IMPORTANT: Point to your frontend route that handles payment verification
+    const redirectUrl = `${process.env.FRONTEND_URL}/#/verify-payment?transaction_id=${transaction_id}&email=${pendingUser.email}`;
 
+    // G. Save & Send OTP (So they can verify AFTER payment)
+    await pendingUser.save();
+    await sendOtpEmail(adminUser.email, otp);
+
+    // H. Create AccountPe Link
     const paymentData = {
-        country_code: "US", // Should be dynamic based on user input
+        country_code: userCountryCode, // e.g. 'NG'
+        currency: finalPriceDetails.currency, // e.g. 'NGN'
+        amount: finalPriceDetails.amount, // e.g. 25000
+        
         name: pendingUser.signupData.adminUser.username,
         email: pendingUser.email,
-        amount: priceDetails.amount,
         transaction_id,
         description: `Subscription to PressFlow ${plan.name} Plan`,
         pass_digital_charge: true,
+        redirect_url: redirectUrl 
     };
-    
-    const response = await createPaymentLink(paymentData);
-    res.status(201).json(response.data);
+
+    try {
+        const paymentResponse = await createPaymentLink(paymentData);
+        
+        res.status(200).json({
+            message: "OTP sent. Redirecting to payment.",
+            paymentRequired: true,
+            paymentLink: paymentResponse.data.data.payment_link
+        });
+    } catch (paymentError) {
+        console.error("Payment Link Creation Failed:", paymentError.response?.data || paymentError.message);
+        throw new Error("Could not create payment link. Please try again.");
+    }
 });
 
 // @desc    Generate a payment link for an EXISTING tenant to upgrade their plan
@@ -74,6 +146,7 @@ const changeSubscriptionPlan = asyncHandler(async (req, res) => {
         throw new Error('User is not associated with a business.');
     }
 
+    // 1. Fetch the Tenant to get their stored Country Code
     const tenant = await Tenant.findById(loggedInUser.tenantId);
     const newPlan = await Plan.findOne({ name: planName });
 
@@ -82,30 +155,39 @@ const changeSubscriptionPlan = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'You are already on this plan.' });
     }
 
-    // --- THIS IS THE FIX ---
-    // 1. Determine the target currency for the payment. Let's use XAF for Cameroon.
-    // In a more advanced app, this could be based on tenant.country.
-    const paymentCurrency = 'XAF';
-
-    // 2. Find the price for that specific currency from the plan's prices array.
-    const priceDetails = newPlan.prices.find(p => p.currency === paymentCurrency);
+    // --- 🌟 SMART LOGIC START 🌟 ---
     
-    // 3. Add a fallback to USD if the specific currency isn't found.
+    // 2. Get Country from DB. If missing (old accounts), default to 'US'
+    // Ensure your Tenant Model has a 'countryCode' field!
+    const userCountryCode = tenant.countryCode || 'US'; 
+    
+    // 3. Map Country to Currency
+    const targetCurrency = COUNTRY_TO_CURRENCY[userCountryCode] || 'USD';
+
+    console.log(`[Upgrade] Tenant Country: ${userCountryCode}, Target Currency: ${targetCurrency}`);
+
+    // 4. Find the price for that specific currency
+    const priceDetails = newPlan.prices.find(p => p.currency === targetCurrency);
+    
+    // 5. Fallback to USD if specific currency not found
     const fallbackPriceDetails = newPlan.prices.find(p => p.currency === 'USD');
 
     const finalPriceDetails = priceDetails || fallbackPriceDetails;
 
     if (!finalPriceDetails || finalPriceDetails.amount <= 0) {
-        throw new Error(`Pricing for the ${newPlan.name} plan is not configured for ${paymentCurrency} or USD.`);
+        throw new Error(`Pricing for ${newPlan.name} is not configured for ${targetCurrency} or USD.`);
     }
+    // --- SMART LOGIC END ---
 
     const transaction_id = `PRESSFLOW-UPGRADE-${loggedInUser.tenantId}-${crypto.randomBytes(4).toString('hex')}`;
     
     const paymentData = {
-        country_code: "CM", // Sending the correct country code
+        country_code: userCountryCode, // ✅ Dynamic
+        currency: finalPriceDetails.currency, // ✅ Dynamic
+        amount: finalPriceDetails.amount, // ✅ Dynamic
+        
         name: tenant.name,
         email: loggedInUser.email,
-        amount: finalPriceDetails.amount, // <-- Now sends the correct amount (e.g., 5000)
         transaction_id,
         description: `Upgrade to PressFlow ${newPlan.name} Plan`,
         pass_digital_charge: true,
@@ -120,7 +202,6 @@ const changeSubscriptionPlan = asyncHandler(async (req, res) => {
         throw new Error("Could not create payment link for the upgrade.");
     }
 });
-
 const verifyPaymentAndFinalize = asyncHandler(async (req, res) => {
     const { transaction_id } = req.body;
 

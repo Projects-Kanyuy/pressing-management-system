@@ -31,7 +31,7 @@ export const canCreateOrder = asyncHandler(async (req, res, next) => {
     if (!tenant) throw new Error('Tenant not found.');
     if (!tenant.plan) throw new Error('Subscription plan not found for this tenant.');
 
-    if (tenant.subscriptionStatus !== 'active' && tenant.subscriptionStatus !== 'trialing') {
+    if (tenant.subscriptionStatus !== 'active' && tenant.subscriptionStatus !== 'trialing' && tenant.subscriptionStatus !== 'trial' ) {
         res.status(403);
         throw new Error('Your subscription is inactive. Please upgrade to create new orders.');
     }

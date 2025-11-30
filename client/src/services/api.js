@@ -1,7 +1,17 @@
 // client/src/services/api.js
 import axios from 'axios';
+const getBaseUrl = () => {
+    // 1. If running on your computer
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:5000/api';
+    } 
+    // 2. If running on the live internet
+    else {
+        return 'https://api.pressmark.site/api';
+    }
+};
 
-const API_URL = 'https://api.pressmark.site/api';
+const API_URL = getBaseUrl();
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
 
 const api = axios.create({
@@ -39,21 +49,13 @@ api.interceptors.response.use(
   },
 );
 
-// --- Public Routes ---
 
-// --- THIS IS THE FIX #1 ---
-// Changed the bitwise OR '|' to a logical OR '||'.
-// Also, the baseURL for public routes should match the main API_URL.
-// const PublicAPI = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api' });
 const PublicAPI = axios.create({ baseURL: API_URL });
 
 export const registerTenantWithSetup = async setupData => {
   return api.post('/public/register-with-setup', setupData);
 };
 
-// --- THIS IS THE FIX #2 ---
-// The function now uses the corrected PublicAPI instance.
-// The path now includes '/api' to form the correct full URL: http://localhost:5000/api/plans
 export const getPublicPlansApi = () => PublicAPI.get('/plans');
 
 // --- Authentication & User Profile ---

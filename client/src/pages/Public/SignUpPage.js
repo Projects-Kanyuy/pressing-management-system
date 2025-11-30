@@ -74,13 +74,13 @@ const Step2CompanyInfo = ({ data, setData, onNext, onPrev }) => {
         if (!data.currencySymbol) { setError(t('signup.step2.errors.currencyRequired')); return; }
         onNext();
     };
-    const handleCountryChange = (countryCode) => {
-        // Find the currency for the selected country
-        const newCurrency = countryCurrencyMap[countryCode];
-        if (newCurrency) {
-            // Update the currency symbol in the main form data
-            setData('setTopLevel', 'currencySymbol', newCurrency);
-        }
+     const handleCountryChange = (countryCode) => {
+     
+        const newCurrency = countryCurrencyMap[countryCode] || '$';
+       
+        setData('setTopLevel', 'currencySymbol', newCurrency);
+
+        setData('companyInfo', 'countryCode', countryCode); 
     };
     return (
         <div className="space-y-4 animate-fade-in">
@@ -324,8 +324,10 @@ const SignUpPage = () => {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const planNameFromUrl = new URLSearchParams(location.search).get('plan') || 'trial';
-    const planCapitalized = planNameFromUrl.charAt(0).toUpperCase() + planNameFromUrl.slice(1);
+    const planNameFromUrl = new URLSearchParams(location.search).get('plan');
+    const planCapitalized = planNameFromUrl 
+        ? planNameFromUrl.charAt(0).toUpperCase() + planNameFromUrl.slice(1) 
+        : 'Trial'; 
 
     const [formData, setFormData] = useState({
         adminUser: { username: '', password: '', email: '' },
@@ -334,7 +336,7 @@ const SignUpPage = () => {
         itemTypes: [],
         serviceTypes: [],
         priceList: [],
-        plan: planCapitalized,
+        plan: planCapitalized, // This ensures "Trial" is sent by default
     });
 
     useEffect(() => {

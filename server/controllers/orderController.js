@@ -9,6 +9,35 @@ import { sendNotification } from '../services/notificationService.js';
 const createOrder = asyncHandler(async (req, res) => {
     const { tenantId, user } = req;
 
+    // --- 1. ORDER LIMIT CHECK (NEW LOGIC) ---
+    const tenant = await Tenant.findById(tenantId);
+    if (!tenant) {
+        res.status(404);
+        throw new Error('Tenant not found.');
+    }
+
+    const plan = await Plan.findOne({ name: tenant.plan });
+    
+    // Default to 50 if plan limits are missing, or use -1 for unlimited
+    const maxOrders = plan?.limits?.maxOrdersPerMonth ?? 50;
+
+    if (maxOrders !== -1) { // If not unlimited
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const ordersThisMonth = await Order.countDocuments({
+            tenantId: tenantId,
+            createdAt: { $gte: startOfMonth }
+        });
+
+        if (ordersThisMonth >= maxOrders) {
+            res.status(403);
+            throw new Error(`Order limit reached (${maxOrders}/month) for the ${tenant.plan} Plan. Please upgrade to create more orders.`);
+        }
+    }
+    // --- END ORDER LIMIT CHECK ---
+
     const {
         customerId,
         customerName, customerPhone, customerEmail, customerAddress,
@@ -26,12 +55,11 @@ const createOrder = asyncHandler(async (req, res) => {
     if (!expectedPickupDate) { res.status(400); throw new Error('Expected pickup date is required'); }
     if (subTotalAmount === undefined || parseFloat(subTotalAmount) < 0) { res.status(400); throw new Error('Valid subtotal amount is required'); }
 
-    let customerDoc; // This will hold the Mongoose document for the customer
+    let customerDoc; 
     const providedEmail = customerEmail ? customerEmail.trim().toLowerCase() : undefined;
     const providedPhone = customerPhone ? customerPhone.trim() : null;
     const providedName = customerName ? customerName.trim() : null;
     const providedAddress = customerAddress ? customerAddress.trim() : undefined;
-
 
     if (customerId) {
         if (!mongoose.Types.ObjectId.isValid(customerId)) {
@@ -48,16 +76,16 @@ const createOrder = asyncHandler(async (req, res) => {
             if (existingByPhone) { res.status(400); throw new Error('This phone number is already in use by another customer.'); }
             customerDoc.phone = providedPhone; customerWasModified = true;
         }
-        const currentCustomerEmail = (customerDoc.email || '').toLowerCase(); // Handle null/undefined email
+        const currentCustomerEmail = (customerDoc.email || '').toLowerCase(); 
         if (providedEmail !== undefined && providedEmail !== currentCustomerEmail) {
-            if (providedEmail) { // Only check for duplicates if new email is not empty
+            if (providedEmail) { 
                 const existingByEmail = await Customer.findOne({ email: providedEmail, _id: { $ne: customerDoc._id } });
                 if (existingByEmail) { res.status(400); throw new Error('This email address is already in use by another customer.'); }
             }
             customerDoc.email = providedEmail; customerWasModified = true;
         }
         if (providedAddress !== undefined && providedAddress !== (customerDoc.address || '')) {
-            customerDoc.address = providedAddress === '' ? undefined : providedAddress; // Allow clearing address
+            customerDoc.address = providedAddress === '' ? undefined : providedAddress; 
             customerWasModified = true;
         }
         if (customerWasModified) {
@@ -65,7 +93,6 @@ const createOrder = asyncHandler(async (req, res) => {
             await customerDoc.save();
         }
     } else if (providedName && providedPhone) {
-       
         customerDoc = await Customer.findOne({ phone: providedPhone });
         if (customerDoc) { 
             console.log("[OrderController - createOrder] Found existing customer by phone, updating:", customerDoc);
@@ -93,26 +120,35 @@ const createOrder = asyncHandler(async (req, res) => {
             customerDoc = await Customer.create({
                 name: providedName, phone: providedPhone, email: providedEmail,
                 address: providedAddress,
+                tenantId: tenantId // Ensure new customer is linked to tenant
             });
         }
     } else {
         res.status(400); throw new Error('Customer details (Name and Phone) are required if no existing customer ID is provided.');
     }
 
-    const receiptNumber = await generateReceiptNumber();
+    const receiptNumber = await generateReceiptNumber(); // Ensure you have this helper function defined or imported
+    
     const order = new Order({
-        receiptNumber, customer: customerDoc._id, items,
+        receiptNumber, 
+        customer: customerDoc._id, 
+        items,
         subTotalAmount: parseFloat(subTotalAmount),
         discountType: discountType || 'none',
         discountValue: parseFloat(discountValue) || 0,
         amountPaid: parseFloat(amountPaid) || 0,
-        expectedPickupDate, notes, createdBy: req.user.id,
-        tenantId: tenantId,      
+        expectedPickupDate, 
+        notes, 
         createdBy: user._id, 
+        tenantId: tenantId,      
     });
 
     const createdOrder = await order.save();
-    const populatedOrder = await Order.findById(createdOrder._id).populate('customer', 'name phone email address').populate('createdBy', 'username');
+    
+    const populatedOrder = await Order.findById(createdOrder._id)
+        .populate('customer', 'name phone email address')
+        .populate('createdBy', 'username');
+        
     res.status(201).json(populatedOrder);
 });
 

@@ -16,6 +16,42 @@ import crypto from 'crypto';
 import DirectoryListing from '../models/DirectoryListing.js';
 import { sendContactFormEmail } from '../services/notificationService.js';
 
+// Map ISO Country Codes to Currencies supported by AccountPe/Your Business
+const COUNTRY_TO_CURRENCY = {
+    // --- Central Africa (XAF) ---
+    'CM': 'XAF', // Cameroon
+    'GA': 'XAF', // Gabon
+    'TD': 'XAF', // Chad
+    'CG': 'XAF', // Republic of Congo
+    'GQ': 'XAF', // Equatorial Guinea
+    'CF': 'XAF', // Central African Republic
+
+    // --- West Africa (XOF) ---
+    'BJ': 'XOF', // Benin
+    'BF': 'XOF', // Burkina Faso
+    'CI': 'XOF', // Côte d'Ivoire (Ivory Coast)
+    'GW': 'XOF', // Guinea-Bissau
+    'ML': 'XOF', // Mali
+    'NE': 'XOF', // Niger
+    'SN': 'XOF', // Senegal
+    'TG': 'XOF', // Togo
+
+    // --- Southern/East Africa ---
+    'ZW': 'ZWL', // Zimbabwe
+    'ZA': 'ZAR', // South Africa
+    'KE': 'KES', // Kenya
+    
+    // --- West Africa (Others) ---
+    'NG': 'NGN', // Nigeria
+    'GH': 'GHS', // Ghana
+
+    // --- International ---
+    'US': 'USD', // USA
+    'GB': 'GBP', // UK
+    'FR': 'EUR', // France
+    'CA': 'CAD', // Canada
+    'PH': 'PHP', // Philippines
+};
 // --- STEP 1: INITIATE REGISTRATION & SEND OTP ---
 const initiateRegistration = asyncHandler(async (req, res) => {
     const registrationData = req.body;
@@ -106,21 +142,62 @@ const initiateRegistration = asyncHandler(async (req, res) => {
     }
 });
 
-
-// --- THIS FUNCTION IS NOW ONLY FOR TRIAL USERS ---
 const finalizeRegistration = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
-    if (!email || !otp) throw new Error('Email and OTP are required.');
+    if (!email || !otp) {
+        res.status(400);
+        throw new Error('Email and OTP are required.');
+    }
 
+    // 1. Find the pending user
     const pendingUser = await PendingUser.findOne({ email: email.toLowerCase() });
-    if (!pendingUser) throw new Error('Invalid registration request.');
+    if (!pendingUser) {
+        res.status(404);
+        throw new Error('Invalid registration request or expired.');
+    }
     
+    // 2. Check OTP
     const isMatch = await pendingUser.matchOtp(otp);
-    if (!isMatch) throw new Error('Invalid verification code.');
+    if (!isMatch) {
+        res.status(400);
+        throw new Error('Invalid verification code.');
+    }
 
-    // Finalize the registration using the reusable service
+    // --- 🌟 TRIAL LOGIC START 🌟 ---
+    let isTrialAccount = false;
+
+    // Check if the user signed up via the direct "Trial" flow
+    if (pendingUser.signupData.plan === 'Trial') {
+        isTrialAccount = true;
+        
+        // ✅ CHANGE: Swap 'Trial' for 'Basic' so the database finds the plan
+        pendingUser.signupData.plan = 'Basic'; 
+    }
+
+    // 3. Create the Tenant & User (The logic will now look for "Basic" plan)
     const { tenant, user, token } = await finalizeRegistrationLogic(pendingUser);
 
+    // 4. If it was a trial, force the subscription status
+    if (isTrialAccount) {
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+        // Update the tenant to activate the 30-day trial on the Basic plan
+        await Tenant.findByIdAndUpdate(tenant._id, {
+            subscriptionStatus: 'trial',
+            trialEndsAt: thirtyDaysFromNow,
+            nextBillingAt: thirtyDaysFromNow,
+            plan: 'Basic' // Explicitly confirm Basic plan
+        });
+
+        // Update local object for the response
+        tenant.subscriptionStatus = 'trial';
+        tenant.trialEndsAt = thirtyDaysFromNow;
+        tenant.plan = 'Basic';
+    }
+    // --- TRIAL LOGIC END ---
+
+    // 5. Send Success Response
     res.status(201).json({
         _id: user._id, 
         username: user.username, 
@@ -128,15 +205,14 @@ const finalizeRegistration = asyncHandler(async (req, res) => {
         tenantId: user.tenantId, 
         token,
         tenant: {
-            plan: tenant.plan,
-            subscriptionStatus: tenant.subscriptionStatus,
+            plan: tenant.plan, // Will send "Basic"
+            subscriptionStatus: tenant.subscriptionStatus, // Will send "trial"
             trialEndsAt: tenant.trialEndsAt,
             nextBillingAt: tenant.nextBillingAt,
         },
-        message: `Account for '${tenant.name}' created successfully!`
+        message: `Account created successfully! ${isTrialAccount ? '30-Day Basic Trial Active.' : ''}`
     });
 });
-
 // @desc    Get a list of publicly listed businesses for the directory
 // @route   GET /api/public/directory
 // @access  Public

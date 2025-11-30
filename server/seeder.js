@@ -3,43 +3,33 @@
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 
-// Import all necessary models
+// Import necessary models
 import DirectoryAdmin from './models/DirectoryAdmin.js';
-import Tenant from './models/Tenant.js';
-import Listing from './models/DirectoryListing.js';
 import Plan from './models/Plan.js';
-import Order from './models/Order.js';
-import Customer from './models/Customer.js';
-//import Service from './models/serviceModel.js';
 
-// Import sample data if you have any (optional)
-// import users from './data/users.js';
-// import products from './data/products.js';
+// Import others just to ensure connection works, but we won't touch them
+import Tenant from './models/Tenant.js'; 
 
 dotenv.config();
 connectDB();
 
-// --- DEFINE THE DEFAULT SUBSCRIPTION PLANS WITH REGIONAL PRICING ---
+// --- PLANS WITH NEW LIMITS ---
 const defaultPlans = [
     {
         name: 'Basic',
         prices: [
-            // Major International
             { currency: 'USD', amount: 29 },
             { currency: 'EUR', amount: 27 },
             { currency: 'GBP', amount: 23 },
             { currency: 'CAD', amount: 39 },
-            // CEMAC Zone (Central Africa)
             { currency: 'XAF', amount: 18000 },
-            // UEMOA Zone (West Africa)
             { currency: 'XOF', amount: 18000 },
-            // Other Key African Currencies
-            { currency: 'NGN', amount: 25000 }, // Nigeria
-            { currency: 'GHS', amount: 350 },  // Ghana
-            { currency: 'KES', amount: 3800 }, // Kenya
-            { currency: 'ZAR', amount: 550 },  // South Africa
-            { currency: 'ZWL', amount: 0 },   // Zimbabwe
-            { currency: 'PHP', amount: 110 }, // Philippines
+            { currency: 'NGN', amount: 25000 },
+            { currency: 'GHS', amount: 350 },
+            { currency: 'KES', amount: 3800 },
+            { currency: 'ZAR', amount: 550 },
+            { currency: 'ZWL', amount: 0 },
+            { currency: 'PHP', amount: 110 },
         ],
         features: [
             'Register and manage your clients manually',
@@ -49,8 +39,8 @@ const defaultPlans = [
             'Includes a 1-month free trial'
         ],
         limits: {
-            maxStaff: 1, // Only the owner
-            // No hard order limit for simplicity, can be enforced in code if needed
+            maxStaff: 2, 
+            maxOrdersPerMonth: 50, // ✅ Limit: 50
         },
         isActive: true,
         isFeatured: false,
@@ -58,36 +48,31 @@ const defaultPlans = [
     {
         name: 'Starter',
         prices: [
-             // Major International
             { currency: 'USD', amount: 29 },
             { currency: 'EUR', amount: 27 },
             { currency: 'GBP', amount: 23 },
             { currency: 'CAD', amount: 39 },
-            // CEMAC Zone (Central Africa)
             { currency: 'XAF', amount: 18000 },
-            // UEMOA Zone (West Africa)
             { currency: 'XOF', amount: 18000 },
-            // Other Key African Currencies
-            { currency: 'NGN', amount: 25000 }, // Nigeria
-            { currency: 'GHS', amount: 350 },  // Ghana
-            { currency: 'KES', amount: 3800 }, // Kenya
-            { currency: 'ZAR', amount: 550 },  // South Africa
-            { currency: 'ZWL', amount: 0 },   // Zimbabwe
-             // Asia
-            { currency: 'PHP', amount: 560 }, // Philippines
+            { currency: 'NGN', amount: 25000 },
+            { currency: 'GHS', amount: 350 },
+            { currency: 'KES', amount: 3800 },
+            { currency: 'ZAR', amount: 550 },
+            { currency: 'ZWL', amount: 0 },
+            { currency: 'PHP', amount: 560 },
         ],
         features: [
             'Get local traffic',
-            'Home pickups & deliveries with tracking',
-            'In-app messaging with clients',
-            'Bulk SMS & email promotions',
+            'Home pickups & deliveries',
+            'In-app messaging',
+            'Bulk SMS & email',
             'Up to 2 worker accounts',
-            'Real-time activity tracking',
-            'Daily, weekly, monthly sales reports',
-            'Automated customer retention tools'
+            'Real-time tracking',
+            'Reports'
         ],
         limits: {
-            maxStaff: 2,
+            maxStaff: 5,
+            maxOrdersPerMonth: 250, // ✅ Limit: 250
         },
         isActive: true,
         isFeatured: false,
@@ -95,140 +80,97 @@ const defaultPlans = [
     {
         name: 'Growth',
         prices: [
-   // Major International
             { currency: 'USD', amount: 29 },
             { currency: 'EUR', amount: 27 },
             { currency: 'GBP', amount: 23 },
             { currency: 'CAD', amount: 39 },
-            // CEMAC Zone (Central Africa)
             { currency: 'XAF', amount: 18000 },
-            // UEMOA Zone (West Africa)
             { currency: 'XOF', amount: 18000 },
-            // Other Key African Currencies
-            { currency: 'NGN', amount: 25000 }, // Nigeria
-            { currency: 'GHS', amount: 350 },  // Ghana
-            { currency: 'KES', amount: 3800 }, // Kenya
-            { currency: 'ZAR', amount: 550 },  // South Africa
-            { currency: 'ZWL', amount: 0 },   // Zimbabwe
-             // Asia
-            { currency: 'PHP', amount: 1400 }, // Philippines
+            { currency: 'NGN', amount: 25000 },
+            { currency: 'GHS', amount: 350 },
+            { currency: 'KES', amount: 3800 },
+            { currency: 'ZAR', amount: 550 },
+            { currency: 'ZWL', amount: 0 },
+            { currency: 'PHP', amount: 1400 },
         ],
         features: [
-            'Everything in Starter Plan',
-            '3x more customer traffic',
-            'Priority directory listing',
+            'Everything in Starter',
+            '3x traffic',
+            'Priority listing',
             'Up to 5 worker accounts',
-            'Advanced analytics dashboard',
-            'Automated client reminders'
+            'Advanced analytics'
         ],
         limits: {
-            maxStaff: 5,
+            maxStaff: 7,
+            maxOrdersPerMonth: -1, // ✅ Unlimited
         },
         isActive: true,
-        isFeatured: true, // This is the most popular plan
+        isFeatured: true,
     },
     {
         name: 'Pro',
         prices: [
-            // Major International
             { currency: 'USD', amount: 29 },
             { currency: 'EUR', amount: 27 },
             { currency: 'GBP', amount: 23 },
             { currency: 'CAD', amount: 39 },
-            // CEMAC Zone (Central Africa)
             { currency: 'XAF', amount: 18000 },
-            // UEMOA Zone (West Africa)
             { currency: 'XOF', amount: 18000 },
-            // Other Key African Currencies
-            { currency: 'NGN', amount: 25000 }, // Nigeria
-            { currency: 'GHS', amount: 350 },  // Ghana
-            { currency: 'KES', amount: 3800 }, // Kenya
-            { currency: 'ZAR', amount: 550 },  // South Africa
-            { currency: 'ZWL', amount: 0 },   // Zimbabwe
-            // Asia
-            { currency: 'PHP', amount: 2800 }, // Philippines
+            { currency: 'NGN', amount: 25000 },
+            { currency: 'GHS', amount: 350 },
+            { currency: 'KES', amount: 3800 },
+            { currency: 'ZAR', amount: 550 },
+            { currency: 'ZWL', amount: 0 },
+            { currency: 'PHP', amount: 2800 },
         ],
         features: [
-            'Everything in Growth Plan',
-            '6x more customer traffic & premium placement',
+            'Everything in Growth',
+            '6x traffic',
             'Up to 15 worker accounts',
-            'Detailed activity tracking to prevent fraud',
-            'One-click access to all sales reports',
-            'Dedicated priority support'
+            'Fraud prevention',
+            'Priority support'
         ],
         limits: {
             maxStaff: 15,
+            maxOrdersPerMonth: -1, // ✅ Unlimited
         },
         isActive: true,
         isFeatured: false,
     },
 ];
 
-const importData = async () => {
+const updateData = async () => {
     try {
-        console.log('Starting data import...');
+        console.log('🚀 Starting Update...');
 
-        // --- 1. Clear ALL existing data ---
-        // This provides a clean slate for a fresh install.
-        await Order.deleteMany();
-        await Customer.deleteMany();
-        //await Service.deleteMany();
-        await Listing.deleteMany();
-        await Tenant.deleteMany();
-        await Plan.deleteMany();
+        // 1. Refresh Directory Admin (Safe)
         await DirectoryAdmin.deleteMany();
-
-        console.log('✅ All previous collections cleared.');
-
-        // --- 2. Create the Directory Admin User ---
-        // Ensure your .env file has ADMIN_EMAIL and ADMIN_PASSWORD
-        if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
-            console.error('Error: ADMIN_EMAIL and ADMIN_PASSWORD must be set in your .env file.');
-            process.exit(1);
+       if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+            await DirectoryAdmin.create({
+                username: 'admin', // ✅ Changed from 'Super Admin' to 'admin'
+                email: process.env.ADMIN_EMAIL,
+                password: process.env.ADMIN_PASSWORD,
+            });
+            console.log(`✅ Directory Admin refreshed (User: admin, Email: ${process.env.ADMIN_EMAIL}).`);
         }
-        const adminUser = await DirectoryAdmin.create({
-            username: 'Super Admin',
-            email: process.env.ADMIN_EMAIL,
-            password: process.env.ADMIN_PASSWORD,
-        });
-        console.log(`✅ Directory Admin '${adminUser.name}' created.`);
 
-        // --- 3. Insert the Default Subscription Plans ---
-        await Plan.insertMany(defaultPlans);
-        console.log(`✅ ${defaultPlans.length} default subscription plans have been imported.`);
-
-        console.log('\nData import completed successfully!');
-        process.exit();
-
-    } catch (error) {
-        console.error(`❌ Error during data import: ${error}`);
-        process.exit(1);
-    }
-};
-
-const destroyData = async () => {
-    try {
-        console.log('Starting data destruction...');
-
-        await Order.deleteMany();
-        await Customer.deleteMany();
-        //await Service.deleteMany();
-        await Listing.deleteMany();
-        await Tenant.deleteMany();
+        // 2. Refresh Plans (Safe - Tenants link by string name)
         await Plan.deleteMany();
-        await DirectoryAdmin.deleteMany();
+        await Plan.insertMany(defaultPlans);
+        console.log(`✅ Plans updated with new Order Limits.`);
 
-        console.log('✅ All data has been destroyed.');
+        console.log('-----------------------------------');
+        console.log('✅ SUCCESS: System updated.');
+        console.log('🛡️  NOTE: No Customers, Orders, or Tenants were deleted.');
+        console.log('-----------------------------------');
         process.exit();
+
     } catch (error) {
-        console.error(`❌ Error during data destruction: ${error}`);
+        console.error(`❌ Error during update: ${error}`);
         process.exit(1);
     }
 };
 
-// Command line argument logic to switch between import and destroy
-if (process.argv[2] === '-d') {
-    destroyData();
-} else {
-    importData();
-}
+// We removed the logic for destruction entirely.
+// Running this file ONLY updates plans.
+updateData()
