@@ -1,9 +1,7 @@
-// client/src/pages/Admin/ManageUsersPage.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext'; // To get the logged-in user's plan
-import { usePlans } from '../../hooks/usePlans'; // To get details of all plans
+import { useAuth } from '../../contexts/AuthContext'; 
+import { usePlans } from '../../hooks/usePlans'; 
 import { fetchUsersApi, createStaffUserApi, updateUserByIdApi, deleteUserApi } from '../../services/api';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -39,14 +37,22 @@ const ManageUsersPage = () => {
     
     const [planDetails, setPlanDetails] = useState(null);
 
-    // This derived state will automatically update when plans or the user's plan changes
-    const staffLimitReached = planDetails ? users.length >= planDetails.limits.maxStaff : false;
+    // --- ✅ FIX 1: Determine Max Staff safely ---
+    // If planDetails is found, use it. If not (loading or error), default to 2 (Basic limit) to prevent UI disappearing.
+    const maxStaffLimit = planDetails?.limits?.maxStaff || 2; 
+    const staffLimitReached = users.length >= maxStaffLimit;
 
-    // Effect to find the current user's plan details from the fetched list of all plans
+    // Effect to find the current user's plan details
     useEffect(() => {
         if (!plansLoading && loggedInUser?.plan && plans.length > 0) {
-            const currentPlanDetails = plans.find(p => p.name === loggedInUser.plan);
-            setPlanDetails(currentPlanDetails);
+            // Case-insensitive match to be safe
+            const currentPlanDetails = plans.find(p => p.name.toLowerCase() === loggedInUser.plan.toLowerCase());
+            
+            if (currentPlanDetails) {
+                setPlanDetails(currentPlanDetails);
+            } else {
+                console.warn(`Plan '${loggedInUser.plan}' not found in available plans.`);
+            }
         }
     }, [plansLoading, loggedInUser, plans]);
 
@@ -67,7 +73,6 @@ const ManageUsersPage = () => {
         loadUsers();
     }, [loadUsers]);
     
-    // Timer effect for success/error messages
      useEffect(() => {
         let timer;
         if (success || error) {
@@ -77,12 +82,11 @@ const ManageUsersPage = () => {
     }, [success, error]);
 
     const openCreateModal = () => {
-        // Enforce the plan limit before opening the modal
         if (staffLimitReached) {
             toast.error(
                 (t) => (
                     <div className="flex flex-col items-center gap-2">
-                        <span>Staff limit reached for your '{loggedInUser.plan}' plan.</span>
+                        <span>Staff limit reached ({maxStaffLimit}).</span>
                         <Link 
                             to="/pricing" 
                             onClick={() => toast.dismiss(t.id)}
@@ -140,7 +144,7 @@ const ManageUsersPage = () => {
         setIsSubmitting(true);
         
         if (!isEditing && staffLimitReached) {
-            setModalError(`Your plan limit of ${planDetails.limits.maxStaff} staff members has been reached.`);
+            setModalError(`Plan limit of ${maxStaffLimit} users reached.`);
             setIsSubmitting(false);
             return;
         }
@@ -177,28 +181,29 @@ const ManageUsersPage = () => {
                     <KeyRound size={28} className="text-apple-blue" />
                     <h1 className="text-2xl sm:text-3xl font-semibold">{t('manageUsers.title')}</h1>
                 </div>
-                {planDetails && (
-                     <div className="text-right">
-                        <Button 
-                            variant="primary" 
-                            onClick={openCreateModal} 
-                            iconLeft={<PlusCircle size={18} />} 
-                            disabled={staffLimitReached}
-                        >
-                            {t('manageUsers.addNewUser')}
-                        </Button>
-                        <p className={`text-sm mt-1 ${staffLimitReached ? 'text-red-500 font-semibold' : 'text-apple-gray-500'}`}>
-                            {users.length} / {planDetails.limits.maxStaff} staff members used
-                        </p>
-                     </div>
-                )}
+                
+                {/* --- ✅ FIX 2: REMOVED THE CHECK {planDetails && ...} --- */}
+                {/* Now the button always renders, even if planDetails is still loading */}
+                <div className="text-right">
+                    <Button 
+                        variant="primary" 
+                        onClick={openCreateModal} 
+                        iconLeft={<PlusCircle size={18} />} 
+                        disabled={staffLimitReached || loading}
+                    >
+                        {t('manageUsers.addNewUser')}
+                    </Button>
+                    <p className={`text-sm mt-1 ${staffLimitReached ? 'text-red-500 font-semibold' : 'text-apple-gray-500'}`}>
+                        {users.length} / {maxStaffLimit} staff members used
+                    </p>
+                </div>
             </div>
             
             {success && <div className="p-3 bg-green-100 text-apple-green rounded-apple"><CheckCircle2 className="inline mr-2" />{success}</div>}
             {error && <div className="p-3 bg-red-100 text-apple-red rounded-apple"><AlertTriangle className="inline mr-2" />{error}</div>}
 
             <Card>
-                {loading || plansLoading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
+                {loading ? <div className="p-8 flex justify-center"><Spinner /></div> : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-apple-gray-200 dark:divide-apple-gray-700">
                             <thead className="bg-apple-gray-50 dark:bg-apple-gray-800">

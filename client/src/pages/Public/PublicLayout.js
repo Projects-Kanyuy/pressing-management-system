@@ -50,6 +50,7 @@ export const PublicHeader = () => {
                         <Link to="/directory" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.home')}</Link>
                        < Link to="/add-your-buisness" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.add')}</Link>
                         <Link to="/features" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.features')}</Link>
+                        <Link to="/demo" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">Demo</Link>
                         <Link to="/pricing" className="text-sm font-medium hover:text-apple-blue transition-colors dark:text-white">{t('public.header.pricing')}</Link>
                     </div>
                     

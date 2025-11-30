@@ -85,6 +85,7 @@ function App() {
                             <Route path="/add-your-buisness" element={<LandingPage />} />
                             <Route path="/features" element={<FeaturesPage />} />
                             <Route path="/pricing" element={<PricingPage />} />
+                            <Route path ="/Demo" element={<SignUpPage />} />
                             <Route path="/verify-payment" element={<VerifyPaymentPage />} />    
                             <Route path="/verify-upgrade" element={<VerifyUpgradePage />} /> 
                         </Route>

@@ -9,7 +9,7 @@ import { sendNotification } from '../services/notificationService.js';
 const createOrder = asyncHandler(async (req, res) => {
     const { tenantId, user } = req;
 
-    // --- 1. ORDER LIMIT CHECK (NEW LOGIC) ---
+    // --- 1. ORDER LIMIT CHECK (CRASH PROOF VERSION) ---
     const tenant = await Tenant.findById(tenantId);
     if (!tenant) {
         res.status(404);
@@ -18,8 +18,9 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const plan = await Plan.findOne({ name: tenant.plan });
     
-    // Default to 50 if plan limits are missing, or use -1 for unlimited
-    const maxOrders = plan?.limits?.maxOrdersPerMonth ?? 50;
+    // ✅ FIX IS HERE: Use '?.' to safely access limits. 
+    // If limits don't exist, default to 50 instead of crashing.
+    const maxOrders = plan?.limits?.maxOrdersPerMonth ?? 50; 
 
     if (maxOrders !== -1) { // If not unlimited
         const startOfMonth = new Date();
@@ -33,7 +34,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
         if (ordersThisMonth >= maxOrders) {
             res.status(403);
-            throw new Error(`Order limit reached (${maxOrders}/month) for the ${tenant.plan} Plan. Please upgrade to create more orders.`);
+            throw new Error(`Order limit reached (${maxOrders}/month) for the ${tenant.plan} Plan. Please upgrade.`);
         }
     }
     // --- END ORDER LIMIT CHECK ---
@@ -61,6 +62,7 @@ const createOrder = asyncHandler(async (req, res) => {
     const providedName = customerName ? customerName.trim() : null;
     const providedAddress = customerAddress ? customerAddress.trim() : undefined;
 
+    // --- CUSTOMER LOGIC (unchanged) ---
     if (customerId) {
         if (!mongoose.Types.ObjectId.isValid(customerId)) {
             res.status(400); throw new Error('Invalid Customer ID format');
@@ -69,7 +71,6 @@ const createOrder = asyncHandler(async (req, res) => {
         if (!customerDoc) { res.status(404); throw new Error('Customer not found with the provided ID.'); }
 
         let customerWasModified = false;
-        // Update existing customer if details are different
         if (providedName && providedName !== customerDoc.name) { customerDoc.name = providedName; customerWasModified = true; }
         if (providedPhone && providedPhone !== customerDoc.phone) {
             const existingByPhone = await Customer.findOne({ phone: providedPhone, _id: { $ne: customerDoc._id } });
@@ -89,13 +90,11 @@ const createOrder = asyncHandler(async (req, res) => {
             customerWasModified = true;
         }
         if (customerWasModified) {
-            console.log("[OrderController - createOrder] Updating existing customer:", customerDoc);
             await customerDoc.save();
         }
     } else if (providedName && providedPhone) {
         customerDoc = await Customer.findOne({ phone: providedPhone });
         if (customerDoc) { 
-            console.log("[OrderController - createOrder] Found existing customer by phone, updating:", customerDoc);
             let customerWasModified = false;
             if (providedName && providedName !== customerDoc.name) { customerDoc.name = providedName; customerWasModified = true; }
             const currentCustomerEmail = (customerDoc.email || '').toLowerCase();
@@ -116,18 +115,17 @@ const createOrder = asyncHandler(async (req, res) => {
                 const existingByEmail = await Customer.findOne({ email: providedEmail });
                 if (existingByEmail) { res.status(400); throw new Error('This email address is already in use. Please use a different email or find the customer associated with this email.'); }
             }
-            console.log("[OrderController - createOrder] Creating new customer with details:", { name: providedName, phone: providedPhone, email: providedEmail, address: providedAddress });
             customerDoc = await Customer.create({
                 name: providedName, phone: providedPhone, email: providedEmail,
                 address: providedAddress,
-                tenantId: tenantId // Ensure new customer is linked to tenant
+                tenantId: tenantId 
             });
         }
     } else {
         res.status(400); throw new Error('Customer details (Name and Phone) are required if no existing customer ID is provided.');
     }
 
-    const receiptNumber = await generateReceiptNumber(); // Ensure you have this helper function defined or imported
+    const receiptNumber = await generateReceiptNumber(); 
     
     const order = new Order({
         receiptNumber, 
@@ -151,6 +149,7 @@ const createOrder = asyncHandler(async (req, res) => {
         
     res.status(201).json(populatedOrder);
 });
+
 
 
 const getOrders = asyncHandler(async (req, res) => {

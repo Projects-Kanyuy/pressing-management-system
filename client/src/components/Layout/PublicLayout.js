@@ -11,7 +11,7 @@ const PublicHeader = () => (
             <Link to="/" className="flex items-center space-x-2">
                 <Package size={32} className="text-apple-blue" />
                 <span className="text-2xl font-bold text-apple-gray-800 dark:text-white">
-                    Press<span className="text-apple-blue">Flow</span>
+                    Press<span className="text-apple-blue">Mark</span>
                 </span>
             </Link>
             {/* Navigation */}
