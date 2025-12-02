@@ -150,4 +150,24 @@ const defaultPlans = [
         isFeatured: false,
     },
 ];
-updatePlansOnly();
+const runUpdate = async () => {
+    try {
+        console.log('⏳ Updating Plans in Database...');
+        
+        // 1. Delete ONLY Plans (This does NOT touch Customers/Orders)
+        await Plan.deleteMany();
+        console.log('✅ Old plans removed.');
+
+        // 2. Insert NEW Plans with Limits
+        await Plan.insertMany(defaultPlans);
+        console.log('✅ New plans with limits inserted.');
+
+        console.log('🎉 SUCCESS: Database updated.');
+        process.exit();
+    } catch (error) {
+        console.error('❌ Error:', error);
+        process.exit(1);
+    }
+};
+
+runUpdate();

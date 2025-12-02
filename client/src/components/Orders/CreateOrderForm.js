@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext'; 
 import Input from '../UI/Input';
 import Select from '../UI/Select';
 import Button from '../UI/Button';
@@ -29,7 +28,6 @@ import {
   CheckSquare,
   XSquare,
   AlertTriangle,
-  Settings,
 } from 'lucide-react';
 import {
   format,
@@ -39,12 +37,9 @@ import {
   setMinutes,
   setSeconds,
 } from 'date-fns';
-import { useAppSettings } from '../../contexts/SettingsContext';
 const CreateOrderForm = ({ initialOrderData, isEditMode = false }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-      const { settings, loadingSettings } = useAppSettings();
-    const { user } = useAuth();
     // --- STATE FOR DYNAMIC DATA (PRICING, SERVICES, ETC.) ---
     const [operationalData, setOperationalData] = useState({
         itemTypes: [],
@@ -106,8 +101,8 @@ const CreateOrderForm = ({ initialOrderData, isEditMode = false }) => {
             }
         };
         loadOperationalData();
-    }, []);
-const currencySymbol = settings.defaultCurrencySymbol;
+    }, [t]);
+
     // --- FORM POPULATION FOR EDIT MODE ---
     useEffect(() => {
         if (isEditMode && initialOrderData) {

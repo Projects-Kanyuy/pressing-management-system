@@ -7,9 +7,11 @@ import { generateReceiptNumber } from '../utils/generateReceiptNumber.js';
 import { sendNotification } from '../services/notificationService.js';
 
 const createOrder = asyncHandler(async (req, res) => {
+    
+    console.log("--------------- HITTING NEW ORDER CONTROLLER ---------------");
     const { tenantId, user } = req;
 
-    // --- 1. ORDER LIMIT CHECK (CRASH PROOF VERSION) ---
+    // --- 1. SAFE ORDER LIMIT CHECK ---
     const tenant = await Tenant.findById(tenantId);
     if (!tenant) {
         res.status(404);
@@ -18,8 +20,8 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const plan = await Plan.findOne({ name: tenant.plan });
     
-    // ✅ FIX IS HERE: Use '?.' to safely access limits. 
-    // If limits don't exist, default to 50 instead of crashing.
+    // ✅ CRASH PROOF FIX:
+    // If plan is missing OR limits are missing, default to 50.
     const maxOrders = plan?.limits?.maxOrdersPerMonth ?? 50; 
 
     if (maxOrders !== -1) { // If not unlimited
@@ -37,7 +39,7 @@ const createOrder = asyncHandler(async (req, res) => {
             throw new Error(`Order limit reached (${maxOrders}/month) for the ${tenant.plan} Plan. Please upgrade.`);
         }
     }
-    // --- END ORDER LIMIT CHECK ---
+    // ---------------------------------
 
     const {
         customerId,
@@ -62,59 +64,40 @@ const createOrder = asyncHandler(async (req, res) => {
     const providedName = customerName ? customerName.trim() : null;
     const providedAddress = customerAddress ? customerAddress.trim() : undefined;
 
-    // --- CUSTOMER LOGIC (unchanged) ---
+    // Handle Customer Creation/Lookup
     if (customerId) {
         if (!mongoose.Types.ObjectId.isValid(customerId)) {
             res.status(400); throw new Error('Invalid Customer ID format');
         }
         customerDoc = await Customer.findById(customerId);
-        if (!customerDoc) { res.status(404); throw new Error('Customer not found with the provided ID.'); }
+        if (!customerDoc) { res.status(404); throw new Error('Customer not found.'); }
 
         let customerWasModified = false;
         if (providedName && providedName !== customerDoc.name) { customerDoc.name = providedName; customerWasModified = true; }
         if (providedPhone && providedPhone !== customerDoc.phone) {
             const existingByPhone = await Customer.findOne({ phone: providedPhone, _id: { $ne: customerDoc._id } });
-            if (existingByPhone) { res.status(400); throw new Error('This phone number is already in use by another customer.'); }
+            if (existingByPhone) { res.status(400); throw new Error('Phone number in use by another customer.'); }
             customerDoc.phone = providedPhone; customerWasModified = true;
         }
-        const currentCustomerEmail = (customerDoc.email || '').toLowerCase(); 
-        if (providedEmail !== undefined && providedEmail !== currentCustomerEmail) {
-            if (providedEmail) { 
-                const existingByEmail = await Customer.findOne({ email: providedEmail, _id: { $ne: customerDoc._id } });
-                if (existingByEmail) { res.status(400); throw new Error('This email address is already in use by another customer.'); }
-            }
-            customerDoc.email = providedEmail; customerWasModified = true;
+        if (providedEmail && providedEmail !== customerDoc.email) {
+             const existingByEmail = await Customer.findOne({ email: providedEmail, _id: { $ne: customerDoc._id } });
+             if (existingByEmail) { res.status(400); throw new Error('Email in use by another customer.'); }
+             customerDoc.email = providedEmail; customerWasModified = true;
         }
-        if (providedAddress !== undefined && providedAddress !== (customerDoc.address || '')) {
-            customerDoc.address = providedAddress === '' ? undefined : providedAddress; 
-            customerWasModified = true;
+        if (providedAddress !== undefined && providedAddress !== customerDoc.address) {
+            customerDoc.address = providedAddress; customerWasModified = true;
         }
-        if (customerWasModified) {
-            await customerDoc.save();
-        }
+        if (customerWasModified) await customerDoc.save();
     } else if (providedName && providedPhone) {
         customerDoc = await Customer.findOne({ phone: providedPhone });
         if (customerDoc) { 
-            let customerWasModified = false;
-            if (providedName && providedName !== customerDoc.name) { customerDoc.name = providedName; customerWasModified = true; }
-            const currentCustomerEmail = (customerDoc.email || '').toLowerCase();
-            if (providedEmail !== undefined && providedEmail !== currentCustomerEmail) {
-                if (providedEmail) {
-                    const existingByEmail = await Customer.findOne({ email: providedEmail, _id: { $ne: customerDoc._id } });
-                    if (existingByEmail) { res.status(400); throw new Error('This email address is already in use by another customer.'); }
-                }
-                customerDoc.email = providedEmail; customerWasModified = true;
-            }
-            if (providedAddress !== undefined && providedAddress !== (customerDoc.address || '')) {
-                customerDoc.address = providedAddress === '' ? undefined : providedAddress;
-                customerWasModified = true;
-            }
-            if (customerWasModified) await customerDoc.save();
+            // Update existing found by phone
+            customerDoc.name = providedName; 
+            if(providedEmail) customerDoc.email = providedEmail;
+            if(providedAddress) customerDoc.address = providedAddress;
+            await customerDoc.save();
         } else { 
-            if (providedEmail) { 
-                const existingByEmail = await Customer.findOne({ email: providedEmail });
-                if (existingByEmail) { res.status(400); throw new Error('This email address is already in use. Please use a different email or find the customer associated with this email.'); }
-            }
+            // Create new
             customerDoc = await Customer.create({
                 name: providedName, phone: providedPhone, email: providedEmail,
                 address: providedAddress,
@@ -122,7 +105,7 @@ const createOrder = asyncHandler(async (req, res) => {
             });
         }
     } else {
-        res.status(400); throw new Error('Customer details (Name and Phone) are required if no existing customer ID is provided.');
+        res.status(400); throw new Error('Customer Name and Phone are required.');
     }
 
     const receiptNumber = await generateReceiptNumber(); 
@@ -142,15 +125,8 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
     const createdOrder = await order.save();
-    
-    const populatedOrder = await Order.findById(createdOrder._id)
-        .populate('customer', 'name phone email address')
-        .populate('createdBy', 'username');
-        
-    res.status(201).json(populatedOrder);
+    res.status(201).json(createdOrder);
 });
-
-
 
 const getOrders = asyncHandler(async (req, res) => {
     const { tenantId } = req;
