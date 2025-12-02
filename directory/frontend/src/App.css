@@ -1,0 +1,15 @@
+.App {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  
+}
+.dark-mode {
+  background-color: #2c2c2c; /* Dark background */
+  color: white; /* Light text */
+}
+
+.light-mode {
+  background-color: white; /* Light background */
+  color: black; /* Dark text */
+}
