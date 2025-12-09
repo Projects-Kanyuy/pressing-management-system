@@ -1,17 +1,6 @@
 import axios from 'axios';
 
-const API_URL = () => {
-    // 1. If running on your computer
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:5000/api';
-    } 
-    // 2. If running on the live internet
-    else {
-        return 'https://api.pressmark.site/api';
-    }
-};
-
-
+const API_URL = 'http://localhost:8000/api'
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
 const PublicAPI = axios.create({ baseURL: API_URL });
 const api = axios.create({
