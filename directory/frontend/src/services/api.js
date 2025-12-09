@@ -1,7 +1,19 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = () => {
+    // 1. If running on your computer
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:5000/api';
+    } 
+    // 2. If running on the live internet
+    else {
+        return 'https://api.pressmark.site/api';
+    }
+};
+
+
 console.log(`[api.js] API requests will be sent to: ${API_URL}`);
+const PublicAPI = axios.create({ baseURL: API_URL });
 const api = axios.create({
     baseURL: API_URL,
     headers: { 'Content-Type': 'application/json' },
@@ -10,88 +22,66 @@ const api = axios.create({
 // --- DIRECTORY ADMIN API ---
 const directoryAdminApi = axios.create({ baseURL: API_URL });
 
-directoryAdminApi.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('directoryAdminToken');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
-
 directoryAdminApi.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401 && window.location.pathname.includes('/directory-admin')) {
-             console.warn('[api.js] Directory Admin Unauthorized (401). Redirecting to dir-admin login.');
-             localStorage.removeItem('directoryAdminToken');
-             window.location.href = '/#/directory-admin/login';
-        }
-        return Promise.reject(error);
+  response => response,
+  error => {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      window.location.pathname.includes('/directory-admin')
+    ) {
+      console.warn(
+        '[api.js] Directory Admin Unauthorized (401). Redirecting to dir-admin login.',
+      );
+      localStorage.removeItem('directoryAdminToken');
+      window.location.href = '/#/directory-admin/login';
     }
+    return Promise.reject(error);
+  },
 );
 
-
-export const loginDirectoryAdminApi = async (credentials) => {
-    return api.post('/directory-admins/login', credentials);
+export const loginDirectoryAdminApi = async credentials => {
+  return api.post('/directory-admins/login', credentials);
 };
 
 export const getAllDirectoryListingsApi = async () => {
-    return directoryAdminApi.get('/directory-admins/listings');
+  return directoryAdminApi.get('/directory-admins/listings');
 };
-export const createDirectoryListingApi = async (listingData) => {
-    return directoryAdminApi.post('/directory-admins/listings', listingData);
+export const createDirectoryListingApi = async listingData => {
+  return directoryAdminApi.post('/directory-admins/listings', listingData);
 };
 export const updateDirectoryListingApi = async (id, listingData) => {
-    return directoryAdminApi.put(`/directory-admins/listings/${id}`, listingData);
+  return directoryAdminApi.put(`/directory-admins/listings/${id}`, listingData);
 };
-export const deleteDirectoryListingApi = async (id) => {
-    return directoryAdminApi.delete(`/directory-admins/listings/${id}`);
+export const deleteDirectoryListingApi = async id => {
+  return directoryAdminApi.delete(`/directory-admins/listings/${id}`);
 };
 export const getAllTenantsApi = async () => {
-    return directoryAdminApi.get('/directory-admins/tenants');
+  return api.get('/directory-admins/tenants');
 };
 
 export const updateTenantApi = async (id, tenantData) => {
-    return directoryAdminApi.put(`/directory-admins/tenants/${id}`, tenantData);
+  return api.put(`/directory-admins/tenants/${id}`, tenantData);
 };
-export const uploadTenantLogoApi = async (formData) => {
-    return directoryAdminApi.post('/uploads/tenant-logo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
-};
-
-export const uploadListingLogoApi = async (formData) => {
-    return directoryAdminApi.post('/uploads/listing-logo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+export const uploadTenantLogoApi = async formData => {
+  return api.post('/uploads/tenant-logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
-// --- PUBLIC DIRECTORY API ---
-export const getPublicDirectoryApi = async (filters = {}) => {
-    const params = new URLSearchParams();
-    if (filters.search) params.append('search', filters.search);
-    if (filters.city) params.append('city', filters.city);
-    return api.get(`/directory/listings?${params.toString()}`);
+export const uploadListingLogoApi = async formData => {
+  return directoryAdminApi.post('/uploads/listing-logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
-
-export const getBusinessBySlugApi = async (slug) => {
-    return api.get(`/directory/listings/${slug}`);
+export const getPublicDirectoryApi = async filters => {
+  return api.get('/public/directory', { params: filters });
 };
-
-export const getTenantPriceListApi = async (tenantId) => {
-    return api.get(`/price-list/${tenantId}`);
-};
-
-// --- PLANS API (Admin) ---
-export const getAllPlansAdminApi = async () => {
-    return directoryAdminApi.get('/directory-admins/plans');
-};
-
-export const updatePlanApi = async (planId, planData) => {
-    return directoryAdminApi.put(`/directory-admins/plans/${planId}`, planData);
-};
-
+export const getBusinessBySlugApi = async slug =>
+  api.get(`/public/directory/${slug}`);
+export const getAllPlansAdminApi = () => directoryAdminApi.get('/plans/all');
+export const updatePlanApi = (id, planData) =>
+  directoryAdminApi.put(`/plans/${id}`, planData);
+export const getTenantPriceListApi = tenantId =>
+  PublicAPI.get(`/public/tenants/${tenantId}/prices`);
 export default api;

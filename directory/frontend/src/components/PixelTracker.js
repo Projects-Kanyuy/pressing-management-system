@@ -1,32 +1,36 @@
-// src/components/PixelTracker.jsx
+// src/components/PixelTracker.js
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { initPixel, trackPageView } from '../utils/pixel';
 
 const PixelTracker = () => {
   const location = useLocation();
-  const [isInitialized, setIsInitialized] = useState(false);
+  
+  // DIRECTLY INPUT YOUR PIXEL ID HERE
+  const pixelId = '3291348841027519';
 
-  // Initialize the pixel on the first component mount
   useEffect(() => {
-    if (!process.env.REACT_APP_FACEBOOK_PIXEL_ID) {
-      console.warn("Meta Pixel ID not found in environment variables.");
-      return;
+    // Only initialize if it hasn't been initialized yet
+    if (!window.fbq) {
+      // eslint-disable-next-line no-unused-expressions
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      
+      window.fbq('init', pixelId);
     }
 
-    initPixel();
-    setIsInitialized(true);
-  }, []);
+    // Track PageView whenever the URL changes
+    window.fbq('track', 'PageView');
 
-  // Track page views on route changes
-  useEffect(() => {
-    if (isInitialized) {
-      trackPageView();
-    }
-  }, [location, isInitialized]);
+  }, [location, pixelId]);
 
-  return null; // This component does not render anything
+  return null;
 };
 
 export default PixelTracker;
